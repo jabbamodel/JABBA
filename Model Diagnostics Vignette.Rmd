@@ -14,14 +14,16 @@ fontsize: 11pt
 
 `JABBA` procures the root mean squared error (RMSE) for the series and returns the adjusted CV, or recommended weighting factor for that fleet. Accordingly, the RMSE is estimated as:
 
-$$
-RMSE = 100\times\sqrt{\frac{\sum_{t=1}^{N}(Y_t-\hat{Y}_t)^2}{N}}
-$$
+<br>
 
-where $Y_t$ is the observed CPUE in year t on the log scale, $\hat{Y}_t$ is the predicted CPUE in year $t$, and $N$ is the number of CPUE observations.
+\[ 100 \times \sqrt{\frac{\sum_{t=1}^{N}(Y_t-\hat{Y}_t)^2}{N}} ) \]
+
+<Br>
+
+where \(Y_t\) is the observed CPUE in year \(t\) on the log scale, \(\hat{Y}_t\) is the predicted CPUE in year \(t\), and  \(N\) is the number of CPUE observations.
 
 # Relevant Citations
-Carvalho and Winker. 2015. STOCK ASSESSMENT OF SOUTH ATLANTIC BLUE SHARK (Prionace glauca) THROUGH 2013 Collect. Vol. Sci. Pap. ICCAT SCRS/2015/153   
+Carvalho and Winker. 2015. Stock Assessment of South Atlantic Blue Shark (Prionace glauca) Through 2013 Collect. Vol. Sci. Pap. ICCAT SCRS/2015/153   
 
 Carvalho, F., Punt, A. E., Chang, Y. J., Maunder, M. N., & Piner, K. R. (2016). Can diagnostic tests help identify model misspecification in integrated stock assessments? Fisheries Research. http://doi.org/10.1016/j.fishres.2016.09.018
 
