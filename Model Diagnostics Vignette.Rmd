@@ -16,7 +16,7 @@ fontsize: 11pt
 
 <br>
 
-100 \times \sqrt{\frac{\sum_{t=1}^{N}(Y_t-\hat{Y}_t)^2}{N}}
+<a href="http://tinypic.com?ref=33w5qox" target="_blank"><img src="http://i63.tinypic.com/33w5qox.png" border="0"></a>
 
 <Br>
 
@@ -78,6 +78,3 @@ write.csv(GOF,paste0(output.dir,"/GOF_",assessment,"_",Scenario,".csv"))
 
 ```
 
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('C:\\Users\\Maia.Kapur\\Downloads\\MS_JABBA_R1codes\\SWO_SA\\Scenario3_Pella\\Output\\Residuals_SWO_SA_Scenario3.png')
-```
