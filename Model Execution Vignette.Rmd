@@ -9,36 +9,6 @@ fontsize: 11pt
 ---
 The code below can be used to reproduce analysis and figures from Winker et al (2018, in review), when used in conjuntion with `JABBAv4R1.r` and data from the South Atlantic Swordfish Fishery.
 
-Surplus Production Models (SPMs) are among the least parameter and data
-demanding population models that can produce estimates of the Maximum
-Sustainable Yield (MSY) and associated fisheries reference points. Despite a number of limitations (Maunder refs), SPMs remain an integral tool for data-limited to -moderate stock assessments (REFs
-), Management Evaluation Strategies and meta-analyses of global fisheries (Refs). Also known as Biomass Dynamics Models (Hilborn and Walters 1992), SPMs predominantly persist as routine assessment tool for chondrichthyes (McAllister et al. 2001, Carvalho et al. 2014), invertebrates (Zhou et al. 2009, 2011, Ono et al. 2012) and to a notable extend within their traditional realm of large pelagic tuna and billfish assessments (Brodziak and Ishimura 2012, Chang et al. 2014, Punt et al. 2015).
-
-Sustainable Yield (MSY) and associated fisheries reference points. Despite a number of limitations (Maunder refs), SPMs remain an integral tool for data-limited to -moderate stock assessments (REFs), Management Evaluation Strategies and meta-analyses of global fisheries (Refs). Also known as Biomass Dynamics Models (Hilborn and Walters 1992), SPMs predominantly persist as routine assessment tool for chondrichthyes (McAllister et al. 2001, Carvalho et al. 2014), invertebrates (Zhou et al. 2009, 2011, Ono et al. 2012) and to a notable extend within their traditional realm of large pelagic tuna and billfish assessments (Brodziak and Ishimura 2012, Chang et al. 2014, Punt et al. 2015).
-
-
-# Part I - End-user model execution
-The end-user will specify and execute the simulation using the following commands. The user will necessarliy `source()` the full `JABBA` model, which is detailed in Part II.
-
-The user specifies which of four model types to implement, amongst:
-
-+  1. Schaefer
-+  2. Schaefer with Depensation (CMSY: Froese et al. 2016)
-+  3. Pella-Tomlinson
-+  4. Fox
-+  5. Fox with Depensation (CMSY: Froese et al. 2016)
-
-
-## Assignment of model priors
-Because prior formulations for most SPM-based assessments are specified for r, we provide the following equation to easily convert r estimates (or prior means) into HMSY for any given shape parameter input m:
-
-$$H_{MSY} = r\frac{m-1}{1-m^{-1}}$$
-
-However, if the prior for r is derived based on Leslie matrix approach, as commonly used for a logistic Schaefer model, we recommend approximating HMSY  = r / 2 for the purpose of comparability among Schaefer, Fox and Pella-Tomlinson production function. 
-
-Equations (5) - (10) in the reference paper illustrate the direct link between the Pella-Tomlinson SPM and the age-structured, which emphasizes the potential for deriving informative priors for r and m from spawning biomass- and yield-per-recruit analysis with integrated spawning recruitment relationships by generating deviates of $H_{MSY} = MSY/B_{MSY}$ and $B_{MSY}/K$, respectively (Maunder 2003, Thorson et al. 2012b, Wang et al. 2014).
-
-
 ```{r Run Simulation, eval = F, warning = F, message = F}
 ##><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><><
 ## JABBA: Just Another Bayesian Biomass Assessment
