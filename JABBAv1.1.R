@@ -32,6 +32,7 @@ if(exists("catch.metric")==FALSE) catch.metric = "(t)" # Runs state-tool to prod
 if(exists("meanCPUE")==FALSE) meanCPUE = FALSE # Uses averaged CPUE from state-space tool instead of individual indices  
 if(exists("Projection")==FALSE) Projection = FALSE # Use Projections: requires to define TACs vectors 
 if(exists("save.projections")==FALSE) save.projections = FALSE# saves projection posteriors as .RData object 
+if(exists("Reproduce.seed")==FALSE) Reproduce.seed = FALSE # If FALSE a random seed assigned to each run (default)
 # Save entire posterior as .RData object
 if(exists("save.all")==FALSE) save.all = FALSE #  
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -78,8 +79,6 @@ Catch[is.na(Catch)] = 0 # Replace any NA by zero
 # Total Catch
 TC = apply(Catch,1,sum)
 
-set.seed(123)
-
 #------------
 # Plot Catch
 #------------
@@ -102,6 +101,10 @@ jabba.colors = as.character(rep(c('#e6194b', "#3cb44b", "#ffe119",
                                   "#0082c8","#f58231", "#911eb4",
                                   "#46f0f0", "#f032e6", "#d2f53c",
                                   "#fabebe", "#008080","#e6beff", "#aa6e28"),2))
+#--------------------
+# Set seed
+#--------------------
+if(Reproduce.seed==FALSE){ set.seed(ceiling(runif(1,min=0,max=1e6))) } else {set.seed(123)}
 
 #---------------------------------------------------------------------------
 # CPUE run State-Space model for averaging CPUE
