@@ -659,7 +659,7 @@ cat("
     Pmean[1] <- log(psi)
     iPV[1] <- ifelse(1<(stI),10000,isigma2) # inverse process variance
     P[1] ~ dlnorm(Pmean[1],iPV[1]) # set to small noise instead of isigma2
-    penB[1]  <- ifelse(P[1]<(0.02),log(K*P[1])-log(K*(0.02)),ifelse(P[1]>1.1,log(K*P[1])-log(K*(1.1)),0)) # penalty if Pmean is outside viable biomass
+    penB[1]  <- ifelse(P[1]<P_bound[1],log(K*P[1])-log(K*P_bound[1]),ifelse(P[1]>P_bound[2],log(K*P[1])-log(K*P_bound[2]),0)) # penalty if Pmean is outside viable biomass
     
     # Process equation
     for (t in 2:N) 
