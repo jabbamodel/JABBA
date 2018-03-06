@@ -171,13 +171,13 @@ for(s in 1:3){
   #----------------------------------------------------
   # The option are: 
   # a) Specifying a lognormal prior 
-  # b) Specifying a resiliance category after Froese et al. (2016; CMSY)
+  # b) Specifying a resiliance category after Froese et al. (2017; CMSY)
   # Resilience: "Very low", "Low", "Medium", High" (requires r.range = TRUE)
   
-  # use range or mean/stdev
-  r.dist = c("lnorm","range")[1] # Set to 1 for mean/stdev specifications
+  # use [1] lognormal(mean,stdev) or [2] range (min,max) or
+  r.dist = c("lnorm","range")[1] 
   
-  r.prior = c(0.42,0.37) # as range with upper and lower bound of lnorm prior
+  r.prior = c(0.42,0.37) 
   
   #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>>
   # Observation Error
