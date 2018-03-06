@@ -7,7 +7,7 @@ output:
   html_document
 fontsize: 11pt
 ---
-The code below can be used to reproduce analysis and figures from Winker et al (2018, in review), when used in conjuntion with `JABBAv4R1.r` and data from the South Atlantic Swordfish Fishery.
+The code below can be used to reproduce analysis and figures from Winker et al (2018, in review), when used in conjuntion with `JABBAv1.1.R` and data from the South Atlantic Swordfish Fishery `SWO_SA`.
 
 ```{r Run Simulation, eval = F, warning = F, message = F}
 ##><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><><
@@ -28,14 +28,14 @@ library(reshape)
 # Setup working directories and output folder labels 
 #-----------------------------------------------------------------
 # Set Working directory file, where assessments are stored 
-File = "C:/Users/Maia.Kapur/Downloads/MS_JABBA_R1codes"
+File = "C:/Work/Research/MS_JABBA/R1/R1submission"
 # Set working directory for JABBA R source code
-JABBA.file = "C:/Users/Maia.Kapur/Downloads/MS_JABBA_R1codes"
+JABBA.file = "C:/Work/Research/MS_JABBA/R1/R1submission"
+# JABBA version
+version = "v1.1"
 # Set Assessment file: assement folder within File that includes .csv input files
 assessment = "SWO_SA" 
 # add specifier for assessment (File names of outputs)
-
-#----------------------------------------------------------------
 
 
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -51,6 +51,7 @@ CPUE.plot= TRUE # Runs state-tool to produce "alligned" multi-CPUE plot
 meanCPUE = FALSE # Uses averaged CPUE from state-space tool instead of individual indices  
 Projection = TRUE # Use Projections: requires to define TACs vectors 
 save.projections = TRUE # saves projection posteriors as .RData object 
+catch.metric = "(t)" # Define catch input metric e.g. (tons) "000 t" etc 
 # Save entire posterior as .RData object
 save.all = FALSE # (if TRUE, a very large R object of entire posterior is saved)  
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -67,44 +68,35 @@ save.all = FALSE # (if TRUE, a very large R object of entire posterior is saved)
 Scenarios = c(paste0("Scenario",1:3)) 
 
 # Execute multiple JABBA runs in loop 
-for(s in 3:3){
-Scenario = Scenarios[s] 
-
-# Choose model type: 
-# 1: Schaefer
-# 2: Fox  
-# 3: Pella-Tomlinsson  
-
-
-Model = c(3,3,3,3,3)[s] 
-Mod.names = c("Schaefer","Fox","Pella")[Model]
-
-#><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
-# Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25) (depensation opiton) 
-# Choose Plim = 0 to reduce to conventional Schaefer, Fox, Pella model 
-Plim = 0
-#><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
-
+for(s in 1:3){
+  Scenario = Scenarios[s] 
   
-  # Settings for Pella-Tomlinson
-  if(Model==3){
+  #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
+  # Suplus Production model specifications
+  #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
   
+  # Choose model type: 
+  # 1: Schaefer
+  # 2: Fox  
+  # 3: Pella-Tomlinsson  
+  
+  Model = c(3,3,3,3,3)[s] 
+  Mod.names = c("Schaefer","Fox","Pella")[Model]
+  
+  # Depensation opiton:
+  # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25) 
+  # Choose Plim = 0 to reduce to conventional Schaefer, Fox, Pella models 
+  Plim = 0
+  
+  # Required specification for Pella-Tomlinson (Model = 3)
   BmsyK = 0.4 # Set Surplus Production curve inflection point
+  #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>  
   
-  #-----------------------------------------------
-  # find inflection point
-  ishape = NULL
-  # Find shape for  SBmsytoK 
-  ishape = seq(0.1,10,0.001)
+  #--------------------------------------------------
+  # Read csv files
+  #--------------------------------------------------
   
-  check.shape =((ishape)^(-1/(ishape-1))-BmsyK)^2
-  
-  #  Set shape (> 0, with 1.001 ~ Fox and 2 = Schaefer)
-  shape =  ishape[check.shape==min(check.shape)] 
-  } else {shape=FALSE}
-  #------------------------------------------------
-
-  # Use SEs for abudance indices (TRUE/FALSE)
+  # Use SEs from csv file for abudance indices (TRUE/FALSE)
   SE.I = TRUE
   
   # Load assessment data
@@ -112,7 +104,7 @@ Plim = 0
   cpue = read.csv(paste0(File,"/",assessment,"/cpue",assessment,".csv"))#
   
   if(SE.I ==TRUE){
-  se =  read.csv(paste0(File,"/",assessment,"/se",assessment,".csv"))
+    se =  read.csv(paste0(File,"/",assessment,"/se",assessment,".csv"))
   }
   
   names(cpue)
@@ -124,10 +116,6 @@ Plim = 0
   
   # Set up Base-Case for SWO
   
-  #if(s<4 | s>4){
-    cpue = cpue[,-c(10:12)]
-   se = se[,-c(10:12)]
-  #}
   
   if(s<3){ # Combine SPA and JAPAN
     cpue[,4] = apply(cpue[,4:5],1,mean,na.rm=TRUE)
@@ -155,11 +143,11 @@ Plim = 0
   names(cpue)
   ncol(catch)
   ncol(cpue)
-   
+  
   #------------------------------------------------------
   # Option use mean CPUE from state-space cpue averaging
   #-----------------------------------------------------
-  #meanCPUE = TRUE
+  meanCPUE = FALSE
   
   #------------------------------------------------
   # Prior for unfished biomass K
@@ -195,13 +183,13 @@ Plim = 0
   #----------------------------------------------------
   # The option are: 
   # a) Specifying a lognormal prior 
-  # b) Specifying a resiliance category after Froese et al. (2016; CMSY)
+  # b) Specifying a resiliance category after Froese et al. (2017; CMSY)
   # Resilience: "Very low", "Low", "Medium", High" (requires r.range = TRUE)
   
-  # use range or mean/stdev
-  r.dist = c("lnorm","range")[1] # Set to 1 for mean/stdev specifications
+  # use [1] lognormal(mean,stdev) or [2] range (min,max) or
+  r.dist = c("lnorm","range")[1] 
   
-  r.prior = c(0.42,0.37) # as range with upper and lower bound of lnorm prior
+  r.prior = c(0.42,0.37) 
   
   #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>>
   # Observation Error
@@ -209,7 +197,7 @@ Plim = 0
   
   #To Estimate additional observation variance set sigma.add = TRUE
   sigma.est = TRUE
-
+  
   # Series
   sets.var = 1:(ncol(cpue)-1) # estimate individual additional variace
   
@@ -229,18 +217,18 @@ Plim = 0
   proc.dev.all = FALSE 
   #------------------------------------------
   if(sigma.proc == TRUE){
-  igamma = c(4,0.01) #specify inv-gamma parameters
-  
-  # Process error check
-  gamma.check = 1/rgamma(1000,igamma[1],igamma[2])
-  # check mean process error + CV
-  mu.proc = sqrt(mean(gamma.check)); CV.proc = sd(sqrt(gamma.check))/mean(sqrt(gamma.check))
-  
-  # check CV
-  round(c(mu.proc,CV.proc),3)
-  quantile(sqrt(gamma.check),c(0.1,0.9))
+    igamma = c(4,0.01) #specify inv-gamma parameters
+    
+    # Process error check
+    gamma.check = 1/rgamma(1000,igamma[1],igamma[2])
+    # check mean process error + CV
+    mu.proc = sqrt(mean(gamma.check)); CV.proc = sd(sqrt(gamma.check))/mean(sqrt(gamma.check))
+    
+    # check CV
+    round(c(mu.proc,CV.proc),3)
+    quantile(sqrt(gamma.check),c(0.1,0.9))
   }else{
-  sigma.proc = 0.07 #IF Fixed: typicallly 0.05-0.15 (see Ono et al. 2012)
+    sigma.proc = 0.07 #IF Fixed: typicallly 0.05-0.15 (see Ono et al. 2012)
   }
   #--------------------------------------------
   #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>>
@@ -272,9 +260,9 @@ Plim = 0
   nc <- 2 # number of chains
   nsaved = (ni-nb)/nt*nc
   
-   # Run model (BSPSPexe file must be in the same working directory)
-  source(paste0(JABBA.file,"/JABBAv4R1.r")) 
- 
+  # Run model (BSPSPexe file must be in the same working directory)
+  source(paste0(JABBA.file,"/JABBA",version,".R")) 
+  
   }# THE END
 ```
  
