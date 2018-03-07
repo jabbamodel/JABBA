@@ -18,7 +18,7 @@ library(reshape)
 # Set Working directory file, where assessments are stored 
 File = "C:/Work/Research/MS_JABBA/R1/R1submission"
 # Set working directory for JABBA R source code
-JABBA.file = "C:/Work/Research/MS_JABBA/R1/R1submission"
+JABBA.file = "C:/Work/Research/GitHub/JABBAmodel"
 # JABBA version
 version = "v1.1"
 # Set Assessment file: assement folder within File that includes .csv input files
