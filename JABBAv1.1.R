@@ -1164,9 +1164,9 @@ dev.off()
 
 #Save standardized Residuals 
 StRes.CPUE = data.frame(StResid)
-row.names(Res.CPUE) = indices   
-colnames(Res.CPUE) = paste(Yr)
-write.csv(Res.CPUE,paste0(output.dir,"/StResCPUE_",assessment,"_",Scenario,".csv"))
+row.names(StRes.CPUE) = indices   
+colnames(StRes.CPUE) = paste(Yr)
+write.csv(StRes.CPUE,paste0(output.dir,"/StResCPUE_",assessment,"_",Scenario,".csv"))
 
 # Produce statistice describing the Goodness of the Fit
 GOF = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
