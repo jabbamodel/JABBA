@@ -1,0 +1,142 @@
+
+    
+    model {
+    
+    # Prior specifications  
+    eps <- 0.0000000000000000000000000000000001 # small constant    
+    
+    #Catchability coefficients
+    for(i in 1:nq)
+    {   
+    q[i] ~ dunif(eps,100)    
+    }  
+    
+    
+    
+      # Lognormal for Biomass depletion at the start (deteministic)
+      psi ~ dlnorm(log(psi.pr[1]),pow(psi.pr[2],-2)) #I(0.1,1.1)    
+      
+      # Process variance
+      isigma2 <- isigma2.est 
+      sigma2 <- pow(isigma2,-1)
+      sigma <- sqrt(sigma2)
+      fakesigma.fixed <- sigma.fixed # Prevent unused variable error msg    
+      
+    # Obsevation variance
+    for(i in 1:nvar)
+      {
+      # Observation error
+      itau2[i]~ dgamma(0.001,0.001)
+      tau2[i] <- 1/itau2[i]
+      }
+      
+      for(i in 1:nI)
+      {
+      for(t in 1:N)
+      {
+      var.obs[t,i] <- SE2[t,i]+tau2[sets.var[i]] 
+      ivar.obs[t,i] <- 1/var.obs[t,i]
+      # note total observation error (TOE)     
+      TOE[t,i] <- sqrt(var.obs[t,i]) # Total observation variance
+      
+      }}
+        
+    # Process variance prior
+    isigma2.est ~ dgamma(igamma[1],igamma[2])
+    
+    # Carrying Capacity SB0
+    K ~ dlnorm(log(K.pr[1]),pow(K.pr[2], -2))
+    
+    # informative priors for Hmsy as a function of r
+    r ~ dlnorm(log(r.pr[1]),pow(r.pr[2],-2))
+    
+    
+    #Process equation
+    Pmean[1] <- log(psi)
+    iPV[1] <- ifelse(1<(stI),10000,isigma2) # inverse process variance
+    P[1] ~ dlnorm(Pmean[1],iPV[1]) # set to small noise instead of isigma2
+    penB[1]  <- ifelse(P[1]<P_bound[1],log(K*P[1])-log(K*P_bound[1]),ifelse(P[1]>P_bound[2],log(K*P[1])-log(K*P_bound[2]),0)) # penalty if Pmean is outside viable biomass
+    
+    # Process equation
+    for (t in 2:N) 
+    {
+    Pmean[t] <- ifelse(P[t-1] > Plim,
+    log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1)) - TC[t-1]/K,0.005)),
+    log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1))*P[t-1]*slope.HS - TC[t-1]/K,0.005)))
+    iPV[t] <- ifelse(t<(stI),10000,isigma2) # inverse process variance
+    P[t] ~ dlnorm(Pmean[t],iPV[t])
+    penB[t]  <- ifelse(P[t]<(P_bound[1]),log(K*P[t])-log(K*(P_bound[1])),ifelse(P[t]>P_bound[2],log(K*P[t])-log(K*(P_bound[2])),0)) # penalty if Pmean is outside viable biomass
+    }
+    
+    # Process error deviation 
+    for(t in 1:N){
+    Proc.Dev[t] <- P[t]-exp(Pmean[t])} 
+    
+    # Enforce soft penalties on bounds for P
+    for(t in 1:N){
+    pen.bk[t] ~ dnorm(penB[t],1000) # enforce penalty with CV = 0.1
+    }
+    
+    Hmsy <- r*pow(m-1,-1)*(1-1/m) 
+    
+    for (t in 1:N) 
+    { 
+    SB[t] <- K*P[t]    
+    H[t] <- TC[t]/SB[t] 
+    }
+    
+    # Observation equation in related to EB
+    
+    for(i in 1:nI)
+    {
+    for (t in 1:N) 
+    { 
+    Imean[t,i] <- log(q[sets.q[i]]*P[t]*K);
+    I[t,i] ~ dlnorm(Imean[t,i],(ivar.obs[t,i]));
+    CPUE[t,i] <- q[sets.q[i]]*P[t]*K
+    }}
+    
+    
+    #Management quantaties
+    SBmsy_K <- (m)^(-1/(m-1))
+    SBmsy <- SBmsy_K*K
+    
+    MSY <- SBmsy*Hmsy
+    for (t in 1:N)
+    {
+    # use x y to put them towards the end of the alphabetically sorted  mcmc object
+    #SP[t] <- pow(r.pella,-(m-1))*SB[t]*(1-pow(P[t],m-1))
+    BtoBmsy[t] <- SB[t]/SBmsy
+    HtoHmsy[t] <- H[t]/(Hmsy) 
+    }
+    
+
+    # Enforce soft penalty on process deviance if sigma.proc > 0.2 
+    proc.pen ~ dnorm(penProc,1000) # enforce penalty 
+    penProc  <- ifelse(sigma>0.2,log(sigma)-log(0.2),0) 
+    
+    
+    
+      for(i in 1:nTAC){
+      # Project first year into the future
+      prPmean[1,i] <- ifelse(P[N] > Plim,
+      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1)) - TACint/K,0.005)),
+      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1))*4*P[N] - TACint/K,0.005)))
+      prP[1,i] ~ dlnorm(prPmean[1,i],isigma2) 
+      # Project all following years
+      for(t in 2:pyrs){
+      prPmean[t,i] <- ifelse(prP[t-1,i] > Plim,
+      log(max(prP[t-1,i] +  Hmsy/(1-1/m)*prP[t-1,i]*(1-pow(prP[t-1,i],m-1)) - TAC[t-1,i]/K,0.001)),
+      log(max(prP[t-1,i] +  Hmsy/(1-1/m)*prP[t-1,i]*(1-pow(prP[t-1,i],m-1))*slope.HS*prP[t-1,i] - TAC[t-1,i]/K,0.005)))
+      # process error (as monte-carlo simular)
+      prP[t,i] ~ dlnorm(prPmean[t,i],isigma2)}
+      for(t in 1:pyrs){
+      prB[t,i] <- prP[t,i]*K
+      prH[t,i] <- TAC[t,i]/prB[t,i]
+      prHtoHmsy[t,i] <- prH[t,i]/Hmsy
+      prBtoBmsy[t,i] <- prB[t,i]/SBmsy
+      }}  
+      
+    
+} # END OF MODEL
+    

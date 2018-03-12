@@ -40,7 +40,7 @@ meanCPUE = FALSE # Uses averaged CPUE from state-space tool instead of individua
 Projection = TRUE # Use Projections: requires to define TACs vectors 
 save.projections = TRUE # saves projection posteriors as .RData object 
 catch.metric = "(t)" # Define catch input metric e.g. (tons) "000 t" etc 
-Reproduce.seed = FALSE # If FALSE a random seed assigned to each run, if TRUE set.seed(123)
+Reproduce.seed = TRUE # If FALSE a random seed assigned to each run, if TRUE set.seed(123)
 P_bound = c(0.02,1)  # Soft penalty bounds for P
 # Save entire posterior as .RData object
 save.all = FALSE # (if TRUE, a very large R object of entire posterior is saved)  
@@ -58,7 +58,7 @@ save.all = FALSE # (if TRUE, a very large R object of entire posterior is saved)
 Scenarios = c(paste0("Scenario",1:3)) 
 
 # Execute multiple JABBA runs in loop 
-for(s in 1:3){
+for(s in 3:3){
   Scenario = Scenarios[s] 
   
   #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
