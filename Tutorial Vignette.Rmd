@@ -302,7 +302,7 @@ Both catchability *q* and the estimable observation variance $\sigma^2_{est,i}$ 
 ```  
 
 ### Projections under constant Total Allowable Catch (TAC)  
-JABBA enables projections under constant catch scenarios. JABBA automatically compares the difference between the last assessment year and the present year. The difference between these years is projected forward under the *current* catch, which could, for example, be determined based on updated catch inofrmation `TACint = 10058` or by assuming an average catch based on the three most recent assessment years, such that `TACint = mean(catch[nrow(catch)-3,2]:catch[nrow(catch),2])`. All prjected posteriors can be saved a `_projections.Rdata` object, which can be easily passed on JABBAgoesFLR.R for further processing, including the production of Kobe projection matrices.        
+JABBA enables projections under constant catch scenarios. JABBA automatically compares the difference between the last assessment year and the present year. The difference between these years is projected forward under the *current* catch, which could, for example, be determined based on updated catch inofrmation `TACint = 10058` or by assuming an average catch based on the three most recent assessment years, such that `TACint = mean(catch[nrow(catch)-3,2]:catch[nrow(catch),2])`. All prjected posteriors can be saved a `_projections.Rdata` object, which can be easily passed on [JABBAgoesFLR.R](https://github.com/jabbamodel/JABBA/blob/master/Optional%20features/JABBAgoesFLR.R) for further processing, including the production of Kobe projection matrices.        
 
 
 ```{r Projections, eval = FALSE, warning = F, message = F}
