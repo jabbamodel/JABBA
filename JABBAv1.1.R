@@ -947,7 +947,7 @@ for(i in 1:length(node_id))
         
         pdf = stats::density(post.par,adjust=2)  
         plot(pdf,type="l",xlim=range(0,post.par),yaxt="n",xlab=paste(node_id[i]),ylab="",xaxs="i",yaxs="i",main="")
-        if(i==length(node_id)){
+        if(i==length(node_id)& igamma[1]>0.9){
           rpr = 1/rgamma(10000,igamma[1],igamma[2])
           prior = stats::density(rpr,adjust=2)
           polygon(c(prior$x,rev(prior$x)),c(prior$y,rep(0,length(prior$y))),col=gray(0.4,1))
