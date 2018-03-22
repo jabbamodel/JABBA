@@ -16,7 +16,7 @@ library(reshape)
 # Setup working directories and output folder labels 
 #-----------------------------------------------------------------
 # Set Working directory file, where assessments are stored 
-File = "C:/Work/Research/MS_JABBA/R1/R1submission"
+File = "C:/Work/Research/GitHub/JABBA_testruns"
 # Set working directory for JABBA R source code
 JABBA.file = "C:/Work/Research/GitHub/JABBAmodel"
 # JABBA version
@@ -53,12 +53,13 @@ save.all = FALSE # (if TRUE, a very large R object of entire posterior is saved)
 # S1: Model including Brazil1 
 # S2: Model excluding Brazil1
 # S3: Base-case Model with time blocks on ESP and JPN 
+# S4: Added scenario to illustrate CPUE average option 
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
 # Specify Scenario name for output file names
-Scenarios = c(paste0("Scenario",1:3)) 
+Scenarios = c(paste0("Scenario",1:4)) 
 
 # Execute multiple JABBA runs in loop 
-for(s in 3:3){
+for(s in 1:4){
   Scenario = Scenarios[s] 
   
   #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -138,7 +139,7 @@ for(s in 3:3){
   # Option use mean CPUE from state-space cpue averaging
   #-----------------------------------------------------
   meanCPUE = FALSE
-  
+  if(s==4) meanCPUE = TRUE
   #------------------------------------------------
   # Prior for unfished biomass K
   #------------------------------------------------
@@ -235,6 +236,8 @@ for(s in 3:3){
   # Intermitted TAC to get to current year
   #TACint = mean(catch[nrow(catch)-3,2]:catch[nrow(catch),2]) # avg last 3 years
   TACint = 10058 # Catch for 2016
+  # Set year of first TAC implementation
+  imp.yr = 2018
   # Set number of projections years
   pyrs = 10
   
