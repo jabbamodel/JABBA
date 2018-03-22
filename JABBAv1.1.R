@@ -33,6 +33,8 @@ if(exists("meanCPUE")==FALSE) meanCPUE = FALSE # Uses averaged CPUE from state-s
 if(exists("Projection")==FALSE) Projection = FALSE # Use Projections: requires to define TACs vectors 
 if(exists("save.projections")==FALSE) save.projections = FALSE# saves projection posteriors as .RData object 
 if(exists("Reproduce.seed")==FALSE) Reproduce.seed = FALSE # If FALSE a random seed assigned to each run (default)
+if(exists("TACint")==FALSE | is.null(TACint)) TACint = mean(catch[nrow(catch)-3,2]:catch[nrow(catch),2]) # use mean catch from last years
+if(exists("imp.yr")==FALSE | is.null(imp.yr)) imp.yr = as.numeric(format(Sys.Date(), "%Y"))+1 # use next year from now
 # Save entire posterior as .RData object
 if(exists("save.all")==FALSE) save.all = FALSE #  
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -63,13 +65,13 @@ CPUE=matrix(conv.cpue,nrow=n.years,ncol=n.indices)
 
 
 if(SE.I==FALSE){
-se = cpue  
-conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(cpue[,-1])))
-se2 = matrix(ifelse(fixed.obsE>0,fixed.obsE^2,10^-10),n.years,n.indices)#/2
+  se = cpue  
+  conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(cpue[,-1])))
+  se2 = matrix(ifelse(fixed.obsE>0,fixed.obsE^2,10^-10),n.years,n.indices)#/2
 } else{
-conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(se[,-1])))
-#conv.se = sqrt(conv.se^2+fixed.obsE^2) 
-se2 = matrix(ifelse(is.na(conv.se),0.3^2,conv.se)^2,n.years,n.indices)+fixed.obsE^2#/2
+  conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(se[,-1])))
+  #conv.se = sqrt(conv.se^2+fixed.obsE^2) 
+  se2 = matrix(ifelse(is.na(conv.se),0.3^2,conv.se)^2,n.years,n.indices)+fixed.obsE^2#/2
 }
 
 conv.catch = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.catches),styr.I-1,n.catches),as.matrix(catch[,-1])))
@@ -116,7 +118,7 @@ if(CPUE.plot==TRUE){
   q1.I = which.max(CPUE[q1.y,])
   
   qs = c(q1.I,c(1:(ncol(cpue)-1))[-q1.I])
-
+  
   
   sink("cpueAVG.jags")
   cat("
@@ -135,68 +137,68 @@ if(CPUE.plot==TRUE){
       }
       
       
-    ")
-      
-if(sigma.proc==TRUE){
-      cat("
-      # Process variance
-      isigma2 <- isigma2.est 
-      sigma2 <- pow(isigma2,-1)
-      sigma <- sqrt(sigma2)
-      fakesigma.fixed <- sigma.fixed # Prevent unused variable error msg    
-      ",append=TRUE)  
-}else{ cat(" 
+      ")
+  
+  if(sigma.proc==TRUE){
+    cat("
+        # Process variance
+        isigma2 <- isigma2.est 
+        sigma2 <- pow(isigma2,-1)
+        sigma <- sqrt(sigma2)
+        fakesigma.fixed <- sigma.fixed # Prevent unused variable error msg    
+        ",append=TRUE)  
+  }else{ cat(" 
       isigma2 <- pow(sigma.fixed+eps,-2) 
-      sigma2 <- pow(isigma2,-1)
-      sigma <- sqrt(sigma2)
-      
-      ",append=TRUE)}
-      
-      if(sigma.est==TRUE){
-      cat("
-      # Obsevation variance
+             sigma2 <- pow(isigma2,-1)
+             sigma <- sqrt(sigma2)
+             
+             ",append=TRUE)}
+  
+  if(sigma.est==TRUE){
+    cat("
+        # Obsevation variance
         # Observation error
         itau2~ dgamma(0.001,0.001)
         tau2 <- 1/itau2
-      
-      
-      for(i in 1:nI)
-      {
+        
+        
+        for(i in 1:nI)
+        {
         for(t in 1:N)
         {
-          var.obs[t,i] <- SE2[t,i]+tau2
-          ivar.obs[t,i] <- 1/var.obs[t,i]
-          # note total observation error (TOE)     
-          TOE[t,i] <- sqrt(var.obs[t,i])
-          
+        var.obs[t,i] <- SE2[t,i]+tau2
+        ivar.obs[t,i] <- 1/var.obs[t,i]
+        # note total observation error (TOE)     
+        TOE[t,i] <- sqrt(var.obs[t,i])
+        
         }}
-      ",append=TRUE)  
-      }else{ cat(" 
+        ",append=TRUE)  
+  }else{ cat(" 
       # Obsevation variance
-        # Observation error
-        itau2~ dgamma(2,2)
-        tau2 <- 1/itau2
-      
-      
-      for(i in 1:nI)
-      {
-        for(t in 1:N)
-        {
-          var.obs[t,i] <- SE2[t,i] # drop tau2
-          fake.tau[t,i] <- tau2
-          
-          ivar.obs[t,i] <- 1/var.obs[t,i]
-          # note total observation error (TOE)     
-          TOE[t,i] <- sqrt(var.obs[t,i])
-          
-        }}
-      
-      ",append=TRUE)}
-      
-      # Run rest of code  
-      cat("  
+             # Observation error
+             itau2~ dgamma(2,2)
+             tau2 <- 1/itau2
+             
+             
+             for(i in 1:nI)
+             {
+             for(t in 1:N)
+             {
+             var.obs[t,i] <- SE2[t,i] # drop tau2
+             fake.tau[t,i] <- tau2
+             
+             ivar.obs[t,i] <- 1/var.obs[t,i]
+             # note total observation error (TOE)     
+             TOE[t,i] <- sqrt(var.obs[t,i])
+             
+             }}
+             
+             ",append=TRUE)}
+  
+  # Run rest of code  
+  cat("  
       # Process variance prior
-      isigma2.est ~ dgamma(igamma[1],igamma[2])
+      isigma2.est ~ dgamma(0.001,0.001)
       
       
       # Priors and constraints
@@ -221,7 +223,7 @@ if(sigma.proc==TRUE){
       Y.est[t] <- exp(logY.est[t])
       }
       
-      } 
+  } 
       ",fill = TRUE)
   sink()
   
@@ -232,7 +234,7 @@ if(sigma.proc==TRUE){
   mSE2 = as.matrix(se2[q1.y:n.years,qs])
   if(n.indices>1) for(i in 2:n.indices){q.init[i] = mean(mCPUE[,i],na.rm=TRUE)/mean(mCPUE[,1],na.rm=TRUE)}
   # Bundle data
-  jags.data <- list(y = log(mCPUE),SE2=mSE2, logY1 = log(mCPUE[1,1]), N = length(q1.y:n.years),nI=n.indices,sigma.fixed=ifelse(sigma.proc==TRUE,0,sigma.proc),igamma=igamma)
+  jags.data <- list(y = log(mCPUE),SE2=mSE2, logY1 = log(mCPUE[1,1]), N = length(q1.y:n.years),nI=n.indices,sigma.fixed=ifelse(sigma.proc==TRUE,0,sigma.proc))
   
   # Initial values
   inits <- function(){list(isigma2.est=runif(1,20,100), itau2=runif(1,80,200), mean.r = rnorm(1),iq = 1/q.init)}
@@ -292,6 +294,20 @@ if(sigma.proc==TRUE){
   avgCPUE = data.frame(Year=years,CPUE= fitted,logSE=logSE)
   
   write.csv(avgCPUE,paste0(input.dir,"/avgCPUE_",assessment,"_",Scenario,".csv"))
+  
+  if(meanCPUE==TRUE){
+    cat(paste0("\n","><> Use average CPUE as input for JABBA <><","\n"))
+    
+    CPUE = as.matrix(avgCPUE[,2]) 
+    cpue.check = cpue[,-1]
+    cpue.check[is.na(cpue[,-1])]=0
+    CPUE[,1] = ifelse(apply(cpue.check,1,sum)==0,rep(NA,length(CPUE[,1])),CPUE[,1])
+    se2 =  as.matrix(avgCPUE[,3]^2)     
+    n.indices=1
+    indices = "All"
+    sets.q =1
+    sets.var =1
+  }
   
   }
 
@@ -417,7 +433,7 @@ if(K.dist=="range"){
   CV.K = K.prior[2]
   sd.K=sqrt(log(CV.K^2+1))
 }
-  
+
 
 #----------------------------------------------------------
 # Get JABBA parameterization and suplus production function
@@ -509,17 +525,15 @@ nvar = length(unique(sets.var))
 if(Projection==TRUE){
   nTAC = length(TACs)
   TAC = mat.or.vec(pyrs,nTAC)
-  yr.now = as.numeric(format(Sys.Date(), "%Y"))
   yr.last = max(years) # assessment year  
   
   for(i in 1:nTAC){
-    if(s<5) TAC[,i] = c(rep(TC[n.years],yr.now-yr.last),rep(TACs[i],pyrs-(yr.now-yr.last)))  
-    if(s==5) TAC[,i] = rep(TACs[i],pyrs)
+    TAC[,i] = c(rep(TACint,imp.yr-yr.last-1),rep(TACs[i],pyrs-(imp.yr-yr.last-1)))  
   }
   
 }else{
   nTAC = 1  
-  TAC = TC[n.years]  
+  TAC = TACint[n.years]  
   pyrs = 1
 }
 
@@ -603,8 +617,8 @@ if(sigma.proc==TRUE){
 
 if(sigma.est==TRUE){
   cat("
-    # Obsevation variance
-    for(i in 1:nvar)
+      # Obsevation variance
+      for(i in 1:nvar)
       {
       # Observation error
       itau2[i]~ dgamma(0.001,0.001)
@@ -624,7 +638,7 @@ if(sigma.est==TRUE){
       ",append=TRUE)  
 }else{ cat(" 
       # Obsevation variance
-    for(i in 1:nvar)
+           for(i in 1:nvar)
            {
            # Observation error
            itau2[i]~ dgamma(2,2)
@@ -637,7 +651,7 @@ if(sigma.est==TRUE){
            {
            var.obs[t,i] <- SE2[t,i] # drop tau2
            fake.tau[t,i] <- tau2[sets.var[i]]
-      
+           
            ivar.obs[t,i] <- 1/var.obs[t,i]
            # note total observation error (TOE)     
            TOE[t,i] <- sqrt(var.obs[t,i])
@@ -717,7 +731,7 @@ cat("
     HtoHmsy[t] <- H[t]/(Hmsy) 
     }
     
-
+    
     # Enforce soft penalty on process deviance if sigma.proc > 0.2 
     proc.pen ~ dnorm(penProc,1000) # enforce penalty 
     penProc  <- ifelse(sigma>0.2,log(sigma)-log(0.2),0) 
@@ -861,7 +875,7 @@ par(Par)
 
 cord.x <- c(years,rev(years))
 y<-rep(0,length(years))
-plot(years,TC,type="l",ylim=c(0,max((TC))),lty=1,lwd=1.3,xlab="Year",ylab=paste("Catch ",catch.metric),main="")
+plot(years,(TC),type="l",ylim=c(0,max(TC)),lty=1,lwd=1.3,xlab="Year",ylab=paste0("Catch ('000 t",catch.metric,")"),main="")
 polygon(cord.x,c(TC,rev(y)),col="gray",border=1,lty=1)
 dev.off()
 
@@ -951,7 +965,7 @@ for(i in 1:length(node_id))
           rpr = 1/rgamma(10000,igamma[1],igamma[2])
           prior = stats::density(rpr,adjust=2)
           polygon(c(prior$x,rev(prior$x)),c(prior$y,rep(0,length(prior$y))),col=gray(0.4,1))
-          }
+        }
         
         polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
         #legend('topright',c("Posterior"),pch=22,pt.cex=1.5,pt.bg = c(grey(0.8,0.6)),bty="n")
@@ -960,7 +974,7 @@ for(i in 1:length(node_id))
 }
 mtext(paste("Density"), side=2, outer=TRUE, at=0.5,line=1,cex=0.9)
 dev.off()   
-  
+
 
 
 #-----------------------------
@@ -1074,7 +1088,7 @@ for(i in 1:n.indices){
   
   lines(Yr,log(fit[2,yr]),lwd=2,col=4)
   if(SE.I ==TRUE | max(se2)>0.01){ plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n")}else{
-  points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")}
+    points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")}
   legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
 }
 
@@ -1164,9 +1178,9 @@ dev.off()
 
 #Save standardized Residuals 
 StRes.CPUE = data.frame(StResid)
-row.names(StRes.CPUE) = indices   
-colnames(StRes.CPUE) = paste(Yr)
-write.csv(StRes.CPUE,paste0(output.dir,"/StResCPUE_",assessment,"_",Scenario,".csv"))
+row.names(Res.CPUE) = indices   
+colnames(Res.CPUE) = paste(Yr)
+write.csv(Res.CPUE,paste0(output.dir,"/StResCPUE_",assessment,"_",Scenario,".csv"))
 
 # Produce statistice describing the Goodness of the Fit
 GOF = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
@@ -1265,94 +1279,94 @@ lines(years,rep(1,length(years)),lty=5)
 dev.off()
 
 if(SP.plot!="phase"){
-#-----------------------------------------
-# Produce simple Production function plot
-#-----------------------------------------
-Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/SP_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
-    res = 200, units = "in")
-par(Par)
-Bit = seq(1,mean(posteriors$K),mean(posteriors$K)/500)
-SP = mean(posteriors$r)/(m-1)*Bit*(1-(Bit/median(posteriors$K))^(m-1))  
-B = apply(posteriors$SB,2,mean)
-MSY = quantile(posteriors$MSY,c(0.025,0.5,0.975)) 
-plot(Bit,SP,type = "n",ylim=c(0,max(c(max(Catch,na.rm=T),max(MSY*1.1)))),ylab=paste0("Surplus Production ",catch.metric),xlab="Biomass (t)")
-polygon(c(-10000,10^7,10^7,-10000),c(rep(MSY[1],2),rep(MSY[3],2)),border = 0,col=grey(0.5,0.4))
-lines(Bit,SP,col=2,lwd=2)
-lines(B,Catch,lty=1)
-points(B,Catch,cex=0.5,pch=4)
-sel.yr = c(1,round(quantile(1:N,0.7),0),N)
-points(B[sel.yr],Catch[sel.yr],col= 1,pch=c(22,21,24),bg="white",cex=1.5)
-abline(h=max(SP),col=4)
-sel.years = c(min(years),years[sel.yr[2]],max(years))
-lines(rep(median(posteriors$SBmsy),2),c(-1000,max(SP)),lty=2,col=2)
-legend('topright', 
-       c(expression(B[MSY]),"MSY","Catch",paste(sel.years)), 
-       lty=c(2,1,1,1,1,1),pch=c(-1,-1,4,22,21,24),pt.bg=c(0,0,0,rep("white",3)), 
-       col=c(2,4,rep(1,4)),lwd=1,cex=0.9,pt.cex=c(-1,-1,0.5,rep(1.3,3)),bty="n")
-
-dev.off()
+  #-----------------------------------------
+  # Produce simple Production function plot
+  #-----------------------------------------
+  Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
+  png(file = paste0(output.dir,"/SP_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
+      res = 200, units = "in")
+  par(Par)
+  Bit = seq(1,mean(posteriors$K),mean(posteriors$K)/500)
+  SP = mean(posteriors$r)/(m-1)*Bit*(1-(Bit/median(posteriors$K))^(m-1))  
+  B = apply(posteriors$SB,2,mean)
+  MSY = quantile(posteriors$MSY,c(0.025,0.5,0.975)) 
+  plot(Bit,SP,type = "n",ylim=c(0,max(c(max(Catch,na.rm=T),max(MSY*1.1)))),ylab=paste0("Surplus Production ",catch.metric),xlab="Biomass (t)")
+  polygon(c(-10000,10^7,10^7,-10000),c(rep(MSY[1],2),rep(MSY[3],2)),border = 0,col=grey(0.5,0.4))
+  lines(Bit,SP,col=2,lwd=2)
+  lines(B,Catch,lty=1)
+  points(B,Catch,cex=0.5,pch=4)
+  sel.yr = c(1,round(quantile(1:N,0.7),0),N)
+  points(B[sel.yr],Catch[sel.yr],col= 1,pch=c(22,21,24),bg="white",cex=1.5)
+  abline(h=max(SP),col=4)
+  sel.years = c(min(years),years[sel.yr[2]],max(years))
+  lines(rep(median(posteriors$SBmsy),2),c(-1000,max(SP)),lty=2,col=2)
+  legend('topright', 
+         c(expression(B[MSY]),"MSY","Catch",paste(sel.years)), 
+         lty=c(2,1,1,1,1,1),pch=c(-1,-1,4,22,21,24),pt.bg=c(0,0,0,rep("white",3)), 
+         col=c(2,4,rep(1,4)),lwd=1,cex=0.9,pt.cex=c(-1,-1,0.5,rep(1.3,3)),bty="n")
+  
+  dev.off()
 }
 
 if(SP.plot=="phase"){
-#-----------------------------------------
-# Produce JABBA SP-phase plot
-#-----------------------------------------
-Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/SPphase_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
-    res = 200, units = "in")
-par(Par)
-Bit = seq(1,median(posteriors$K),median(posteriors$K)/500)
-Cmsy = Bit*median(posteriors$Hmsy)
-SP = median(posteriors$r)/(m-1)*Bit*(1-(Bit/median(posteriors$K))^(m-1))  
-B = apply(posteriors$SB,2,mean)
-MSY = quantile(posteriors$MSY,c(0.025,0.5,0.975)) 
-Bmsy.sp = median(posteriors$SBmsy)
-K.sp = median(posteriors$K)
-green.x = c(max(Bit,B),max(Bit,B),Bmsy.sp,Bmsy.sp,max(Bit))
-green.y = c(Bmsy.sp,0,0,max(SP),max(Cmsy))
-red.x = c(0,0,Bmsy.sp,Bmsy.sp,0)
-red.y = c(K.sp,0,max(SP),K.sp,K.sp)
-plot(Bit,SP,type = "n",ylim=c(0,max(c(max(Catch,na.rm=T)*1.05,max(MSY*1.1)))),xlim=c(0,max(Bit,B)),ylab=paste0("Surplus Production ",catch.metric),xlab="Biomass (t)",xaxs="i",yaxs="i")
-rect(0,0,K.sp*1.1,K.sp*1.1,col="green",border=0)
-rect(0,0,K.sp,K.sp,col="yellow",border=0)
-if(KOBE.type!="ICCAT") rect(0,max(SP),K.sp,K.sp,col="orange",border=0)
-polygon(green.x,green.y,border = 0,col="green")
-polygon(red.x,red.y,border = 0,col="red")
-
-ry.sp = Bit[Bit<=Bmsy.sp]
-for(i in 1:length(ry.sp)){
+  #-----------------------------------------
+  # Produce JABBA SP-phase plot
+  #-----------------------------------------
+  Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
+  png(file = paste0(output.dir,"/SPphase_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
+      res = 200, units = "in")
+  par(Par)
+  Bit = seq(1,median(posteriors$K),median(posteriors$K)/500)
+  Cmsy = Bit*median(posteriors$Hmsy)
+  SP = median(posteriors$r)/(m-1)*Bit*(1-(Bit/median(posteriors$K))^(m-1))  
+  B = apply(posteriors$SB,2,mean)
+  MSY = quantile(posteriors$MSY,c(0.025,0.5,0.975)) 
+  Bmsy.sp = median(posteriors$SBmsy)
+  K.sp = median(posteriors$K)
+  green.x = c(max(Bit,B),max(Bit,B),Bmsy.sp,Bmsy.sp,max(Bit))
+  green.y = c(Bmsy.sp,0,0,max(SP),max(Cmsy))
+  red.x = c(0,0,Bmsy.sp,Bmsy.sp,0)
+  red.y = c(K.sp,0,max(SP),K.sp,K.sp)
+  plot(Bit,SP,type = "n",ylim=c(0,max(c(max(Catch,na.rm=T)*1.05,max(MSY*1.1)))),xlim=c(0,max(Bit,B)),ylab=paste0("Surplus Production ",catch.metric),xlab="Biomass (t)",xaxs="i",yaxs="i")
+  rect(0,0,K.sp*1.1,K.sp*1.1,col="green",border=0)
+  rect(0,0,K.sp,K.sp,col="yellow",border=0)
+  if(KOBE.type!="ICCAT") rect(0,max(SP),K.sp,K.sp,col="orange",border=0)
+  polygon(green.x,green.y,border = 0,col="green")
+  polygon(red.x,red.y,border = 0,col="red")
   
-  lines(rep(Bit[i],2),c(Cmsy[i],SP[i]),col=ifelse(i %% 2== 0,"yellow","red"),lty=3)  
-  #i = i+1
-}
-
-gy.sp = Bit[Bit>Bmsy.sp]
-for(i in (length(ry.sp)+1):length(Bit)){
+  ry.sp = Bit[Bit<=Bmsy.sp]
+  for(i in 1:length(ry.sp)){
+    
+    lines(rep(Bit[i],2),c(Cmsy[i],SP[i]),col=ifelse(i %% 2== 0,"yellow","red"),lty=3)  
+    #i = i+1
+  }
   
-  #lines(rep(Bit[i],2),c(max(SP),Cmsy[i]),col=ifelse(i %% 2== 0,ifelse(KOBE.type=="ICCAT","yellow","orange"),"green"),lty=3)  
-  #i = i+1
-}
-
-
-polygon(c(-10000,10^7,10^7,-10000),c(rep(MSY[1],2),rep(MSY[3],2)),border = FALSE,col=rgb(0,0,1,0.4))
-lines(Bit,SP,col=4,lwd=2)
-lines(B,Catch,lty=1,lwd=1)
-points(B,Catch,cex=0.8,pch=16)
-lines(Bit,Cmsy,col=1,lwd=1,lty=2)
-N=n.years
-sel.yr = c(1,round(quantile(1:N,0.7),0),N)
-points(B[sel.yr],Catch[sel.yr],col= 1,pch=c(22,21,24),bg="white",cex=1.7)
-abline(h=max(SP),col=4,lty=5)
-sel.years =years[sel.yr]
-lines(rep(median(posteriors$SBmsy),2),c(-1000,max(SP)),lty=2,col=4)
-
-legend('topright', 
-       c(expression(B[MSY]),"MSY","SP","Catch",paste(sel.years)), 
-       lty=c(2,5,1,1,1,1,1),pch=c(-1,-1,-1,16,22,21,24),pt.bg=c(0,0,0,0,rep("white",3)), 
-       col=c(4,4,4,rep(1,4)),lwd=c(1,1,2,1,1,1),cex=0.8,pt.cex=c(-1,-1,-1,0.5,rep(1.3,3)),bty="n")
-
-dev.off()
+  gy.sp = Bit[Bit>Bmsy.sp]
+  for(i in (length(ry.sp)+1):length(Bit)){
+    
+    #lines(rep(Bit[i],2),c(max(SP),Cmsy[i]),col=ifelse(i %% 2== 0,ifelse(KOBE.type=="ICCAT","yellow","orange"),"green"),lty=3)  
+    #i = i+1
+  }
+  
+  
+  polygon(c(-10000,10^7,10^7,-10000),c(rep(MSY[1],2),rep(MSY[3],2)),border = FALSE,col=rgb(0,0,1,0.4))
+  lines(Bit,SP,col=4,lwd=2)
+  lines(B,Catch,lty=1,lwd=1)
+  points(B,Catch,cex=0.8,pch=16)
+  lines(Bit,Cmsy,col=1,lwd=1,lty=2)
+  N=n.years
+  sel.yr = c(1,round(quantile(1:N,0.7),0),N)
+  points(B[sel.yr],Catch[sel.yr],col= 1,pch=c(22,21,24),bg="white",cex=1.7)
+  abline(h=max(SP),col=4,lty=5)
+  sel.years =years[sel.yr]
+  lines(rep(median(posteriors$SBmsy),2),c(-1000,max(SP)),lty=2,col=4)
+  
+  legend('topright', 
+         c(expression(B[MSY]),"MSY","SP","Catch",paste(sel.years)), 
+         lty=c(2,5,1,1,1,1,1),pch=c(-1,-1,-1,16,22,21,24),pt.bg=c(0,0,0,0,rep("white",3)), 
+         col=c(4,4,4,rep(1,4)),lwd=c(1,1,2,1,1,1),cex=0.8,pt.cex=c(-1,-1,-1,0.5,rep(1.3,3)),bty="n")
+  
+  dev.off()
 }
 
 
@@ -1428,9 +1442,9 @@ if(KOBE.plot==TRUE){
            col=1,lwd=1.1,cex=0.9,pt.cex=c(rep(1.3,3),rep(1.7,3),rep(2.2,4)),bty="n")  
     
   }
-dev.off()
+  dev.off()
 }
-  
+
 
 if(Biplot==TRUE){
   
@@ -1485,52 +1499,52 @@ if(Biplot==TRUE){
   
   
   sel.years = years[sel.yr]
-                ## Add legend
-                legend('topright', 
-                       c(paste(sel.years),"50% C.I.","80% C.I.","95% C.I."), 
-                       lty=c(1,1,1,-1,-1,-1),pch=c(22,21,24,22,22,22),pt.bg=c(rep("white",3),"cornsilk2","grey","cornsilk4"), 
-                       col=1,lwd=1.1,cex=0.9,pt.cex=c(rep(1.3,4),1.7,1.7,1.7),bty="n")
-                
-                
-                
-                Zone  = NULL
-                Status = NULL
-                X  = 0.15
-                Y = 0
-                Z = -0.15
-                
-                for(i  in 1:length(f))
-                {
-                  if(b[i]>1.0){
-                    if(f[i]<ftarget){
-                      Zone[i]<-X
-                    } else if (f[i]>1.0){
-                      Zone[i]<-Z
-                    } else {
-                      Zone[i]<-Y
-                    }
-                  } else {
-                    if(b[i]>bthreshold+(1.0-bthreshold)/ftarget*f[i]){
-                      Zone[i]<-X
-                    } else if(b[i]<bthreshold+(1.0-bthreshold)*f[i]){
-                    } else {
-                      Zone[i]<-Y
-                    }
-                  }}
-                
-                perGreen = round(length(Zone[Zone==0.15])/length(Zone)*100,1) 
-                perYellow = round(length(Zone[Zone==0])/length(Zone)*100,1) 
-                perRed = round(length(Zone[Zone==-0.15])/length(Zone)*100,1)
-                
-                mtext(expression(paste(B/B[MSY])), side=2, outer=TRUE, at=0.5,line=1,cex=0.9)
-                mtext(ifelse(harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))), side=1, outer=TRUE, at=0.5,line=1,cex=0.9)
-                
-                text(0.65,2.4,paste0(perGreen,"%"))
-                text(0.9,2.4,paste0(perYellow,"%"))
-                text(1.2,2.4,paste0(perRed,"%"))
-                
-                dev.off()
-                
+  ## Add legend
+  legend('topright', 
+         c(paste(sel.years),"50% C.I.","80% C.I.","95% C.I."), 
+         lty=c(1,1,1,-1,-1,-1),pch=c(22,21,24,22,22,22),pt.bg=c(rep("white",3),"cornsilk2","grey","cornsilk4"), 
+         col=1,lwd=1.1,cex=0.9,pt.cex=c(rep(1.3,4),1.7,1.7,1.7),bty="n")
+  
+  
+  
+  Zone  = NULL
+  Status = NULL
+  X  = 0.15
+  Y = 0
+  Z = -0.15
+  
+  for(i  in 1:length(f))
+  {
+    if(b[i]>1.0){
+      if(f[i]<ftarget){
+        Zone[i]<-X
+      } else if (f[i]>1.0){
+        Zone[i]<-Z
+      } else {
+        Zone[i]<-Y
+      }
+    } else {
+      if(b[i]>bthreshold+(1.0-bthreshold)/ftarget*f[i]){
+        Zone[i]<-X
+      } else if(b[i]<bthreshold+(1.0-bthreshold)*f[i]){
+      } else {
+        Zone[i]<-Y
+      }
+    }}
+  
+  perGreen = round(length(Zone[Zone==0.15])/length(Zone)*100,1) 
+  perYellow = round(length(Zone[Zone==0])/length(Zone)*100,1) 
+  perRed = round(length(Zone[Zone==-0.15])/length(Zone)*100,1)
+  
+  mtext(expression(paste(B/B[MSY])), side=2, outer=TRUE, at=0.5,line=1,cex=0.9)
+  mtext(ifelse(harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))), side=1, outer=TRUE, at=0.5,line=1,cex=0.9)
+  
+  text(0.65,2.4,paste0(perGreen,"%"))
+  text(0.9,2.4,paste0(perYellow,"%"))
+  text(1.2,2.4,paste0(perRed,"%"))
+  
+  dev.off()
+  
 }
 
 
@@ -1582,7 +1596,7 @@ if(Projection ==TRUE){
     Traj = cbind(posteriors$P[,(n.years):n.years],posteriors$prP[,,i])
     lines(proj.yrs,apply(Traj,2,median),col=rev(jabba.colors[j]),lwd=2)
   }
-  lines(proj.yrs[1:(yr.now-yr.last+2)],apply(Traj,2,median)[1:(yr.now-yr.last+2)],col=1,lwd=2)
+  lines(proj.yrs[1:(imp.yr-yr.last+1)],apply(Traj,2,median)[1:(imp.yr-yr.last+1)],col=1,lwd=2)
   BmsyK=(m)^(-1/(m-1))
   abline(h=BmsyK,lty=2,lwd=2)
   legend("topleft",paste(TACs,"(t)"),col=(jabba.colors[1:nTAC]),lwd=2,cex=0.8)   
