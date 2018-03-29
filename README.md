@@ -16,7 +16,7 @@ Inbuilt JABBA features include:
 
 **Reference**  
 [Winker, H., Carvalho, F., Kapur, M. (2018) <U>JABBA: Just Another Bayesian Biomass Assessment.</U> *Fisheries 
-Research* **204**:275-288.](https://www.sciencedirect.com/science/article/pii/S0165783618300845)   
+Research* **204**: 275-288.](https://www.sciencedirect.com/science/article/pii/S0165783618300845)   
 
 <B>A self-contained R package of JABBA is forthcoming.</b>
 
