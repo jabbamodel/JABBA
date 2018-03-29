@@ -7,7 +7,7 @@ output:
   html_document
 fontsize: 11pt
 ---
-The R Prime file [`SWO_SA_prime_v1.1.R`](https://github.com/jabbamodel/JABBA/blob/master/SWO_SA_prime_v1.1.R) can be used to reproduce the analysis and figures from Winker et al (2018, in review), when used in conjuntion with [`JABBAv1.1.R`](https://github.com/jabbamodel/JABBA/blob/master/JABBAv1.1.R) and data from the South Atlantic Swordfish Fishery [`/SWO_SA`](https://github.com/jabbamodel/JABBA/tree/master/SWO_SA). This tutorial explains the main segments of the Prime file setup.
+The R Prime file [`SWO_SA_prime_v1.1.R`](https://github.com/jabbamodel/JABBA/blob/master/SWO_SA_prime_v1.1.R) can be used to reproduce the analysis and figures from [Winker et al. (2018)](https://www.sciencedirect.com/science/article/pii/S0165783618300845), when used in conjuntion with [`JABBAv1.1.R`](https://github.com/jabbamodel/JABBA/blob/master/JABBAv1.1.R) and data from the South Atlantic Swordfish Fishery [`/SWO_SA`](https://github.com/jabbamodel/JABBA/tree/master/SWO_SA). This tutorial explains the main segments of the Prime file setup.
 
 
 ### Getting started
