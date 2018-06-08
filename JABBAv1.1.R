@@ -913,7 +913,7 @@ for(i in 1:length(node_id))
     rpr = rlnorm(10000,log(K.pr[1]),K.pr[2]) 
     pdf = stats::density(post.par,adjust=2)  
     prior = dlnorm(sort(rpr),log(K.pr[1]),K.pr[2])   
-    plot(pdf,type="l",ylim=range(prior,pdf$y),xlim=range(c(pdf$x,quantile(rpr,c(0.0001,0.95)))),yaxt="n",xlab=expression(SB[0]),ylab="",xaxs="i",yaxs="i",main="")
+    plot(pdf,type="l",ylim=range(prior,pdf$y),xlim=range(c(pdf$x,quantile(rpr,c(0.0001,0.95)))),yaxt="n",xlab="K",ylab="",xaxs="i",yaxs="i",main="")
     
     polygon(c(sort(rpr),rev(sort(rpr))),c(prior,rep(0,length(sort(rpr)))),col=gray(0.4,1))
     polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
