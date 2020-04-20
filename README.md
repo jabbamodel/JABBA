@@ -12,6 +12,10 @@ Inbuilt JABBA features include:
 + Estimating or fixing the process variance
 + Optional estimation additional observation variance for individual or grouped CPUE time series
 + Easy implementation of time-block changes in selectivity
++ New: Estimating Catch with Error 
++ New: Estimating shape with prior
++ New: Catch-Only option with additional relative biomass priors
++ New: Inbuilt retrospective and hindcasting run and plotting options 
 
 ## Installing JABBA as R package
 
