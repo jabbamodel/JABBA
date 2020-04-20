@@ -13,11 +13,47 @@ Inbuilt JABBA features include:
 + Optional estimation additional observation variance for individual or grouped CPUE time series
 + Easy implementation of time-block changes in selectivity
 
-## Installing JABBA
+## Installing JABBA as R package
 
 `library(devtools)` 
 
 `install_github("jabbamodel/JABBA")`
+
+`# TEST Run
+`library(JABBA)`
+data(iccat)
+# get BET data
+bet = iccat$bet
+# Compile JABBA JAGS model and input object
+jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessment,scenario = "Ref",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)
+# Fit JABBA (here mostly default value - careful)
+bet1 = fit_jabba(jbinput)
+# Make individual plots
+jbplot_catcherror(bet1)
+jbplot_ppdist(bet1)
+jbplot_cpuefits(bet1)
+jbplot_logfits(bet1)
+
+# Status
+par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
+jbplot_trj(bet1,type="B",add=T)
+jbplot_trj(bet1,type="F",add=T)
+jbplot_trj(bet1,type="BBmsy",add=T)
+jbplot_trj(bet1,type="FFmsy",add=T)
+jbplot_spphase(bet1,add=T)
+jbplot_kobe(bet1,add=T)
+
+
+jbplot_spphase(bet1)
+jbplot_kobe(bet1)
+
+# Check some plots
+
+
+
+
+
+
 
 **Reference**  
 [Winker, H., Carvalho, F., Kapur, M. (2018) <U>JABBA: Just Another Bayesian Biomass Assessment.</U> *Fisheries 
