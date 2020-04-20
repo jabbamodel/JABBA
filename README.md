@@ -24,8 +24,8 @@ Inbuilt JABBA features include:
 
 ## Test-drive JABBA
 
-`library(JABBA)`
-`data(iccat)`<br>
+`library(JABBA)`<br>
+`data(iccat)`
 
 `# Compile JABBA JAGS model and input object for bigeye tuna (bet)`<br>
 `jbinput = build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,assessment="BET",scenario = "TestRun",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)`
