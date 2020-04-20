@@ -33,8 +33,10 @@ if(exists("meanCPUE")==FALSE) meanCPUE = FALSE # Uses averaged CPUE from state-s
 if(exists("Projection")==FALSE) Projection = FALSE # Use Projections: requires to define TACs vectors 
 if(exists("save.projections")==FALSE) save.projections = FALSE# saves projection posteriors as .RData object 
 if(exists("Reproduce.seed")==FALSE) Reproduce.seed = FALSE # If FALSE a random seed assigned to each run (default)
-if(exists("TACint")==FALSE | is.null(TACint)) TACint = mean(catch[nrow(catch)-3,2]:catch[nrow(catch),2]) # use mean catch from last years
-if(exists("imp.yr")==FALSE | is.null(imp.yr)) imp.yr = as.numeric(format(Sys.Date(), "%Y"))+1 # use next year from now
+if(exists("TACint")==FALSE) TACint = mean(catch[nrow(catch)-3,2]:catch[nrow(catch),2]) # use mean catch from last years
+if(exists("imp.yr")==FALSE) imp.yr = as.numeric(format(Sys.Date(), "%Y"))+1 # use next year from now
+if(exists("st.value")==FALSE) st.value =FALSE
+
 # Save entire posterior as .RData object
 if(exists("save.all")==FALSE) save.all = FALSE #  
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -552,6 +554,10 @@ stI = ifelse(proc.dev.all==TRUE,1, c(1:n.years)[is.na(apply(CPUE,1,mean,na.rm=TR
 
 # Initial starting values
 inits <- function(){list(K= rlnorm(1,log.K,0.3),q = runif(nq,0.005,0.5), isigma2.est=runif(1,20,100), itau2=runif(nvar,80,200))}
+# starting value option
+if(st.value==TRUE){
+inits <- function(){list(K= K.init,r=r.init,q = q.init, isigma2.est=runif(1,20,100), itau2=runif(nvar,80,200))}
+}
 
 # JABBA input data 
 surplus.dat = list(N=n.years, TC = TC,I=CPUE,SE2=se2,m=m,r.pr=r.pr,psi.pr=psi.pr,K.pr = K.pr,
