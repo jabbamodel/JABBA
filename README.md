@@ -15,49 +15,34 @@ Inbuilt JABBA features include:
 
 ## Installing JABBA as R package
 
-`library(devtools)` 
-
+`library(devtools)` <br>
 `install_github("jabbamodel/JABBA")`
 
-#### Test-drive JABBA
+## Test-drive JABBA
 
 `library(JABBA)`
+`data(iccat)`<br>
 
-#### Compile JABBA JAGS model and input object for bigeye tuna (bet)
-
-`data(iccat)` 
-
+`# Compile JABBA JAGS model and input object for bigeye tuna (bet)`<br>
 `jbinput = build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,assessment="BET",scenario = "TestRun",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)`
 
-#### Fit JABBA (here mostly default value - careful)
-
+`# Fit JABBA (here mostly default value - careful)`<br>
 `bet1 = fit_jabba(jbinput)`
 
-#### Make individual plots
+`# Make individual plots` <br>
+`jbplot_catcherror(bet1)` <br>
+`jbplot_ppdist(bet1)`     <br>
+`jbplot_cpuefits(bet1)`<br>
+`jbplot_logfits(bet1)`<br>
 
-`jbplot_catcherror(bet1)`
-
-`jbplot_ppdist(bet1)`
-
-`jbplot_cpuefits(bet1)`
-
-`jbplot_logfits(bet1)`
-
-#### Status
-
-`par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))`
-
-`jbplot_trj(bet1,type="B",add=T)`
-
-`jbplot_trj(bet1,type="F",add=T)`
-
-`jbplot_trj(bet1,type="BBmsy",add=T)`
-
-`jbplot_trj(bet1,type="FFmsy",add=T)`
-
-`jbplot_spphase(bet1,add=T)`
-
-`jbplot_kobe(bet1,add=T)`
+`# Plot Status Summary` <br>
+`par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))` <br>
+`jbplot_trj(bet1,type="B",add=T)` <br>
+`jbplot_trj(bet1,type="F",add=T)` <br>
+`jbplot_trj(bet1,type="BBmsy",add=T)`<br>
+`jbplot_trj(bet1,type="FFmsy",add=T)`<br>
+`jbplot_spphase(bet1,add=T)`<br>
+`jbplot_kobe(bet1,add=T)`<br>
 
 #### Test run complete 
 
