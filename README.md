@@ -19,7 +19,7 @@ Inbuilt JABBA features include:
 
 `install_github("jabbamodel/JABBA")`
 
-#### load JABBA library
+#### Test-drive JABBA
 
 `library(JABBA)`
 
@@ -30,45 +30,36 @@ Inbuilt JABBA features include:
 `jbinput = build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,assessment="BET",scenario = "TestRun",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)`
 
 #### Fit JABBA (here mostly default value - careful)
-bet1 = fit_jabba(jbinput)
 
-# Make individual plots
+`bet1 = fit_jabba(jbinput)`
 
-jbplot_catcherror(bet1)
+#### Make individual plots
 
-jbplot_ppdist(bet1)
+`jbplot_catcherror(bet1)`
 
-jbplot_cpuefits(bet1)
+`jbplot_ppdist(bet1)`
 
-jbplot_logfits(bet1)
+`jbplot_cpuefits(bet1)`
 
-# Status
+`jbplot_logfits(bet1)`
 
-par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
+#### Status
 
-jbplot_trj(bet1,type="B",add=T)
+`par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))`
 
-jbplot_trj(bet1,type="F",add=T)
+`jbplot_trj(bet1,type="B",add=T)`
 
-jbplot_trj(bet1,type="BBmsy",add=T)
+`jbplot_trj(bet1,type="F",add=T)`
 
-jbplot_trj(bet1,type="FFmsy",add=T)
+`jbplot_trj(bet1,type="BBmsy",add=T)`
 
-jbplot_spphase(bet1,add=T)
+`jbplot_trj(bet1,type="FFmsy",add=T)`
 
-jbplot_kobe(bet1,add=T)
+`jbplot_spphase(bet1,add=T)`
 
-# Test run complete` 
+`jbplot_kobe(bet1,add=T)`
 
-jbplot_spphase(bet1)
-jbplot_kobe(bet1)
-
-# Check some plots
-
-
-
-
-
+#### Test run complete 
 
 
 **Reference**  
