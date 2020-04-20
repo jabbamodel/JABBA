@@ -43,9 +43,11 @@ Inbuilt JABBA features include:
 `jbplot_trj(bet1,type="FFmsy",add=T)`<br>
 `jbplot_spphase(bet1,add=T)`<br>
 `jbplot_kobe(bet1,add=T)`<br>
+`# Test run end`
 
-#### Test run complete 
+More detailed examples of JABBA applications to ICCAT stock can be found in [Examples_iccat.R](https://github.com/jabbamodel/JABBA/blob/master/Example/Examples_iccat.R).
 
+An updated vignette is currently under development...
 
 **Reference**  
 [Winker, H., Carvalho, F., Kapur, M. (2018) <U>JABBA: Just Another Bayesian Biomass Assessment.</U> *Fisheries 
