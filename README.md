@@ -16,6 +16,7 @@ Inbuilt JABBA features include:
 ## Installing JABBA
 
 `library(devtools)` 
+
 `install_github("jabbamodel/JABBA")`
 
 **Reference**  
