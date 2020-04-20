@@ -19,30 +19,51 @@ Inbuilt JABBA features include:
 
 `install_github("jabbamodel/JABBA")`
 
-`# TEST Run
+`# load JABBA
+
 library(JABBA)`
-data(iccat)`
-# get BET data
+
+`# ICCAT datasets
+
+data(iccat) 
+
 bet = iccat$bet
-# Compile JABBA JAGS model and input object
+
+# Compile JABBA JAGS model and input object for bigeye tuna (bet)
+
 jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessment,scenario = "Ref",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)
+
 # Fit JABBA (here mostly default value - careful)
+
 bet1 = fit_jabba(jbinput)
+
 # Make individual plots
+
 jbplot_catcherror(bet1)
+
 jbplot_ppdist(bet1)
+
 jbplot_cpuefits(bet1)
+
 jbplot_logfits(bet1)
 
 # Status
+
 par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
+
 jbplot_trj(bet1,type="B",add=T)
+
 jbplot_trj(bet1,type="F",add=T)
+
 jbplot_trj(bet1,type="BBmsy",add=T)
+
 jbplot_trj(bet1,type="FFmsy",add=T)
+
 jbplot_spphase(bet1,add=T)
+
 jbplot_kobe(bet1,add=T)
 
+# Test run complete` 
 
 jbplot_spphase(bet1)
 jbplot_kobe(bet1)
