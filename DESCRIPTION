@@ -1,0 +1,32 @@
+Package: JABBA
+Title: Just Another Bayesian Biomass Assessment
+Version: 2.0.1
+Authors@R: 
+    c(person(given = "Henning",
+           family = "Winker",
+           role = c("aut", "cre"),
+           email = "henning.winker@gmail.com"),
+    person(given = "Felipe",
+           family = "Carvalho",
+           role = c("aut")),
+    person(given = "Maia",
+           family = "Kapur",
+           role = c("aut")))
+Description: Bayesian State-Space Surplus Production Model to Catch and Abundance data
+Depends:
+    R (>= 3.5)
+Imports:
+      gplots,
+      coda,
+      rjags,
+      R2jags,
+      snpar,
+      reshape,
+      scales
+Suggests:      
+      fitdistrplus,
+      mvtnorm
+License: EUPL
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
