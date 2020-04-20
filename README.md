@@ -20,8 +20,8 @@ Inbuilt JABBA features include:
 `install_github("jabbamodel/JABBA")`
 
 `# TEST Run
-`library(JABBA)`
-data(iccat)
+library(JABBA)`
+data(iccat)`
 # get BET data
 bet = iccat$bet
 # Compile JABBA JAGS model and input object
