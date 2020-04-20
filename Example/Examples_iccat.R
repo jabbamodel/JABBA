@@ -1,9 +1,9 @@
 
 # Installation
 # install.packages(devtools)
-# devtools:: install_github("henning-winker/JABBApkg")
+# devtools:: install_github("jabbamodel/JABBA")
 
-library(JABBApkg)
+library(JABBA)
 File = "C:/Work/Research/GitHub/JABBApkg_testing/example"
 
 #><>><>><>><>><>><>><>><>><>><>><>
@@ -21,11 +21,9 @@ data(iccat)
 # get BET data
 bet = iccat$bet
 # Compile JABBA JAGS model and input object
-jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessment,scenario = "Ref",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)
+jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessment,scenario = "Test",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01,igamma = c(0.001,0.001))
 # Fit JABBA (here mostly default value - careful)
 bet1 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
-
-
 
 # Make individual plots
 jbplot_catch(bet1)
@@ -37,20 +35,29 @@ jbplot_cpuefits(bet1)
 jbplot_runstest(bet1)
 jbplot_logfits(bet1)
 jbplot_procdev(bet1)
-jbplot_bprior(bet1)
+
+# Try to improve runs test diagnostics by changing the variance settings
+jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,scenario = "Ref",model.type = "Fox",sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001))
+bet2 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+# Check residual diags
+jbplot_cpuefits(bet2)
+jbplot_runstest(bet2)
+jbplot_logfits(bet2)
+# Improved
+refintput = jbinput # Note as reference input 
 
 # Trajectories
-jbplot_trj(bet1,type="B")
-jbplot_trj(bet1,type="F")
-jbplot_trj(bet1,type="BBmsy")
-jbplot_trj(bet1,type="FFmsy")
-jbplot_trj(bet1,type="BB0")
+jbplot_trj(bet2,type="B")
+jbplot_trj(bet2,type="F")
+jbplot_trj(bet2,type="BBmsy")
+jbplot_trj(bet2,type="FFmsy")
+jbplot_trj(bet2,type="BB0")
 
-jbplot_spphase(bet1)
-jbplot_kobe(bet1)
+jbplot_spphase(bet2)
+jbplot_kobe(bet2)
 
 # Write all as png
-jabba_plots(jabba=bet1,output.dir = output.dir)
+jabba_plots(jabba=bet2,output.dir = output.dir)
 
 
 #------------------------------------------------------
@@ -58,17 +65,16 @@ jabba_plots(jabba=bet1,output.dir = output.dir)
 #-------------------------------------------------------
 
 # Compile JABBA JAGS model and input object
-jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessment,scenario = "Est_shape",model.type = "Pella_m",BmsyK=0.37,shape.CV = 0.3,sigma.est = FALSE,fixed.obsE = 0.01)
-# Fit JABBA
-bet2 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,scenario = "Est.Shape",model.type = "Pella_m",BmsyK=0.37,sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001))
+bet3 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
 
-jbplot_ppdist(bet2)
+jbplot_ppdist(bet3)
 # Compare
 par(mfrow=c(2,2))
-jbplot_trj(bet1,type="BBmsy",add=T)
 jbplot_trj(bet2,type="BBmsy",add=T)
-jbplot_kobe(bet1,add=T)
+jbplot_trj(bet3,type="BBmsy",add=T)
 jbplot_kobe(bet2,add=T)
+jbplot_kobe(bet3,add=T)
 
 #----------------
 # Catch-Only
@@ -77,18 +83,18 @@ jbplot_kobe(bet2,add=T)
 # Add biomass prior based on B/Bmsy guestimate
 jbinput = build_jabba(catch=bet$catch,model.type = "Fox",assessment=assessment,scenario =  "CatchOnly" ,b.prior=c(0.7,0.2,2010,"bbmsy"))
 # Fit JABBA
-bet3 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+bet4 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
 
 # Check depletion prior vs posterior
-jbplot_bprior(bet3)
+jbplot_bprior(bet4)
 # Compare
 par(mfrow=c(3,2))
-jbplot_trj(bet1,type="BBmsy",add=T)
-jbplot_trj(bet1,type="FFmsy",add=T)
 jbplot_trj(bet2,type="BBmsy",add=T)
 jbplot_trj(bet2,type="FFmsy",add=T)
 jbplot_trj(bet3,type="BBmsy",add=T)
 jbplot_trj(bet3,type="FFmsy",add=T)
+jbplot_trj(bet4,type="BBmsy",add=T)
+jbplot_trj(bet4,type="FFmsy",add=T)
 
 
 #-------------------------------------------
@@ -112,8 +118,8 @@ jbplot_summary(assessment=assessment,scenarios = Scenarios,prefix="Comp5runs",sa
 retro.dir = file.path(output.dir,"retro")
 dir.create(retro.dir,showWarnings = F)
 
-# Run hindcasts
-hc = jabba_hindcast(jbinput,save.hc=T,plotall=T,output.dir = retro.dir,peels = 0:7)
+# Run hindcasts for reference model
+hc = jabba_hindcast(refinput,save.hc=T,plotall=T,output.dir = retro.dir,peels = 0:7)
 
 # Retro Analysis Summary plot
 jbplot_retro(hc,as.png = F,single.plots = F,output.dir = retro.dir)
@@ -158,6 +164,7 @@ output.dir = file.path(File,assessment)
 dir.create(output.dir,showWarnings = F)
 setwd(output.dir)
 
+
 whm = iccat$whm
 assessment = "whm"
 # Compile JABBA JAGS model and input object based on priors and settings used in the 2019 ICCAT WHM assessment
@@ -175,7 +182,11 @@ jbinput = build_jabba(catch=whm$catch,cpue=whm$cpue[,-c(13)],se=whm$se[,-c(13)],
                       
                       )
 # fit JABBA
+
 whm = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+
+retro.dir = file.path(output.dir,"retro")
+dir.create(retro.dir,showWarnings = F)
 
 jbplot_catch(whm)
 jbplot_catcherror(whm)
