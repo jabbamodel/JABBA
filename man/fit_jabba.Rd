@@ -19,7 +19,8 @@ fit_jabba(
   save.jabba = FALSE,
   save.csvs = FALSE,
   save.prjkobe = FALSE,
-  output.dir = getwd()
+  output.dir = getwd(),
+  quickmcmc = FALSE
 )
 }
 \arguments{
@@ -58,6 +59,16 @@ A result list containing estimates of model input, settings and results
 Fits JABBA model in JAGS and produce output object as list()
 }
 \examples{
-data(bet)
-jbinput <- build_jabba()
+data(iccat)
+jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
+bet1 = fit_jabba(jbinput,quickmcmc=TRUE)
+jbplot_cpuefits(bet1)
+jbplot_ppdist(bet1)
+par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
+jbplot_trj(bet1,type="B",add=T)
+jbplot_trj(bet1,type="F",add=T)
+jbplot_trj(bet1,type="BBmsy",add=T)
+jbplot_trj(bet1,type="FFmsy",add=T)
+jbplot_spphase(bet1,add=T)
+jbplot_kobe(bet1,add=T)
 }

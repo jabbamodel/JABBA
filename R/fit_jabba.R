@@ -19,9 +19,18 @@
 #' @return A result list containing estimates of model input, settings and results
 #' @export
 #' @examples
-#' data(bet)
-#' jbinput <- build_jabba()
-
+#' data(iccat)
+#' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
+#' bet1 = fit_jabba(jbinput,quickmcmc=TRUE)
+#' jbplot_cpuefits(bet1)
+#' jbplot_ppdist(bet1)
+#' par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
+#' jbplot_trj(bet1,type="B",add=T)
+#' jbplot_trj(bet1,type="F",add=T)
+#' jbplot_trj(bet1,type="BBmsy",add=T)
+#' jbplot_trj(bet1,type="FFmsy",add=T)
+#' jbplot_spphase(bet1,add=T)
+#' jbplot_kobe(bet1,add=T)
 fit_jabba = function(jbinput,
                      # MCMC settings
                      ni = 30000, # Number of iterations
@@ -38,7 +47,8 @@ fit_jabba = function(jbinput,
                      save.jabba = FALSE,
                      save.csvs = FALSE,
                      save.prjkobe = FALSE,
-                     output.dir = getwd()
+                     output.dir = getwd(),
+                     quickmcmc = FALSE
 ){
   #write jabba model
   jabba2jags(jbinput)
@@ -47,6 +57,14 @@ fit_jabba = function(jbinput,
   nsaved = (ni-nb)/nt*nc
   # jabba model data
   jbd = jbinput$jagsdata
+  
+  if(quickmcmc==TRUE){
+    ni = 12000
+    nb = 2000
+    nt = 2
+    nc = 2
+  }
+  
   # Initial starting values (new Eq)
   if(init.values==FALSE){
     inits = function(){list(K= rlnorm(1,log(jbd$K.pr[1])-0.5*0.3^2,0.3),r = rlnorm(1,log(jbd$r.pr[1]),jbd$r.pr[2]) ,q = runif(jbd$nq,min(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T),mean(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T)), isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
