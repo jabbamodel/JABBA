@@ -49,7 +49,7 @@ Inbuilt JABBA features include:
 `jbplot_kobe(bet1,add=T)`<br>
 `# Test run end`
 
-More detailed examples of JABBA applications to ICCAT stock can be found in [Examples_iccat.R](https://github.com/jabbamodel/JABBA/blob/master/Example/Examples_iccat.R).
+More detailed examples of JABBA applications to ICCAT stocks can be found in [Examples_iccat.R](https://github.com/jabbamodel/JABBA/blob/master/Example/Examples_iccat.R).
 
 An updated vignette is currently under development...
 
