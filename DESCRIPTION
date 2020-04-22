@@ -14,7 +14,7 @@ Authors@R:
            role = c("aut")))
 Description: Bayesian State-Space Surplus Production Model to Catch and Abundance data
 Depends:
-    R (>= 3.5)
+    R (>= 3.1)
 Imports:
       gplots,
       coda,
