@@ -31,7 +31,7 @@ Inbuilt JABBA features include:
 `jbinput = build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,assessment="BET",scenario = "TestRun",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01)`
 
 `# Fit JABBA (here mostly default value - careful)`<br>
-`bet1 = fit_jabba(jbinput)`
+`bet1 = fit_jabba(jbinput,quickmcmc=TRUE)`
 
 `# Make individual plots` <br>
 `jbplot_catcherror(bet1)` <br>
