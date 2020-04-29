@@ -103,7 +103,7 @@ jbplot_trj(bet4,type="FFmsy",add=T)
 #-------------------------------------------
 Scenarios = (c("Ref","Est_shape","CatchOnly")) # Scenarios to be loaded as Rdata objects
 #  Check plot with CIs
-jbplot_summary(assessment=assessment,scenarios = Scenarios,mod.path = output.dir)
+jbplot_summary(assessment=assessment,scenarios = Scenarios,mod.path = output.dir,cols=terrain.colors(3))
 # and without CIs
 jbplot_summary(assessment=assessment,scenarios = Scenarios,plotCIs=FALSE)
 # Check Base only
@@ -133,7 +133,7 @@ mohnsrho
 
 # Do Hindcast Cross-Validation (hcxval) 
 # show multiplot
-jbplot_hcxval(hc,single.plots = F,as.png = F,output.dir=retro.dir)
+jbplot_hcxval(hc,single.plots = F,as.png = F,output.dir=retro.dir,col=rainbow(8))
 # Zoom-in
 jbplot_hcxval(hc,single.plots = F,as.png = F,output.dir=retro.dir,minyr=2000)
 # save as png and note summary stats 

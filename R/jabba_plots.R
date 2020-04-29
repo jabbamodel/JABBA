@@ -454,11 +454,13 @@ jbplot_logfits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=F
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
+#' @param cols option to add colour palette 
 #' @export
-jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5){
+jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,cols=NULL){
 
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_residuals() - JABBA residual plot  <><","\n"))
+    if(is.null(cols)) cols = jabba$settings$cols 
     years = jabba$yr
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
     cpue.yrs = years[check.yrs>0]
@@ -483,8 +485,8 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 
     for(i in 1:n.indices){
       for(t in 1:n.years){
-        lines(rep((Yr+positions[i])[t],2),c(0,Resids[i,t]),col=jabba$settings$cols[i])}
-      points(Yr+positions[i],Resids[i,],col=1,pch=21,bg=jabba$settings$cols[i])}
+        lines(rep((Yr+positions[i])[t],2),c(0,Resids[i,t]),col=cols[i])}
+      points(Yr+positions[i],Resids[i,],col=1,pch=21,bg=cols[i])}
     mean.res = apply(Resids,2,mean,na.rm =TRUE)[as.numeric(colnames(Resids))%in%cpue.yrs]
     smooth.res = predict(loess(mean.res~cpue.yrs),data.frame(cpue.yrs=cpue.yrs))
     lines(cpue.yrs,smooth.res,lwd=2)
@@ -511,11 +513,13 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
+#' @param cols option to add colour palette 
 #' @export
-jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height= 3.5){
+jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height= 3.5,cols=NULL){
 
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_staresiduals() - standardized residuals  <><","\n"))
+    if(is.null(cols)) cols = jabba$settings$cols 
     years = jabba$yr
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
     cpue.yrs = years[check.yrs>0]
@@ -539,8 +543,8 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 
     for(i in 1:n.indices){
       for(t in 1:n.years){
-        lines(rep((Yr+positions[i])[t],2),c(0,StResid[i,t]),col=jabba$settings$cols[i])}
-      points(Yr+positions[i],StResid[i,],col=1,pch=21,bg=jabba$settings$cols[i])}
+        lines(rep((Yr+positions[i])[t],2),c(0,StResid[i,t]),col=cols[i])}
+      points(Yr+positions[i],StResid[i,],col=1,pch=21,bg=cols[i])}
     mean.res = apply(StResid,2,mean,na.rm =TRUE)[as.numeric(colnames(Resids))%in%cpue.yrs]
     smooth.res = predict(loess(mean.res~cpue.yrs),data.frame(cpue.yrs=cpue.yrs))
     lines(cpue.yrs,smooth.res,lwd=2)
@@ -744,8 +748,9 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),output.di
 #' @param mfrow set up plot frame  
 #' @param width plot width
 #' @param height plot hight
+#' @param cols option to add colour palette 
 #' @export
-jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5){
+jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5,cols=NULL){
   
   for(i in 1:length(type)){
     
@@ -757,7 +762,7 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
     nTAC = jabba$settings$nTAC
     TACs = jabba$settings$TAC[1,]
     imp.yr=jabba$settings$TAC.implementation
-    cols= jabba$settings$cols
+    if(is.null(cols)) cols = jabba$settings$cols
     shaded = rev(seq(0.4,0.9,0.5/nTAC))
     j = which(c("BB0","BBmsy","FFmsy")%in%type[i])
     ylabs = c(expression(B/B[0]),expression(B/B[MSY]),ifelse(jabba$settings$harvest.label=="Fmsy",expression(F/F[MSY]),expression(H/h[MSY])))
@@ -1133,9 +1138,10 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param width plot width
 #' @param height plot hight
 #' @param Xlim  allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
+#' @param cols option to add colour palette 
 #' @return Mohn's rho statistic for several quantaties
 #' @export
-jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL){
+jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL){
   
   cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
   
@@ -1145,7 +1151,7 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
   runs= hc$timeseries$mu$level
   years= hc$yr
   nyrs = length(years)
-  cols= c(1,hc$settings$cols)
+  if(is.null(cols)) cols = c(1,hc$settings$cols)
   if(is.null(Xlim)){Xlim = range(years)}
   FRP.rho = c("B","F", "Bmsy", "Fmsy", "BtoB0","MSY")  
   rho = data.frame(mat.or.vec(length(retros)-1,length(FRP.rho)))
@@ -1253,13 +1259,14 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
 #' @param width plot width
 #' @param height plot hight
 #' @param Xlim allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
+#' @param cols option to add colour palette 
 #' @export
-jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL){
+jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL){
   
   cat(paste0("\n","><> jbplot_compare() - requires save.jabba = TRUE in fit_jabba() <><","\n"))
   jbs = list(assessment=assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
   
-  for(i in 1:length(scenarios)){
+   for(i in 1:length(scenarios)){
     if(file.exists(paste0(output.dir,"/",assessment,"_",scenarios[i],"_jabba.rdata"))==FALSE){
       stop(paste0("fit_jabba() output - ",assessment,"_",scenarios[i],"_jabba.rdata - does not exist in specified path!"))  
     }
@@ -1283,6 +1290,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
   jbs$settings$cols = jabba$settings$cols
   jbs$settings$harvest = jabba$settings$harvest.label
   jbs$settings$catch.metric = jabba$settings$catch.metric  
+  if(is.null(cols)) cols= jabba$settings$cols
   
   
   type=c("B","F","BBmsy","FFmsy","BB0","SP")
@@ -1290,7 +1298,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
   runs= jbs$timeseries$mu$level
   years= jbs$yr
   nyrs = length(years)
-  if(length(scenarios)>1){cols= c(jbs$settings$cols)}else(cols=1)
+  if(length(scenarios)>1){cols= c(cols)}else(cols=1)
   
   if(is.null(Xlim)){Xlim = range(years)}
   
@@ -1386,12 +1394,13 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
 #' @param width plot width
 #' @param height plot hight
 #' @param minyr minimum year shown in plot 
+#' @param cols option to add colour palette 
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL){
+jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL){
   
   MASE = NULL
-  cols = hc$settings$cols
+  if(is.null(cols)) cols = hc$settings$cols
   d. = hc$diags
   peels = unique(d.$retro.peels)
   styr = max(d.$year)-max(peels)
@@ -1462,6 +1471,7 @@ jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE
           
           x <- min(py):max(yr.eval)
           x <- x[1:(length(x)-peels[j])]
+          x = x[x%in%unique(xv$year)]
           y <- xv[xv$retro.peels==peels[j+1] & xv$year%in%x,]$hat
           pred.resid = c(pred.resid,log(y[length(x)])-log(obs[length(x)])) # add log() for v1.1
           lines(x, y, lwd=2,
@@ -1474,7 +1484,7 @@ jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE
                  bg=cols[j],col=1, type="p",cex=1)
           
         }}
-      points(yr.eval[-1][1:(nhc)][is.na(naive.eval)==F],obs.eval[-1][1:(nhc)][is.na(naive.eval)==F],pch=21,cex=1.6,bg=(rev(hc$settings$cols[1:(length(peels)-1)]))[is.na(naive.eval)==F])
+      points(yr.eval[-1][1:(nhc)][is.na(naive.eval)==F],obs.eval[-1][1:(nhc)][is.na(naive.eval)==F],pch=21,cex=1.6,bg=(rev(cols[1:(length(peels)-1)]))[is.na(naive.eval)==F])
       
       
       maepr =  mean(abs(pred.resid))
