@@ -16,7 +16,8 @@ jbplot_summary(
   single.plots = FALSE,
   width = NULL,
   height = NULL,
-  Xlim = NULL
+  Xlim = NULL,
+  cols = NULL
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ jbplot_summary(
 \item{height}{plot hight}
 
 \item{Xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
+
+\item{cols}{option to add colour palette}
 }
 \description{
 Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata

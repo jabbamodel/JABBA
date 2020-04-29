@@ -10,7 +10,8 @@ jbplot_stdresiduals(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 3.5
+  height = 3.5,
+  cols = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ jbplot_stdresiduals(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{cols}{option to add colour palette}
 }
 \description{
 plots standardized residuals for all indices as boxplot with a loess showing systematic trends

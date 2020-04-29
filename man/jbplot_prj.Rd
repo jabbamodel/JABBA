@@ -14,7 +14,8 @@ jbplot_prj(
   add = FALSE,
   mfrow = c(1, 1),
   width = 5,
-  height = 3.5
+  height = 3.5,
+  cols = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ jbplot_prj(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{cols}{option to add colour palette}
 }
 \description{
 plots choice of projections of B/Bmsy, F/Fmsy or B/B0 over fixed quotas set up in build_jabba()

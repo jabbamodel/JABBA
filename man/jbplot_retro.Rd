@@ -11,7 +11,8 @@ jbplot_retro(
   single.plots = FALSE,
   width = NULL,
   height = NULL,
-  Xlim = NULL
+  Xlim = NULL,
+  cols = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ jbplot_retro(
 \item{height}{plot hight}
 
 \item{Xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
+
+\item{cols}{option to add colour palette}
 }
 \value{
 Mohn's rho statistic for several quantaties
