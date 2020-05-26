@@ -1,3 +1,15 @@
+
+#' jbpar()
+#'
+#' Set the par() to options suitable for JARA multi plots   
+#' @param mfrow determines plot frame set up
+#' @param plot.cex cex graphic option
+#' @export
+jbpar <- function(mfrow=c(1,1),plot.cex=1,mai=c(0.35,0.15,0,.15),labs=TRUE){
+  if(labs)  mai=c(0.5,0.5,0.15,.15)
+  par(list(mfrow=mfrow,mai = mai, mgp =c(2.,0.5,0),omi = c(0.3,0.3,0.2,0) + 0.1, tck = -0.02,cex=0.8))
+}
+
 #' Plots Total Catch
 #'
 #' jbplot_catch()
