@@ -198,7 +198,7 @@ fit_jabba = function(jbinput,
   if(jbinput$settings$projection==TRUE){
     cat("\n","><> compiling Future Projections under fixed quota <><","\n")
     pyrs = jbinput$jagsdata$pyrs
-    TACs = jbinput$jagsdata$TAC[1,] 
+    TACs = jbinput$jagsdata$TAC[pyrs,] 
     nTAC = length(TACs) 
     proj.yrs =  years[n.years]:(years[n.years]+pyrs)
     # Dims 1: saved MCMC,2: Years, 3:alternatic TACs, 4: P, H/Hmsy, B/Bmsy

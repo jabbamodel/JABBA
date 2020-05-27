@@ -771,7 +771,7 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
     if(add==FALSE){par(Par)}
     cat(paste0("\n","><> jbplot_prj() - ", type[i]," trajectory  <><","\n"))
     nTAC = jabba$settings$nTAC
-    TACs = jabba$settings$TAC[1,]
+    TACs = jabba$settings$TAC[nrow(jabba$settings$TAC),]
     imp.yr=jabba$settings$TAC.implementation
     if(is.null(cols)) cols = jabba$settings$cols
     shaded = rev(seq(0.4,0.9,0.5/nTAC))

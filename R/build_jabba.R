@@ -334,8 +334,13 @@ build_jabba <- function(
     TAC = mat.or.vec(pyrs,nTAC)
     yr.last = max(years) # assessment year
 
+  if(length(TACint)>1 & length(TACint) < imp.yr-yr.last-1){
+  stop("too few intial catches for initial projections specified")}
+  
+    if(length(TACint)==1) TACint = rep(TACint,imp.yr-yr.last-1)
+    
     for(i in 1:nTAC){
-      TAC[,i] = c(rep(TACint,imp.yr-yr.last-1),rep(TACs[i],pyrs-(imp.yr-yr.last-1)))
+      TAC[,i] = c(TACint,rep(TACs[i],pyrs-(imp.yr-yr.last-1)))
     }
 
   }else{
