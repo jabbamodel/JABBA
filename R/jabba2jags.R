@@ -221,8 +221,8 @@ if(jbinput$settings$projection==TRUE){
       for(i in 1:nTAC){
       # Project first year into the future
       prPmean[1,i] <- ifelse(P[N] > Plim,
-      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1)) - TACint/K,0.005)),
-      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1))*4*P[N] - TACint/K,0.001)))
+      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1)) - TC[N]/K,0.005)),
+      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1))*4*P[N] - TC[N]/K,0.001)))
       prP[1,i] ~ dlnorm(prPmean[1,i],isigma2)
       # Project all following years
       for(t in 2:pyrs){
@@ -243,7 +243,6 @@ if(jbinput$settings$projection==TRUE){
             fakeTAC <-  TAC
             fakepyrs <- pyrs
             fakenTAC <- nTAC
-            fakeTACint <- TACint
             prHtoHmsy <- 1
             prP <- 1
             prBtoBmsy <- 1
