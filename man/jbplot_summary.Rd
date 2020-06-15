@@ -17,7 +17,10 @@ jbplot_summary(
   width = NULL,
   height = NULL,
   Xlim = NULL,
-  cols = NULL
+  cols = NULL,
+  legend.loc = "topright",
+  legend.cex = 0.8,
+  legend.add = TRUE
 )
 }
 \arguments{
@@ -46,6 +49,12 @@ jbplot_summary(
 \item{Xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
 
 \item{cols}{option to add colour palette}
+
+\item{legend.loc}{location of legend}
+
+\item{legend.cex}{size of legend}
+
+\item{legend.add}{show legend}
 }
 \description{
 Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata

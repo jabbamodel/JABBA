@@ -13,7 +13,10 @@ jbplot_hcxval(
   width = NULL,
   height = NULL,
   minyr = NULL,
-  cols = NULL
+  cols = NULL,
+  legend.loc = "topright",
+  legend.cex = 0.8,
+  legend.add = TRUE
 )
 }
 \arguments{
@@ -34,6 +37,12 @@ jbplot_hcxval(
 \item{minyr}{minimum year shown in plot}
 
 \item{cols}{option to add colour palette}
+
+\item{legend.loc}{location of legend}
+
+\item{legend.cex}{size of legend}
+
+\item{legend.add}{show legend}
 }
 \value{
 hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated

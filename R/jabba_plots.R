@@ -1150,9 +1150,10 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param height plot hight
 #' @param Xlim  allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
 #' @param cols option to add colour palette 
+#' @param legend.loc location of legend
 #' @return Mohn's rho statistic for several quantaties
 #' @export
-jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL){
+jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright"){
   
   cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
   
@@ -1204,7 +1205,7 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
           }
         }}
-      if(single.plots==TRUE | k==1 )  legend("topright",paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
+      if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
       if(as.png==TRUE) dev.off()
     } # End type loop
   } else { # Multi plot
@@ -1271,8 +1272,11 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
 #' @param height plot hight
 #' @param Xlim allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
 #' @param cols option to add colour palette 
+#' @param legend.loc location of legend
+#' @param legend.cex size of legend
+#' @param legend.add show legend
 #' @export
-jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL){
+jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE){
   
   cat(paste0("\n","><> jbplot_compare() - requires save.jabba = TRUE in fit_jabba() <><","\n"))
   jbs = list(assessment=assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
@@ -1347,7 +1351,9 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
           points(mean(jbs$pfunc$SB_i[jbs$pfunc$level%in%scenarios[i]][jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]]==max(jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]])]),max(jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]]),col=cols[i],pch=16,cex=1.2)
         }
       }
-      if(single.plots==TRUE | k==1 )  legend("topright",paste(scenarios),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
+      if(legend.add==TRUE){
+      if(single.plots==TRUE | k==1 )  legend("topright",paste(scenarios),col=cols,bty="n",cex=legend.cex,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
+      }
       if(as.png==TRUE) dev.off()
     } # End type loop
   } else { # Multi plot
@@ -1375,7 +1381,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
           lines(years,y[runs%in%scenarios[i]],col= cols[i],lwd=2,lty=1)
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-        if(single.plots==TRUE | k==1 )  legend("topright",paste(scenarios),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
+        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(scenarios),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
         
       }  else {
         # Plot SP
@@ -1406,9 +1412,12 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
 #' @param height plot hight
 #' @param minyr minimum year shown in plot 
 #' @param cols option to add colour palette 
+#' @param legend.loc location of legend
+#' @param legend.cex size of legend
+#' @param legend.add show legend
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL){
+jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE){
   
   MASE = NULL
   if(is.null(cols)) cols = hc$settings$cols
@@ -1437,7 +1446,7 @@ jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
     if(as.png==TRUE){png(file = paste0(output.dir,"/hcxaval_",hc$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
-    par(Par)
+    if(add==F) par(Par)
   }  
   for(i in 1:length(indices)){
     if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
@@ -1448,7 +1457,9 @@ jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE
         Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
         if(as.png==TRUE){png(file = paste0(output.dir,"/hcxval_",hc$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
+        if(add==F){
         if(as.png==TRUE | indices[i]==valid[1]) par(Par)
+        }
       }
       xv = d.[d.$name%in%indices[i],]
       yr = unique(xv$year)
@@ -1503,9 +1514,14 @@ jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE
       MASE.i = NULL
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=mase,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
       legend("top",paste0(unique(xv$name)[1], ": MASE = ",round(mase,2)),bty="n",y.intersp=-0.2,cex=1.1)
-      if(single.plots==TRUE & as.png==TRUE) dev.off()
+      #if(single.plots==TRUE | i==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
       
-    } else{
+      if(single.plots==TRUE & as.png==TRUE) dev.off()
+      if(legend.add==T){
+      if(single.plots==TRUE | i==1){ legend(legend.loc,paste(rev(endyrvec[-1])),pt.bg=cols,bty="n",cex=legend.cex,pt.cex=1.2,pch=21)}
+      }
+      
+      } else{
       xv = d.[d.$name%in%indices[i],]
       cat(paste0("\n","No observations in evaluation years to compute prediction residuals for Index ",xv $name[1]),"\n")
       MASE.i = NULL

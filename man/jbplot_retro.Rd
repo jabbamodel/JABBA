@@ -12,7 +12,8 @@ jbplot_retro(
   width = NULL,
   height = NULL,
   Xlim = NULL,
-  cols = NULL
+  cols = NULL,
+  legend.loc = "topright"
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ jbplot_retro(
 \item{Xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
 
 \item{cols}{option to add colour palette}
+
+\item{legend.loc}{location of legend}
 }
 \value{
 Mohn's rho statistic for several quantaties
