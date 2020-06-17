@@ -1275,8 +1275,9 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
 #' @param legend.loc location of legend
 #' @param legend.cex size of legend
 #' @param legend.add show legend
+#' @param plot.cex cex setting in par()
 #' @export
-jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE){
+jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8){
   
   cat(paste0("\n","><> jbplot_compare() - requires save.jabba = TRUE in fit_jabba() <><","\n"))
   jbs = list(assessment=assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
@@ -1321,7 +1322,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
     if(is.null(width)) width = 5
     if(is.null(height)) height = 3.5
     for(k in 1:length(type)){
-      Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
+      Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=plot.cex)
       if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
@@ -1359,7 +1360,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
   } else { # Multi plot
     if(is.null(width)) width = 7
     if(is.null(height)) height = 8 
-    Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
+    Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=plot.cex)
     if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = width, height = height,
                          res = 200, units = "in")}
     par(Par)
@@ -1381,7 +1382,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
           lines(years,y[runs%in%scenarios[i]],col= cols[i],lwd=2,lty=1)
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(scenarios),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
+        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(scenarios),col=cols,bty="n",cex=legend.cex,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
         
       }  else {
         # Plot SP
@@ -1403,7 +1404,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
 #' 
 #' Plots and summarizes results from one step head hindcast cross-validation using the output form jabba_hindcast 
 #'
-#' @param hc output ojejct from jabba_hindcast
+#' @param hc output object from jabba_hindcast
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
@@ -1415,9 +1416,10 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
 #' @param legend.loc location of legend
 #' @param legend.cex size of legend
 #' @param legend.add show legend
+#' @param label.add show index name and MASE
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE){
+jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE){
   
   MASE = NULL
   if(is.null(cols)) cols = hc$settings$cols
@@ -1513,7 +1515,7 @@ jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE
       mase=maepr/scaler
       MASE.i = NULL
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=mase,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
-      legend("top",paste0(unique(xv$name)[1], ": MASE = ",round(mase,2)),bty="n",y.intersp=-0.2,cex=1.1)
+      if(label.add) legend("top",paste0(unique(xv$name)[1], ": MASE = ",round(mase,2)),bty="n",y.intersp=-0.2,cex=1.1)
       #if(single.plots==TRUE | i==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
       
       if(single.plots==TRUE & as.png==TRUE) dev.off()
