@@ -6,7 +6,9 @@
 \usage{
 jbplot_runstest(
   jabba,
+  index = NULL,
   output.dir = getwd(),
+  add = FALSE,
   as.png = FALSE,
   single.plots = FALSE,
   width = NULL,
@@ -16,7 +18,11 @@ jbplot_runstest(
 \arguments{
 \item{jabba}{output list from fit_jabba}
 
+\item{index}{option to plot specific indices (numeric & in order)}
+
 \item{output.dir}{directory to save plots}
+
+\item{add}{if true par() is surpressed within the plot function}
 
 \item{as.png}{save as png file of TRUE}
 

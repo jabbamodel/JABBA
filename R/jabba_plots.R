@@ -237,26 +237,29 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' Plots observed and fitted cpue indices with expexted CIs (dark grey) and posterior predictive distribution (light grey)
 #'
 #' @param jabba output list from fit_jabba
+#' @param index option to plot specific indices (numeric & in order)
 #' @param output.dir directory to save plots
+#' @param add if TRUE is surpresses par() within the plotting function
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param width plot width
 #' @param height plot hight
 #' @export
-jbplot_cpuefits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
+jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
 
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
-
+    
+    if(is.null(index)) index = 1:jabba$settings$nI
     N = jabba$settings$N
-    years = jabba$yr
-    n.indices = jabba$settings$nI
-    series = 1:jabba$settings$nI
+    years= jabba$yr
+    indices = unique(jabba$diags$name)[index]
     CPUE = jabba$settings$I
-    indices = unique(jabba$diags$name)
+    n.indices = length(indices)
+    series = 1:n.indices
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
     cpue.yrs = years[check.yrs>0]
-
+    
     if(single.plots==TRUE){
     if(is.null(width)) width = 5
     if(is.null(height)) height = 3.5
@@ -264,22 +267,23 @@ jbplot_cpuefits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
       if(as.png==TRUE){png(file = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                            res = 200, units = "in")}
-
+      if(!add){
       if(as.png==TRUE | i==1) par(Par)
+      }
       # set observed vs predicted CPUE
       Yr = jabba$yr
       Yr = min(Yr):max(Yr)
       yr = Yr-min(years)+1
 
-      fit =  t(jabba$cpue.ppd[,c(2,1,3),i])
-      fit.hat = t(jabba$cpue.hat[,c(2,1,3),i])
+      fit =  t(jabba$cpue.ppd[,c(2,1,3),index[i]])
+      fit.hat = t(jabba$cpue.hat[,c(2,1,3),index[i]])
       mufit = mean(fit[2,])
       fit = fit/mufit
       fit.hat = fit.hat/mufit
 
-      cpue.i = CPUE[is.na(CPUE[,i])==F,i]
-      yr.i = Yr[is.na(CPUE[,i])==F]
-      se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,i])==F,(i)])
+      cpue.i = CPUE[is.na(CPUE[,index[i]])==F,index[i]]
+      yr.i = Yr[is.na(CPUE[,index[i]])==F]
+      se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
 
       ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)/mufit))
 
@@ -287,18 +291,18 @@ jbplot_cpuefits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
       cord.y <- c(fit[1,yr],rev(fit[3,yr]))
       cord.yhat <- c(fit.hat[1,yr],rev(fit.hat[3,yr]))
       # Plot Observed vs predicted CPUE
-      plot(years,CPUE[,i],ylab="",xlab="",ylim=ylim,xlim=range(jabba$yr),type='n',xaxt="n",yaxt="n")
+      plot(years,CPUE[,index[i]],ylab="Normalized Index",xlab="Year",ylim=ylim,xlim=range(jabba$yr),type='n',xaxt="n",yaxt="n")
       axis(1,labels=TRUE,cex=0.8)
       axis(2,labels=TRUE,cex=0.8)
       polygon(cord.x,cord.y,col=grey(0.5,0.5),border=0,lty=2)
       polygon(cord.x,cord.yhat,col=grey(0.3,0.5),border=grey(0.3,0.5),lty=2)
 
       lines(Yr,fit[2,yr],lwd=2,col=1)
-      if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n")}else{
+      if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
         points(yr.i,cpue.i/mufit,pch=21,xaxt="n",yaxt="n",bg="white")}
       legend('top',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.9)
-      mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
-      mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
+      #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
+      #mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
       if(as.png==TRUE) dev.off()
     }} else {
 
@@ -307,38 +311,38 @@ jbplot_cpuefits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
     if(as.png==TRUE){png(file = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                            res = 200, units = "in")}
-    par(Par)
+    if(!add) par(Par)
 
     for(i in 1:n.indices){
       # set observed vs predicted CPUE
       Yr = jabba$yr
       Yr = min(Yr):max(Yr)
       yr = Yr-min(years)+1
-
-      fit =  t(jabba$cpue.ppd[,c(2,1,3),i])
-      fit.hat = t(jabba$cpue.hat[,c(2,1,3),i])
+      
+      fit =  t(jabba$cpue.ppd[,c(2,1,3),index[i]])
+      fit.hat = t(jabba$cpue.hat[,c(2,1,3),index[i]])
       mufit = mean(fit[2,])
       fit = fit/mufit
       fit.hat = fit.hat/mufit
-
-      cpue.i = CPUE[is.na(CPUE[,i])==F,i]
-      yr.i = Yr[is.na(CPUE[,i])==F]
-      se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,i])==F,(i)])
-
+      
+      cpue.i = CPUE[is.na(CPUE[,index[i]])==F,index[i]]
+      yr.i = Yr[is.na(CPUE[,index[i]])==F]
+      se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
+      
       ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)/mufit))
-
+      
       cord.x <- c(Yr,rev(Yr))
       cord.y <- c(fit[1,yr],rev(fit[3,yr]))
       cord.yhat <- c(fit.hat[1,yr],rev(fit.hat[3,yr]))
       # Plot Observed vs predicted CPUE
-      plot(years,CPUE[,i],ylab="",xlab="",ylim=ylim,xlim=range(jabba$yr),type='n',xaxt="n",yaxt="n")
+      plot(years,CPUE[,index[i]],ylab="",xlab="",ylim=ylim,xlim=range(jabba$yr),type='n',xaxt="n",yaxt="n")
       axis(1,labels=TRUE,cex=0.8)
       axis(2,labels=TRUE,cex=0.8)
       polygon(cord.x,cord.y,col=grey(0.5,0.5),border=0,lty=2)
       polygon(cord.x,cord.yhat,col=grey(0.3,0.5),border=grey(0.3,0.5),lty=2)
 
       lines(Yr,fit[2,yr],lwd=2,col=1)
-      if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n")}else{
+      if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
         points(yr.i,cpue.i/mufit,pch=21,xaxt="n",yaxt="n",bg="white")}
 
       legend('top',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.9)
@@ -357,23 +361,26 @@ jbplot_cpuefits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
 #' Plot of fitted CPUE indices on log-scale (r4ss-style)
 #'
 #' @param jabba output list from fit_jabba
+#' @param index option to plot specific indices (numeric & in order)
 #' @param output.dir directory to save plots
+#' @param add if TRUE is surpresses par() within the plotting function
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param width plot width
 #' @param height plot hight
 #' @export
 
-jbplot_logfits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
+jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_logfits()  <><","\n"))
-
+    
+    if(is.null(index)) index = 1:jabba$settings$nI
     N = jabba$settings$N
     years= jabba$yr
-    n.indices = jabba$settings$nI
-    series = 1:jabba$settings$nI
+    indices = unique(jabba$diags$name)[index]
     CPUE = jabba$settings$I
-    indices = unique(jabba$diags$name)
+    n.indices = length(indices)
+    series = 1:n.indices
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
     cpue.yrs = years[check.yrs>0]
 
@@ -384,33 +391,33 @@ jbplot_logfits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=F
         Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
         if(as.png==TRUE){png(file = paste0(output.dir,"/logFits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
-
+        if(!add){
         if(as.png==TRUE | i==1) par(Par)
-
+        }
       Yr = jabba$yr
       Yr = min(Yr):max(Yr)
       yr = Yr-min(years)+1
 
-      fit = t(jabba$cpue.hat[,c(2,1,3),i])
+      fit = t(jabba$cpue.hat[,c(2,1,3),index[i]])
       mufit = mean(fit[2,])
       fit = fit/mufit
-      cpue.i = CPUE[is.na(CPUE[,i])==F,i]
-      yr.i = Yr[is.na(CPUE[,i])==F]
-      se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,i])==F,(i)])
+      cpue.i = CPUE[is.na(CPUE[,index[i]])==F,index[i]]
+      yr.i = Yr[is.na(CPUE[,index[i]])==F]
+      se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
 
-      ylim = log(c(min(fit[,yr[is.na(CPUE[,i])==F]]*0.8,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit[,yr[is.na(CPUE[,i])==F]]*1.3,exp(log(cpue.i)+1.96*se.i)/mufit)))
+      ylim = log(c(min(fit[,yr[is.na(CPUE[,index[i]])==F]]*0.8,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit[,yr[is.na(CPUE[,index[i]])==F]]*1.3,exp(log(cpue.i)+1.96*se.i)/mufit)))
 
       # Plot Observed vs predicted CPUE
-      plot(years,CPUE[,i],ylab="",xlab="",ylim=ylim,xlim=range(yr.i),type='n',xaxt="n",yaxt="n")
+      plot(years,CPUE[,index[i]],ylab="log Index",xlab="Year",ylim=ylim,xlim=range(yr.i),type='n',xaxt="n",yaxt="n")
       axis(1,labels=TRUE,cex=0.8)
       axis(2,labels=TRUE,cex=0.8)
 
       lines(Yr,log(fit[2,yr]),lwd=2,col=4)
-      if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n")}else{
+      if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
         points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")}
       legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
-      mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
-      mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
+      #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
+      #mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
       if(as.png==TRUE){dev.off()}
       }
       } else { # single.plots = F
@@ -419,28 +426,28 @@ jbplot_logfits <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=F
         Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
         if(as.png==TRUE){png(file = paste0(output.dir,"/logFits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                              res = 200, units = "in")}
-        par(Par)
+        if(!add) par(Par)
         for(i in 1:n.indices){
           Yr = jabba$yr
           Yr = min(Yr):max(Yr)
           yr = Yr-min(years)+1
-
-          fit = t(jabba$cpue.hat[,c(2,1,3),i])
+          
+          fit = t(jabba$cpue.hat[,c(2,1,3),index[i]])
           mufit = mean(fit[2,])
           fit = fit/mufit
-          cpue.i = CPUE[is.na(CPUE[,i])==F,i]
-          yr.i = Yr[is.na(CPUE[,i])==F]
-          se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,i])==F,(i)])
-
-          ylim = log(c(min(fit[,yr[is.na(CPUE[,i])==F]]*0.8,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit[,yr[is.na(CPUE[,i])==F]]*1.3,exp(log(cpue.i)+1.96*se.i)/mufit)))
-
+          cpue.i = CPUE[is.na(CPUE[,index[i]])==F,index[i]]
+          yr.i = Yr[is.na(CPUE[,index[i]])==F]
+          se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
+          
+          ylim = log(c(min(fit[,yr[is.na(CPUE[,index[i]])==F]]*0.8,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit[,yr[is.na(CPUE[,index[i]])==F]]*1.3,exp(log(cpue.i)+1.96*se.i)/mufit)))
+          
           # Plot Observed vs predicted CPUE
-          plot(years,CPUE[,i],ylab="",xlab="",ylim=ylim,xlim=range(yr.i),type='n',xaxt="n",yaxt="n")
+          plot(years,CPUE[,index[i]],ylab="",xlab="",ylim=ylim,xlim=range(yr.i),type='n',xaxt="n",yaxt="n")
           axis(1,labels=TRUE,cex=0.8)
           axis(2,labels=TRUE,cex=0.8)
 
           lines(Yr,log(fit[2,yr]),lwd=2,col=4)
-          if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n")}else{
+          if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
             points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")}
           legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
         }
@@ -573,29 +580,29 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' JABBA runs test plots
 #'
 #' Residual diagnostics with runs test p-value and 3xsigma limits
-#'
 #' @param jabba output list from fit_jabba
+#' @param index option to plot specific indices (numeric & in order)
 #' @param output.dir directory to save plots
+#' @param add if true par() is surpressed within the plot function
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param width plot width
 #' @param height plot hight
 #' @export
-jbplot_runstest <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
+jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
 
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_runstest()   <><","\n"))
 
-
+    all.indices = unique(jabba$diags$name)
+    if(is.null(index)) index = 1:length(all.indices)
+    indices = unique(jabba$diags$name)[index]
+    n.indices = length(indices)
+    Resids = jabba$residuals
     years = jabba$yr
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
     cpue.yrs = years[check.yrs>0]
-    Resids = jabba$residuals
-    n.years = length(years)
-    n.indices = jabba$settings$nI
-    indices = unique(jabba$diags$name)
-    series = 1:jabba$settings$nI
-
+    
 
     if(single.plots==TRUE){
         if(is.null(width)) width = 5
@@ -605,15 +612,16 @@ jbplot_runstest <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
           if(as.png==TRUE){png(file = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                                res = 200, units = "in")}
 
+          if(add==FALSE){
           if(as.png==TRUE | i==1) par(Par)
+          }
 
 
-
-      resid = (Resids[i,is.na(Resids[i,])==F])
-      res.yr = years[is.na(Resids[i,])==F]
+      resid = (Resids[index[i],is.na(Resids[index[i],])==F])
+      res.yr = years[is.na(Resids[index[i],])==F]
       runstest = runs_sig3(x=as.numeric(resid),type="resid")
       # CPUE Residuals with runs test
-      plot(res.yr,rep(0,length(res.yr)),type="n",ylim=c(min(-1,runstest$sig3lim[1]*1.25),max(1,runstest$sig3lim[2]*1.25)),lty=1,lwd=1.3,xlab="Year",ylab=expression(log(cpue[obs])-log(cpue[pred])))
+      plot(res.yr,rep(0,length(res.yr)),type="n",ylim=c(min(-1,runstest$sig3lim[1]*1.25),max(1,runstest$sig3lim[2]*1.25)),lty=1,lwd=1.3,xlab="Year",ylab="Residuals")
       abline(h=0,lty=2)
       lims = runstest$sig3lim
       cols =  c(rgb(1,0,0,0.5),rgb(0,1,0,0.5))[ifelse(runstest$p.runs<0.05,1,2)]
@@ -623,8 +631,8 @@ jbplot_runstest <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
       }
       points(res.yr,resid,pch=21,bg=ifelse(resid < lims[1] | resid > lims[2],2,"white"),cex=1)
       legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
-      mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
-      mtext(expression(log(cpue[obs])-log(cpue[pred])), side=2, outer=TRUE, at=0.5,line=1,cex=1)
+      #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
+      #mtext(expression(log(cpue[obs])-log(cpue[pred])), side=2, outer=TRUE, at=0.5,line=1,cex=1)
       if(as.png==TRUE){dev.off()}
         } # end of loop
     } else { # single.plot = FALSE
@@ -633,13 +641,13 @@ jbplot_runstest <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
     if(as.png==TRUE){png(file = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
-    par(Par)
+    if(add==FALSE) par(Par)
     for(i in 1:n.indices){
-      resid = (Resids[i,is.na(Resids[i,])==F])
-      res.yr = years[is.na(Resids[i,])==F]
+      resid = (Resids[index[i],is.na(Resids[index[i],])==F])
+      res.yr = years[is.na(Resids[index[i],])==F]
       runstest = runs_sig3(x=as.numeric(resid),type="resid")
       # CPUE Residuals with runs test
-      plot(res.yr,rep(0,length(res.yr)),type="n",ylim=c(min(-1,runstest$sig3lim[1]*1.25),max(1,runstest$sig3lim[2]*1.25)),lty=1,lwd=1.3,xlab="Year",ylab=expression(log(cpue[obs])-log(cpue[pred])))
+      plot(res.yr,rep(0,length(res.yr)),type="n",ylim=c(min(-1,runstest$sig3lim[1]*1.25),max(1,runstest$sig3lim[2]*1.25)),lty=1,lwd=1.3,xlab="Year",ylab="Residuals")
       abline(h=0,lty=2)
       lims = runstest$sig3lim
       cols =  c(rgb(1,0,0,0.5),rgb(0,1,0,0.5))[ifelse(runstest$p.runs<0.05,1,2)]
@@ -652,7 +660,7 @@ jbplot_runstest <- function(jabba, output.dir=getwd(),as.png=FALSE,single.plots=
 
     }
     mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
-    mtext(expression(log(cpue[obs])-log(cpue[pred])), side=2, outer=TRUE, at=0.5,line=1,cex=1)
+    mtext("Residuals", side=2, outer=TRUE, at=0.5,line=1,cex=1)
     if(as.png==TRUE){dev.off()}
   }
 
@@ -1405,6 +1413,7 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
 #' Plots and summarizes results from one step head hindcast cross-validation using the output form jabba_hindcast 
 #'
 #' @param hc output object from jabba_hindcast
+#' @param index option to plot specific indices (numeric & in order)
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
@@ -1419,11 +1428,16 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
 #' @param label.add show index name and MASE
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE){
+jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE){
   
   MASE = NULL
   if(is.null(cols)) cols = hc$settings$cols
   d. = hc$diags
+  all.indices = unique(d.$name)  
+  if(is.null(index)) index = 1:length(all.indices)
+  # subset 
+  d. = d.[d.$name%in%all.indices[index],]
+  
   peels = unique(d.$retro.peels)
   styr = max(d.$year)-max(peels)
   years = sort(unique(d.$year))

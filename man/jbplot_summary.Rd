@@ -20,7 +20,8 @@ jbplot_summary(
   cols = NULL,
   legend.loc = "topright",
   legend.cex = 0.8,
-  legend.add = TRUE
+  legend.add = TRUE,
+  plot.cex = 0.8
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ jbplot_summary(
 \item{legend.cex}{size of legend}
 
 \item{legend.add}{show legend}
+
+\item{plot.cex}{cex setting in par()}
 }
 \description{
 Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata

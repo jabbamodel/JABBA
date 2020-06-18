@@ -6,7 +6,9 @@
 \usage{
 jbplot_logfits(
   jabba,
+  index = NULL,
   output.dir = getwd(),
+  add = FALSE,
   as.png = FALSE,
   single.plots = FALSE,
   width = NULL,
@@ -16,7 +18,11 @@ jbplot_logfits(
 \arguments{
 \item{jabba}{output list from fit_jabba}
 
+\item{index}{option to plot specific indices (numeric & in order)}
+
 \item{output.dir}{directory to save plots}
+
+\item{add}{if TRUE is surpresses par() within the plotting function}
 
 \item{as.png}{save as png file of TRUE}
 
