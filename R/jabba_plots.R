@@ -845,7 +845,7 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
   green.y = c(Bmsy.sp,0,0,max(SP),max(Cmsy))
   red.x = c(0,0,Bmsy.sp,Bmsy.sp,0)
   red.y = c(SB0.sp,0,max(SP),SB0.sp,SB0.sp)
-  plot(Bit,SP,type = "n",ylim=c(0,max(c(max(jabba$catch,na.rm=T)*1.05,max(MSY.sp*1.1)))),xlim=c(0,max(Bit,B)),ylab="Surplus Production",xlab="Spawning Biomass",xaxs="i",yaxs="i")
+  plot(Bit,SP,type = "n",ylim=c(0,max(c(max(jabba$catch,na.rm=T)*1.05,max(MSY.sp*1.1)))),xlim=c(0,max(Bit,B)),ylab="Surplus Production",xlab="Biomass",xaxs="i",yaxs="i")
   rect(0,0,SB0.sp*1.1,SB0.sp*1.1,col="green",border=0)
   rect(0,0,SB0.sp,SB0.sp,col="yellow",border=0)
   rect(0,max(SP),SB0.sp,SB0.sp,col="orange",border=0)
@@ -1291,11 +1291,11 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
   jbs = list(assessment=assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
   
    for(i in 1:length(scenarios)){
-    if(file.exists(paste0(output.dir,"/",assessment,"_",scenarios[i],"_jabba.rdata"))==FALSE){
+    if(file.exists(paste0(mod.path,"/",assessment,"_",scenarios[i],"_jabba.rdata"))==FALSE){
       stop(paste0("fit_jabba() output - ",assessment,"_",scenarios[i],"_jabba.rdata - does not exist in specified path!"))  
     }
     
-    load(paste0(output.dir,"/",assessment,"_",scenarios[i],"_jabba.rdata"),verbose=T)
+    load(paste0(mod.path,"/",assessment,"_",scenarios[i],"_jabba.rdata"),verbose=T)
     if(i==1){
       jbs$yr = jabba$yr
       jbs$catch = jabba$catch
