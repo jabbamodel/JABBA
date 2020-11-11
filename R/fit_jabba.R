@@ -31,8 +31,10 @@
 #' jbplot_trj(bet1,type="FFmsy",add=T)
 #' jbplot_spphase(bet1,add=T)
 #' jbplot_kobe(bet1,add=T)
+
+
 fit_jabba = function(jbinput,
-                     # MCMC settings
+                   # MCMC settings
                      ni = 30000, # Number of iterations
                      nt = 5, # Steps saved
                      nb = 5000, # Burn-in
@@ -49,6 +51,7 @@ fit_jabba = function(jbinput,
                      save.prjkobe = FALSE,
                      output.dir = getwd(),
                      quickmcmc = FALSE
+                     
 ){
   #write jabba model
   jabba2jags(jbinput)
@@ -315,7 +318,8 @@ fit_jabba = function(jbinput,
   #-----------------------------------
   sel.par = c(1,2,7,4,3,5)
   out=data.frame(posteriors[params[sel.par]])
-
+  outman =data.frame(posteriors[params[c(8:10)]])
+  colnames(outman) = c("Fmsy","Bmsy","MSY")
   cat(paste0("\n","\n",paste0("><> Scenario ", jbinput$settings$scenario,"_",jbinput$settings$model.type," completed in ",as.integer(save.time[3]/60)," min and ",round((save.time[3]/60-as.integer(save.time[3]/60))*100)," sec <><","\n")))
 
 
@@ -356,7 +360,7 @@ fit_jabba = function(jbinput,
     jabba$residuals = "Not Available for Catch-Only option"
   }
   jabba$stats = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
-  jabba$pars_posterior = out
+  jabba$pars_posterior = cbind(out,outman)
   jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N])
   # add b.ppdist
   if(jbinput$jagsdata$b.pr[3]==0){jabba$bppd = "No biomass prior used"} else {
