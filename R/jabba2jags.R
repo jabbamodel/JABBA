@@ -117,15 +117,23 @@ jabba2jags = function(jbinput){
   # Run standard JABBA
   if(jbinput$settings$add.catch.CV==FALSE){
     cat("
-for(t in 1:N){
-estC[t] <- TC[t]
-}
-",append=TRUE)} else {
+  for(t in 1:N){
+  estC[t] <- TC[t]
+  }
+",append=TRUE)} else if(jbinput$settings$catch.error=="random"){
   cat("
-for(t in 1:N){
+  for(t in 1:N){
       estC[t] ~ dlnorm(log(TC[t]),pow(CV.C[t],-2))
-}
-",append=TRUE)}
+  }
+
+",append=TRUE)} else {
+cat("
+  for(t in 1:N){
+  cdev[t] ~ dnorm(0,pow(CV.C[t],-2))
+  cpos[t] <- sqrt(pow(cdev[t],2))
+  estC[t] <- exp(log(TC[t])+cpos[t]) 
+  }
+",append=TRUE)}  
 cat("
 
     #Process equation

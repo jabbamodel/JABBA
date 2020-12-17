@@ -5,9 +5,8 @@
 \title{jbplot_summary()}
 \usage{
 jbplot_summary(
-  scenarios = NULL,
-  assessment = NULL,
-  mod.path = getwd(),
+  jabbas,
+  type = c("B", "F", "BBmsy", "FFmsy", "BB0", "SP"),
   plotCIs = TRUE,
   prefix = "Summary",
   save.summary = FALSE,
@@ -25,11 +24,9 @@ jbplot_summary(
 )
 }
 \arguments{
-\item{scenarios}{Names of model scenarios to compare}
+\item{jabbas}{list() of JABBA model 1:n}
 
-\item{assessment}{Name of assessment as specified in jbinput}
-
-\item{mod.path}{Directory of saved model runs or vector}
+\item{type}{for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")}
 
 \item{plotCIs}{Plot Credibilty Interval}
 

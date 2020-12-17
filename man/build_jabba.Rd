@@ -13,6 +13,7 @@ build_jabba(
   model.type = c("Schaefer", "Fox", "Pella", "Pella_m"),
   add.catch.CV = TRUE,
   catch.cv = 0.1,
+  catch.error = c("random", "under")[1],
   Plim = 0,
   r.dist = c("lnorm", "range"),
   r.prior = c(0.2, 0.5),
@@ -63,6 +64,8 @@ build_jabba(
 \item{add.catch.CV}{= c(TRUE,FALSE) option estimate catch with error}
 
 \item{catch.cv}{catch error on log-scale (default = 0.1)}
+
+\item{catch.error}{can be random or directional under reporting "under"}
 
 \item{Plim}{= 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
 PRIORS}

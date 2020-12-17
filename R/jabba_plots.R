@@ -1267,9 +1267,8 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
 #' jbplot_summary() 
 #'
 #' Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata 
-#' @param scenarios Names of model scenarios to compare
-#' @param assessment Name of assessment as specified in jbinput
-#' @param mod.path Directory of saved model runs or vector 
+#' @param jabbas list() of JABBA model 1:n
+#' @param type for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")
 #' @param plotCIs Plot Credibilty Interval 
 #' @param prefix Plot name specifier
 #' @param save.summary option to save a summary of all loaded model runs
@@ -1285,21 +1284,35 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
 #' @param legend.add show legend
 #' @param plot.cex cex setting in par()
 #' @export
-jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8){
+jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8){
   
   cat(paste0("\n","><> jbplot_compare() - requires save.jabba = TRUE in fit_jabba() <><","\n"))
-  jbs = list(assessment=assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
+  jbs = list(assessment=jabbas[[1]]$assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
+  if(single.plots==F) type=c("B","F","BBmsy","FFmsy","BB0","SP")
+  scenarios = NULL
+  for(i in 1:length(jabbas)) scenarios = c(scenarios,jabbas[[i]]$scenario)
+  if(is.null(names(jabbas))){
+    scenarios = scenarios
+    if(length(unique(scenarios))<length(scenarios)){
+      scenarios = paste0(scenarios,1:length(scenarios))
+    } 
+  } else {
+    scenarios = names(jabbas)
+  } 
   
-   for(i in 1:length(scenarios)){
-    if(file.exists(paste0(mod.path,"/",assessment,"_",scenarios[i],"_jabba.rdata"))==FALSE){
-      stop(paste0("fit_jabba() output - ",assessment,"_",scenarios[i],"_jabba.rdata - does not exist in specified path!"))  
-    }
-    
-    load(paste0(mod.path,"/",assessment,"_",scenarios[i],"_jabba.rdata"),verbose=T)
+  
+  for(i in 1:length(jabbas)){
+    jabba = jabbas[[i]]
     if(i==1){
       jbs$yr = jabba$yr
       jbs$catch = jabba$catch
+      jbs$settings$cols = jabba$settings$cols
+      jbs$settings$harvest = jabba$settings$harvest.label
+      jbs$settings$catch.metric = jabba$settings$catch.metric  
+      if(is.null(cols)) cols= jabba$settings$cols
+      
     }
+    jabba$pfunc$level = scenarios[i]
     jbs$timeseries$mu = rbind(jbs$timeseries$mu,data.frame(factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"mu",])) 
     jbs$timeseries$lci = rbind(jbs$timeseries$lci,data.frame(factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"lci",])) 
     jbs$timeseries$uci = rbind(jbs$timeseries$uci,data.frame(factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"uci",])) 
@@ -1307,17 +1320,14 @@ jbplot_summary <- function(scenarios=NULL,assessment=NULL,mod.path=getwd(),plotC
     jbs$refpts= rbind(jbs$refpts,jabba$refpts[1,])
     jbs$pfunc= rbind(jbs$pfunc ,jabba$pfunc)
     
-  }
+   }
+  
   if(save.summary){
     save(jbs,file=paste0(output.dir,"/",prefix,"_",assessment,"_summary.rdata"))
   }
-  jbs$settings$cols = jabba$settings$cols
-  jbs$settings$harvest = jabba$settings$harvest.label
-  jbs$settings$catch.metric = jabba$settings$catch.metric  
-  if(is.null(cols)) cols= jabba$settings$cols
   
   
-  type=c("B","F","BBmsy","FFmsy","BB0","SP")
+  #type=c("B","F","BBmsy","FFmsy","BB0","SP")
   ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest=="Fmsy",expression(F/F[MSY]),expression(H/H[MSY])),expression(B/B[0]),paste("Surplus Production",jabba$settings$catch.metric))
   runs= jbs$timeseries$mu$level
   years= jbs$yr

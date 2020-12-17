@@ -9,6 +9,7 @@
 #' @param model.type = c("Schaefer","Fox","Pella","Pella_m"),
 #' @param add.catch.CV = c(TRUE,FALSE) option estimate catch with error
 #' @param catch.cv  catch error on log-scale (default = 0.1)
+#' @param catch.error can be random or directional under reporting "under"
 #' @param Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
 #' PRIORS
 #' @param r.dist = c("lnorm","range"), # prior distribution for the intrinsic rate population increas 
@@ -55,6 +56,7 @@ build_jabba <- function(
   model.type = c("Schaefer","Fox","Pella","Pella_m"),
   add.catch.CV = TRUE, # to match original assessment
   catch.cv = 0.1, # CV for catch error
+  catch.error = c("random","under")[1], # 
   Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
   r.dist = c("lnorm","range"), # prior distribution for the intrinsic rate population increas 
   r.prior = c(0.2,0.5), # prior(mu, lod.sd) for intrinsic rate of population increase   
@@ -419,6 +421,7 @@ build_jabba <- function(
   jbinput$settings$model.type = mod.names
   jbinput$settings$add.catch.CV = add.catch.CV
   jbinput$settings$catch.cv = catch.cv
+  jbinput$settings$catch.error = catch.error
   jbinput$settings$CatchOnly = CatchOnly
   jbinput$settings$proc.dev.all = proc.dev.all
   jbinput$settings$projection = projection
