@@ -138,7 +138,8 @@ fit_jabba = function(jbinput,
   #Model  parameter
   apply(par.dat,2,quantile,c(0.025,0.5,0.975))
 
-  man.dat = data.frame(posteriors[params[8:10]])
+  man.dat = data.frame(posteriors[params[8:10]],bmsyk=as.numeric(posteriors$SBmsy)/as.numeric(posteriors$K))
+  
   #Management quantaties
   apply(man.dat,2,quantile,c(0.025,0.5,0.975))
 
@@ -318,8 +319,8 @@ fit_jabba = function(jbinput,
   #-----------------------------------
   sel.par = c(1,2,7,4,3,5)
   out=data.frame(posteriors[params[sel.par]])
-  outman =data.frame(posteriors[params[c(8:10)]])
-  colnames(outman) = c("Fmsy","Bmsy","MSY")
+  outman = man.dat[,1:4]
+  colnames(outman) = c("Fmsy","Bmsy","MSY","BmsyK")
   cat(paste0("\n","\n",paste0("><> Scenario ", jbinput$settings$scenario,"_",jbinput$settings$model.type," completed in ",as.integer(save.time[3]/60)," min and ",round((save.time[3]/60-as.integer(save.time[3]/60))*100)," sec <><","\n")))
 
 
@@ -360,7 +361,8 @@ fit_jabba = function(jbinput,
     jabba$residuals = "Not Available for Catch-Only option"
   }
   jabba$stats = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
-  jabba$pars_posterior = cbind(out,outman)
+  jabba$pars_posterior = out
+  jabba$rfps_posterior = outman
   jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N])
   # add b.ppdist
   if(jbinput$jagsdata$b.pr[3]==0){jabba$bppd = "No biomass prior used"} else {
