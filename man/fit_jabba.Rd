@@ -16,9 +16,10 @@ fit_jabba(
   init.q = NULL,
   peels = NULL,
   save.all = FALSE,
+  save.trj = FALSE,
+  save.prj = FALSE,
   save.jabba = FALSE,
   save.csvs = FALSE,
-  save.prjkobe = FALSE,
   output.dir = getwd(),
   quickmcmc = FALSE
 )
@@ -46,9 +47,15 @@ Initial values}
 
 \item{peels}{= NULL, # retro peel option}
 
-\item{save.all}{= FALSE}
+\item{save.all}{add complete posteriors to fitted object}
 
-\item{save.jabba}{= FALSE}
+\item{save.trj}{adds posteriors of stock, harvest and bk trajectories}
+
+\item{save.prj}{adds posteriors of stock, harvest and bk projections}
+
+\item{save.jabba}{saves jabba fit as rdata object}
+
+\item{save.csvs}{option to write csv outputs}
 
 \item{output.dir}{path to save plot. default is getwd()}
 }

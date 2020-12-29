@@ -13,8 +13,11 @@
 #' @param init.r = NULL,
 #' @param init.q = NULL,# vector
 #' @param peels = NULL, # retro peel option
-#' @param save.jabba = FALSE
-#' @param save.all = FALSE
+#' @param save.trj adds posteriors of stock, harvest and bk trajectories
+#' @param save.prj adds posteriors of stock, harvest and bk projections
+#' @param save.csvs option to write csv outputs
+#' @param save.jabba saves jabba fit as rdata object
+#' @param save.all add complete posteriors to fitted object 
 #' @param output.dir path to save plot. default is getwd()
 #' @return A result list containing estimates of model input, settings and results
 #' @export
@@ -46,9 +49,10 @@ fit_jabba = function(jbinput,
                      init.q = NULL,# vector
                      peels = NULL, # retro peel option
                      save.all = FALSE,
+                     save.trj = FALSE,
+                     save.prj = FALSE,
                      save.jabba = FALSE,
                      save.csvs = FALSE,
-                     save.prjkobe = FALSE,
                      output.dir = getwd(),
                      quickmcmc = FALSE
                      
@@ -175,7 +179,7 @@ fit_jabba = function(jbinput,
   Table = rbind(data.frame(results)[c("K","r","psi","sigma2","m"),1:3],data.frame(ref.points))
   Table[4,] = round(sqrt((Table[4,])),3)
   rownames(Table)[4] = "sigma.proc"
-  colnames(Table) <- c("mu","lci","uci")
+  colnames(Table)  <- c("mu","lci","uci")
 
   #-----------------------------------------------
   # Stock trajectories
@@ -195,6 +199,7 @@ fit_jabba = function(jbinput,
 
   }
 
+  
   #--------------------------------------------------------
   # Projections
   #-------------------------------------------------------
@@ -362,8 +367,8 @@ fit_jabba = function(jbinput,
   }
   jabba$stats = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
   jabba$pars_posterior = out
-  jabba$rfps_posterior = outman
-  jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N])
+  jabba$refpts_posterior = outman
+  jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N],bk=posteriors$P[,N])
   # add b.ppdist
   if(jbinput$jagsdata$b.pr[3]==0){jabba$bppd = "No biomass prior used"} else {
   if(jbinput$jagsdata$b.pr[4]==0){jabba$bppd = posteriors$P[,which(years%in%jbinput$jagsdata$b.pr[3])]} 
@@ -374,18 +379,30 @@ fit_jabba = function(jbinput,
     jabba$projections = Stock_prj
   }
   
-  if(save.jabba==TRUE){
-  save(jabba,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_jabba.rdata"))
+  if(save.trj==TRUE){
+    
+    cmsy = rep(jabba$catch, each=nrow(posteriors$MSY))/rep(posteriors$MSY,length(jabba$yr))
+    stock =  posteriors$BtoBmsy
+    colnames(stock) <- jabba$yr
+    kbtrj = cbind(reshape::melt(stock),reshape::melt(posteriors$HtoHmsy)[,3],
+                    reshape::melt(posteriors$P)[,3],cmsy,reshape::melt(posteriors$Proc.Dev)[,3])
+    colnames(kbtrj) <- c("iter","year","stock","harvest","bk","cmsy","procdev")
+    jabba$trj_posterior = kbtrj
   }
-  
-  if(save.prjkobe==TRUE){
-    prjkb = kobeJabbaProj(projections)
-    save(prjkb,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_prjkb.rdata"))
+    
+  if(save.prj==TRUE){
+    prj_posterior = kobeJabbaProj(projections)
+    #save(prjkb,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_prjkb.rdata"))
+    jabba$prj_posterior = prj_posterior
   }
   
   
   # Safe posteriors (Produces large object!)
-  if(save.all==TRUE) save(posteriors,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_posteriors.rdata"))
+  if(save.all==TRUE) jabba$posteriors = posteriors
+  
+  if(save.jabba==TRUE){
+    save(jabba,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_jabba.rdata"))
+  }
   
   
   if(save.csvs==TRUE){

@@ -117,8 +117,8 @@ kobeJabba<-function(x){
 #' @export
 kobeJabbaProj<-function(x){
 
-  out=cbind(reshape::melt(x[,,,2]),c(x[,,,3]))
-  names(out)=c("iter","year","tac","stock","harvest")
+  out=cbind(reshape::melt(x[,,,2]),reshape::melt(x[,,,3])[,4],reshape::melt(x[,,,1])[,4])
+  names(out)=c("iter","year","tac","stock","harvest","bk")
   out$year=out$year
 
   out}
