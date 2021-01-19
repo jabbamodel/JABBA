@@ -672,6 +672,7 @@ jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 } # end of runstest plot function
 
 
+
 #' Plot of process error deviation on log(biomass)
 #'
 #' shows the difference of the expected biomass and its stochastic realization
@@ -810,9 +811,9 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
   }} # end of plot function
 
 
-#' JABBA SP-Phase Plot
+#' JABBA SPdyn Plot
 #'
-#' plots the production relative catch over biomass and color-coded kobe phases
+#' plots the production vs biomass (Walters et al 2008) and color-coded kobe phases
 #'
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
@@ -821,9 +822,78 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
 #' @param width plot width
 #' @param height plot hight
 #' @export
+jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5){
+  cat(paste0("\n","><> jbplot_spdyn() - SPt+1 = Bt+1-Bt+Ct vs B  <><","\n"))
+
+  # extract pars
+  m = jabba$pfun$m[1]
+  Bit = jabba$pfun$SB_i
+  Cmsy = jabba$pfunc$Cmsy
+  B = jabba$timeseries[,"mu","B"]
+  Hmsy.sp = jabba$pfunc$Hmsy[1]
+  SB0.sp =jabba$pfunc$SB0[1]
+  SP = jabba$pfunc$SP
+  Bmsy.sp = jabba$estimates["SBmsy",1]
+  MSY.sp = jabba$estimates["MSY",1]
+  N = jabba$settings$N
+  years = jabba$yr
+  ylim=c(min(c(1.2*jabba$timeseries[-1,1,"SPt"],0)),max(c(max(jabba$timeseries[-1,1,"SPt"],na.rm=T)*1.05,max(MSY.sp*1.1))))
+  Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
+  if(as.png==TRUE){png(file = paste0(output.dir,"/SPdyn_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+      res = 200, units = "in")}
+  if(add==FALSE) par(Par)
+
+  green.x = c(max(Bit,B*2),max(Bit,B*2),Bmsy.sp,Bmsy.sp,max(Bit,B*2))
+  green.y = c(Bmsy.sp,ylim[1],ylim[1],max(SP),max(Cmsy))
+  red.x = c(0,0,Bmsy.sp,Bmsy.sp,0)
+  red.y = c(SB0.sp,0,max(SP),SB0.sp,SB0.sp)
+  plot(Bit,SP,type = "n",ylim,xlim=c(0,max(Bit,B*1.1)),ylab="Surplus Production",xlab="Biomass",xaxs="i",yaxs="i")
+  rect(0,ylim[1],SB0.sp*2,SB0.sp*1.1,col="green",border=0)
+  rect(0,ylim[1],SB0.sp*2,SB0.sp,col="yellow",border=0)
+  rect(0,max(SP),SB0.sp*2,SB0.sp,col="orange",border=0)
+  polygon(green.x,green.y,border = 0,col="green")
+  polygon(red.x,red.y,border = 0,col="red")
+  abline(h=0,lty=2)
+  ry.sp = Bit[Bit<=Bmsy.sp]
+  for(i in 1:length(ry.sp)){
+
+    lines(rep(Bit[i],2),c(Cmsy[i],SP[i]),col=ifelse(i %% 2== 0,"yellow","red"),lty=3)
+    #i = i+1
+  }
+
+  lines(Bit,SP,col=4,lwd=2)
+  lines(B,jabba$timeseries[,1,"SPt"],lty=1,lwd=1)
+  points(B,jabba$timeseries[,1,"SPt"],cex=0.8,pch=16)
+  sel.yr = c(1,round(quantile(1:N,0.7),0),N)
+  points(B[sel.yr],jabba$timeseries[sel.yr,1,"SPt"],col= 1,pch=c(22,21,24),bg="white",cex=1.7)
+  #abline(h=max(SP),col=4,lty=5)
+  sel.years =years[sel.yr]
+  #lines(rep(Bmsy.sp,2),c(0,max(SP)),lty=2,col=4)
+
+  legend('topright',
+         c("Expected","Predicted",paste(sel.years)),
+         lty=c(1,1,1,1,1),pch=c(-1,16,22,21,24),pt.bg=c(0,0,rep("white",3)),
+         col=c(4,rep(1,4)),lwd=c(2,1,1,1,1),cex=0.8,pt.cex=c(-1,1,rep(1.3,3)),bty="n")
+
+  if(as.png==TRUE) dev.off()
+} #end of plotting function
+
+
+#' JABBA SPphase Plot
+#'
+#' plots the production function + Catch vs biomass and color-coded kobe phases
+#'
+#' @param jabba output list from fit_jabba
+#' @param output.dir directory to save plots
+#' @param as.png save as png file of TRUE
+#' @param add if true don't call par() to allow construction of multiplots
+#' @param width plot width
+#' @param height plot hight
+#' @export
+
 jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5){
   cat(paste0("\n","><> jbplot_spphase() - JABBA Surplus Production Phase Plot  <><","\n"))
-
+  
   # extract pars
   m = jabba$pfun$m[1]
   Bit = jabba$pfun$SB_i
@@ -838,9 +908,9 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
   years = jabba$yr
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
   if(as.png==TRUE){png(file = paste0(output.dir,"/SPphase_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
-      res = 200, units = "in")}
+                       res = 200, units = "in")}
   if(add==FALSE) par(Par)
-
+  
   green.x = c(max(Bit,B),max(Bit,B),Bmsy.sp,Bmsy.sp,max(Bit))
   green.y = c(Bmsy.sp,0,0,max(SP),max(Cmsy))
   red.x = c(0,0,Bmsy.sp,Bmsy.sp,0)
@@ -851,14 +921,14 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
   rect(0,max(SP),SB0.sp,SB0.sp,col="orange",border=0)
   polygon(green.x,green.y,border = 0,col="green")
   polygon(red.x,red.y,border = 0,col="red")
-
+  
   ry.sp = Bit[Bit<=Bmsy.sp]
   for(i in 1:length(ry.sp)){
-
+    
     lines(rep(Bit[i],2),c(Cmsy[i],SP[i]),col=ifelse(i %% 2== 0,"yellow","red"),lty=3)
     #i = i+1
   }
-
+  
   polygon(c(-10000,10^7,10^7,-10000),c(rep(MSY.sp[1],2),rep(MSY.sp[3],2)),border = FALSE,col=rgb(0,0,1,0.4))
   lines(Bit,SP,col=4,lwd=2)
   lines(B,jabba$catch,lty=1,lwd=1)
@@ -868,15 +938,14 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
   abline(h=max(SP),col=4,lty=5)
   sel.years =years[sel.yr]
   lines(rep(Bmsy.sp,2),c(-1000,max(SP)),lty=2,col=4)
-
+  
   legend('topright',
          c(expression(B[MSY]),"MSY","SP","Catch",paste(sel.years)),
          lty=c(2,5,1,1,1,1,1),pch=c(-1,-1,-1,16,22,21,24),pt.bg=c(0,0,0,0,rep("white",3)),
          col=c(4,4,4,rep(1,4)),lwd=c(1,1,2,1,1,1),cex=0.8,pt.cex=c(-1,-1,-1,0.5,rep(1.3,3)),bty="n")
-
+  
   if(as.png==TRUE) dev.off()
 } #end of plotting function
-
 
 
 #' KOBE phase plot

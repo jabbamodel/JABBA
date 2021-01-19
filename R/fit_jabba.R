@@ -34,8 +34,6 @@
 #' jbplot_trj(bet1,type="FFmsy",add=T)
 #' jbplot_spphase(bet1,add=T)
 #' jbplot_kobe(bet1,add=T)
-
-
 fit_jabba = function(jbinput,
                    # MCMC settings
                      ni = 30000, # Number of iterations
@@ -189,13 +187,18 @@ fit_jabba = function(jbinput,
   #Bt_Bmsy = posteriors$BtoBmsy
   #Ht_Hmsy = posteriors$HtoHmsy
   #Bt_K = posteriors$P
-
-  Stock_trj = array(data=NA,dim=c(ncol(posteriors$SB),3,6),dimnames = list(years,c("mu","lci","uci"),c("B","F","BBmsy","FFmsy","BB0","procB")))
+  catch.temp = matrix(rep(catch[,2],each=nrow(posteriors$SB)),ncol=nrow(jbinput$data$catch),nrow=nrow(posteriors$SB))
+  
+  Stock_trj = array(data=NA,dim=c(ncol(posteriors$SB),3,7),dimnames = list(years,c("mu","lci","uci"),c("B","F","BBmsy","FFmsy","BB0","procB","SPt")))
   for(i in 1:3){
     Stock_trj[,i,] =  cbind(t(apply(posteriors$SB,2,quantile,c(0.5,0.025,0.975)))[,i],
                             t(apply(posteriors$H,2,quantile,c(0.5,0.025,0.975)))[,i],
                             t(apply(posteriors$BtoBmsy,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$HtoHmsy,2,quantile,c(0.5,0.025,0.975)))[,i],t(apply(posteriors$P,2,quantile,c(0.5,0.025,0.975)))[,i],t(apply(posteriors$Proc.Dev,2,quantile,c(0.5,0.025,0.975)))[,i])
+                            t(apply(posteriors$HtoHmsy,2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$P,2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$Proc.Dev,2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(cbind(rep(0,3),apply(posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]+catch.temp[,-ncol(posteriors$SB)],2,quantile,c(0.5,0.025,0.975))))[,i]
+                            )
 
   }
 
