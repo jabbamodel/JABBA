@@ -5,7 +5,7 @@
 #' @param bw kernel bandwith for catch smoothing (default=3)
 #' @return list with initial start bk range and c(mu,cv) 
 #' @export
-cmsy.bkprior = function(catch,bw=3){
+cmsy.bkprior = function(catch,bw=3,prior.r=c(0.05,0.5)){
 
 yr <- catch[,1]
 ct.raw <- catch[,2]
@@ -22,29 +22,28 @@ sd.ct        <- sd(ct)
 
 # use mean of first 3 years to determine startbio
 ct.3  <- mean(ct[1:3])
-start.yr.new <- NA # initialize / reset start.yr.new with NA
+start.yr <- min(yr) # initialize / reset start.yr.new with NA
 # use initial biomass range from input file if stated
 
-if(ct.3 < 0.33*max.ct && yr[1] < 2000) { # it is unlikely that a fishery started on an unexploited stock after 2000
-    start.yr.new <- yr[which(ct >= 0.33*max.ct)][1]
-  # in recent years >= 1980 and for medium or high resilience species
-  # if catch < 0.1 max catch, assume very low biomass
-  if(ct.3 < 0.1*max.ct && yr[1]>=1980 && prior.r[2]>0.3) { startbio <- c(0.01,0.2)
-  # if catch < 0.25 max catch, assume low biomass
-  } else if(ct.3 < 0.25*max.ct && yr[1]>=1980 && prior.r[2]>0.3) { startbio <- c(0.01,0.3)
-  # if catch < 0.33 max catch, assume low biomass
-  } else if(ct.3 < 0.33*max.ct && yr[1]>=1980 && prior.r[2]>0.3) { startbio <- c(0.01,0.4)
-  # if time series started before 1980
-  # if catch < 0.1 max catch, assume nearly unexploited biomass
-  } else if(ct.3 < 0.1*max.ct) { startbio <- c(0.9,1)
-  # if catch < 0.25 max catch, assume high biomass
-  } else if(ct.3 < 0.25*max.ct) { startbio <- c(0.8,1)
-  # if catch < 0.33 max catch, assume high biomass
-  } else if(ct.3 < 0.33*max.ct) { startbio <- c(0.6,1)
-  # if catch < 0.66 max catch, assume medium to high biomass
-  } else if(ct.3 < 0.66*max.ct | start.yr <=1960) { startbio <- c(0.4,0.8)
-  # otherwise assume low to medium biomass
-  } else startbio <- c(0.2,0.6) }
+# in recent years >= 1980 and for medium or high resilience species
+# if catch < 0.1 max catch, assume very low biomass
+if(ct.3 < 0.1*max.ct && yr[1]>=1980 && prior.r[2]>0.3) { startbio <- c(0.01,0.2)
+# if catch < 0.25 max catch, assume low biomass
+} else if(ct.3 < 0.25*max.ct && yr[1]>=1980 && prior.r[2]>0.3) { startbio <- c(0.01,0.3)
+# if catch < 0.33 max catch, assume low biomass
+} else if(ct.3 < 0.33*max.ct && yr[1]>=1980 && prior.r[2]>0.3) { startbio <- c(0.01,0.4)
+# if time series started before 1980
+# if catch < 0.1 max catch, assume nearly unexploited biomass
+} else if(ct.3 < 0.1*max.ct) { startbio <- c(0.9,1)
+# if catch < 0.25 max catch, assume high biomass
+} else if(ct.3 < 0.25*max.ct) { startbio <- c(0.8,1)
+# if catch < 0.33 max catch, assume high biomass
+} else if(ct.3 < 0.33*max.ct) { startbio <- c(0.6,1)
+# if catch < 0.66 max catch, assume medium to high biomass
+} else if(ct.3 < 0.66*max.ct | start.yr <=1960) { startbio <- c(0.4,0.8)
+# otherwise assume low to medium biomass
+} else startbio <- c(0.2,0.6) 
+
    sd.bk = (startbio[2]-startbio[1])/(4*0.98)
    mu.bk = mean(startbio)
    cv.bk = sd.bk/mu.bk
@@ -63,10 +62,10 @@ if(ct.3 < 0.33*max.ct && yr[1] < 2000) { # it is unlikely that a fishery started
 #' @return  mu,cv and logsd of range limits  
 #' @export
 range2prior<-function(lo,hi){
-  sdev = (hi-lo)/(4*0.98)
+  sdev = mean(hi-lo)/(4*0.98)
   mu = mean(c(lo,hi))
   cv = sdev/mu
-  logsd = plot_lnorm(mu,CV=cv,Plot=T)
+  logsd = plot_lnorm(mu,CV=cv,Plot=F)[2]
   return(c(mu,cv,logsd))
 }
 

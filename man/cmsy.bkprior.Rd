@@ -4,7 +4,7 @@
 \alias{cmsy.bkprior}
 \title{cmsy.bkprior()}
 \usage{
-cmsy.bkprior(catch, bw = 3)
+cmsy.bkprior(catch, bw = 3, prior.r = c(0.05, 0.5))
 }
 \arguments{
 \item{catch}{catch time series, requires data.frame(year, catch)}

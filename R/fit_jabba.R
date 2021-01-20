@@ -70,10 +70,15 @@ fit_jabba = function(jbinput,
     nc = 2
   }
   
+  # a, b pars for beta prior
+  ab = get_beta(max(min(jbf$settings$psi.prior.raw[1],0.95),0.05),CV=0.05/max(min(jbf$settings$psi.prior.raw[1],0.95),0.05))
+  
+  
   # Initial starting values (new Eq)
   if(init.values==FALSE){
-    inits = function(){list(K= rlnorm(1,log(jbd$K.pr[1])-0.5*0.3^2,0.3),r = rlnorm(1,log(jbd$r.pr[1]),jbd$r.pr[2]) ,q = runif(jbd$nq,min(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T),mean(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T)), isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
+    inits = function(){list(K= rlnorm(1,log(jbd$K.pr[1])-0.5*0.3^2,0.3),r = rlnorm(1,log(jbd$r.pr[1]),jbd$r.pr[2]) ,q = runif(jbd$nq,min(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T),mean(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T)),psi=rbeta(1,ab[1],ab[2]),isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
   }else {
+    
     if(is.null(init.K))
       stop("\n","\n","><> Provide init.K guess for option init.values=TRUE  <><","\n","\n")
     if(is.null(init.r))
@@ -82,7 +87,7 @@ fit_jabba = function(jbinput,
       stop("\n","\n","><> Provide init.q vector guess for option init.values=TRUE  <><","\n","\n")
     if(length(init.q)!= jbinput$jagsdata$nq)
       stop("\n","\n","><> init.q vector must match length of estimable q's, length(unique(sets.q))   <><","\n","\n")
-    inits = function(){ list(K= init.K,r=init.r,q = init.q, isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
+    inits = function(){ list(K= init.K,r=init.r,q = init.q,psi=rbeta(1,ab[1],ab[2]), isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
   }
 
   out = output.dir
