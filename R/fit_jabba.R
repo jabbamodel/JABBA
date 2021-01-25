@@ -71,7 +71,7 @@ fit_jabba = function(jbinput,
   }
   
   # a, b pars for beta prior
-  ab = get_beta(max(min(jbf$settings$psi.prior.raw[1],0.95),0.05),CV=0.05/max(min(jbf$settings$psi.prior.raw[1],0.95),0.05))
+  ab = get_beta(max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05),CV=0.05/max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05))
   
   
   # Initial starting values (new Eq)
