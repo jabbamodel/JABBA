@@ -1220,6 +1220,8 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #'
 #' Plots retrospective pattern of B, F, BBmsy, FFmsy, BB0 and SP #'
 #' @param hc output from jabba_hindast()
+#' @param type  single plot option c("B","F","BBmsy","FFmsy","BB0","SP")
+#' @param add  add to multi plot if TRUE
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
@@ -1230,11 +1232,13 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param legend.loc location of legend
 #' @return Mohn's rho statistic for several quantaties
 #' @export
-jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright"){
+jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
+                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright"){
   
   cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
+  if(add) single.plots=TRUE
+  if(single.plots==F) type=c("B","F","BBmsy","FFmsy","BB0","SP")
   
-  type=c("B","F","BBmsy","FFmsy","BB0","SP")
   ylabs = c(paste("Biomass",hc$settings$catch.metric),ifelse(hc$settings$harvest=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(hc$settings$harvest=="Fmsy",expression(F/F[MSY]),expression(H/H[MSY])),expression(B/B[0]),paste("Surplus Production",hc$settings$catch.metric))
   retros = unique(hc$timeseries$mu$level)
   runs= hc$timeseries$mu$level
@@ -1253,7 +1257,8 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
       if(as.png==TRUE){png(file = paste0(output.dir,"/Retro",hc$scenario ,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
-      if(as.png==TRUE | k==1) par(Par)
+      
+      if(as.png==TRUE | add==FALSE) par(Par)
       
       j = which(c("B","F","BBmsy","FFmsy","BB0","SP")%in%type[k])
       
@@ -1274,7 +1279,7 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
       }  else {
         # Plot SP
-        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
+        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.12)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
         for(i in 1:length(retros)){
           lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=2,lty=1)
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
@@ -1283,6 +1288,8 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
           }
         }}
       if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
+      legend("top", paste0("Mohn's rho = ",round(mean(rho[i-1,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+      
       if(as.png==TRUE) dev.off()
     } # End type loop
   } else { # Multi plot
@@ -1311,17 +1318,22 @@ jbplot_retro <- function(hc,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,w
           }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-        if(single.plots==TRUE | k==1 )  legend("topright",paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
-      }  else {
+        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
+        legend("top", paste0("Mohn's rho = ",round(mean(rho[i-1,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+        
+        }  else {
         # Plot SP
-        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
+        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.15)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
         for(i in 1:length(retros)){
           lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=2,lty=1)
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
           if(i>1){
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
           }      
-          }}
+        }
+          legend("top", paste0("Mohn's rho = ",round(mean(rho[i-1,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+          
+          }
       
       
     }
