@@ -18,7 +18,9 @@ jbplot_hcxval(
   legend.loc = "topright",
   legend.cex = 0.8,
   legend.add = TRUE,
-  label.add = TRUE
+  label.add = TRUE,
+  verbose = TRUE,
+  ymax = 1
 )
 }
 \arguments{
@@ -49,6 +51,10 @@ jbplot_hcxval(
 \item{legend.add}{show legend}
 
 \item{label.add}{show index name and MASE}
+
+\item{verbose}{if FALSE then silent}
+
+\item{ymax}{upper ylim scaler}
 }
 \value{
 hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated

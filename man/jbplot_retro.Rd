@@ -6,6 +6,8 @@
 \usage{
 jbplot_retro(
   hc,
+  type = c("B", "F", "BBmsy", "FFmsy", "BB0", "SP"),
+  add = F,
   output.dir = getwd(),
   as.png = FALSE,
   single.plots = FALSE,
@@ -18,6 +20,10 @@ jbplot_retro(
 }
 \arguments{
 \item{hc}{output from jabba_hindast()}
+
+\item{type}{single plot option c("B","F","BBmsy","FFmsy","BB0","SP")}
+
+\item{add}{add to multi plot if TRUE}
 
 \item{output.dir}{directory to save plots}
 
