@@ -10,6 +10,57 @@ jbpar <- function(mfrow=c(1,1),plot.cex=1,mai=c(0.35,0.15,0,.15),labs=TRUE){
   par(list(mfrow=mfrow,mai = mai, mgp =c(2.,0.5,0),omi = c(0.3,0.3,0.2,0) + 0.1, tck = -0.02,cex=0.8))
 }
 
+#' jbplot_indices
+#'
+#' Plots indices with assumed mimumum observation errors  
+#' @param jabbainput output list from build_jabba()
+#' @param output.dir directory to save plots
+#' @param as.png save as png file of TRUE
+#' @param width plot width
+#' @param height plot hight
+#' @param add if TRUE par is not called to enable manual multiplots
+#' @param add.legend option to add legend
+#' @param ylab option to change y-axis label
+#' @param xlab option to change x-axis label
+#' @param plot.cex cex graphic option
+#' @param cols option to choose own colour palette
+#' @export
+jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,height=4.5,plot.cex=0.9,xlab="Year",ylab="Abundance index",add=FALSE,add.legend=TRUE,cols=NULL){
+  
+  years =   jabbainput$data$yr  
+  abundance =jabbainput$settings$model.type
+  dat = jabbainput$data$cpue
+  se = as.matrix(sqrt(jabbainput$jagsdata$SE2)[1:length(years),])
+  y = as.matrix(log(jabbainput$jagsdata$I)[1:length(years),])
+  nI = ncol(y) 
+  if(is.null(cols)) cols = jabbainput$settings$cols
+  Par = list(mfrow=c(1,1),mar = c(4, 4, 1, 1), mgp =c(2.5,1,0),mai = c(0.6, 0.6, 0.1, 0.1),mex=0.8, tck = -0.02,cex=plot.cex)
+  if(as.png==TRUE){png(file = paste0(output.dir,"/Index_",jabbainput$settings$assessment,"_",jabbainput$settings$scenario,".png"), width = width, height = height,
+                       res = 200, units = "in")}
+  if(add==FALSE) par(Par)
+  
+  Ylim = c(0, max(exp(log(jabbainput$jagsdata$I)+sqrt(jabbainput$jagsdata$SE2)*1.05)  ,na.rm =T))
+  plot(years,years,type="n",xlim=c(min(years-1),max(years+2)),ylab=ylab,xlab=xlab,ylim=Ylim, frame = TRUE,xaxs="i",yaxs="i",xaxt="n")
+  iv = c(-0.25,0.25)
+  for(j in 1:nI){
+    ds =runif(1,-0.2,0.2)
+    for(t in 1:length(years)){
+      lines(rep(years[t]+ds,2),c(exp(y[t,j]-1.96*se[t,j]),exp(y[t,j]+1.96*se[t,j])))
+      lines(years[t]+ds+iv,rep(exp(y[t,j]-1.96*se[t,j]),2))  
+      lines(years[t]+ds+iv,rep(exp(y[t,j]+1.96*se[t,j]),2))
+    }  
+    lines(years+ds,dat[,j+1],type="b",pch=21,cex=1.2,col=grey(0.4,0.7),bg=cols[j])
+  }
+  
+  axis(1,at=seq(min(dat[,1]),max(dat[,1]),ceiling(length(dat[,1])/8)),tick=seq(min(dat[,1]),max(dat[,1]),ceiling(length(dat[,1])/8)),cex.axis=0.9)
+  
+  if(add.legend) legend(legend.loc,paste(names(dat)[2:(nI+1)]), lty = c(1, rep(nI)), lwd = c(rep(-1,nI)),pch=c(rep(21,nI)), pt.bg = c(cols[1:nI]), bty = "n", cex = 0.9,y.intersp = 0.8)
+  if(as.png==TRUE) dev.off()
+} # End of index plot
+
+
+
+
 #' Plots Total Catch
 #'
 #' jbplot_catch()
@@ -30,7 +81,7 @@ jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, widt
 
   cord.x <- c(jabba$yr,rev(jabba$yr))
   y<-rep(0,length(jabba$yr))
-  plot(jabba$yr,(jabba$catch),type="l",ylim=c(0,max(jabba$catch,na.rm=T)),lty=1,lwd=1.3,xlab="Year",ylab=paste0("Catch ",jabba$settings$catch.metric),main="")
+  plot(jabba$yr,(jabba$catch),type="l",ylim=c(0,max(jabba$catch,na.rm=T)), xaxs="i", yaxs="i",lty=1,lwd=1.3,xlab="Year",ylab=paste0("Catch ",jabba$settings$catch.metric),main="")
   polygon(cord.x,c(jabba$catch,rev(y)),col="gray",border=1,lty=1)
   if(as.png==TRUE){ dev.off()}
 }
@@ -1517,9 +1568,11 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
 #' @param legend.cex size of legend
 #' @param legend.add show legend
 #' @param label.add show index name and MASE
+#' @param ymax upper ylim scaler
+#' @param verbose if FALSE then silent
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE){
+jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE,verbose=TRUE,ymax=1){
   
   MASE = NULL
   if(is.null(cols)) cols = hc$settings$cols
@@ -1530,15 +1583,19 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
   d. = d.[d.$name%in%all.indices[index],]
   
   peels = unique(d.$retro.peels)
-  styr = max(d.$year)-max(peels)
-  years = sort(unique(d.$year))
-  endyrvec = sort(years[length(years)-peels])
-  if(is.null(minyr)==TRUE){
-    xmin = length(years)-max(peels)
-  } else {
-    xmin = length(years)-max(which(years%in%minyr),1,na.rm=T)+1-max(peels)
-  }
-  cat("\n","><> Only including indices that have years overlapping hind-cast horizan","\n")
+  styr = max(hc$yr)-max(peels)
+  years = min(d.$year):max(d.$year)
+  yr = unique(d.$year)
+  endyrvec = rev(sort(years[length(years)-peels]))
+  
+  if(is.null(minyr)){
+    xmin = min(endyrvec)-5} else {
+      xmin = min(minyr,min(endyrvec)-3)  
+    }
+  if(verbose)cat("\n","><> Only including indices that have years overlapping hind-cast horizan","\n")
+  
+  
+  
   # check in index
   indices = unique(d.$name)
   valid = NULL
@@ -1570,21 +1627,29 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
       }
       xv = d.[d.$name%in%indices[i],]
       yr = unique(xv$year)
-      yr.eval <- endyrvec
-      yr.eval <- (sort(yr.eval))
+      
+      yr.eval <- sort(endyrvec)
+      yr.obs <- yr.eval%in%yr
+      pe.eval = which(yr.eval%in%yr)[-1]
+      if(length(which(yr.eval%in%yr))-length(pe.eval)<1){
+        pe.eval = pe.eval[-1]
+      } 
+      npe <- length(pe.eval)  # number of prediction errors
       obs.eval <- rep(NA,length(yr.eval))
       obs.eval[yr.eval%in%yr] = xv$obs[xv$retro.peels==min(xv$retro.peels)][yr%in%yr.eval]
+      if(is.na(obs.eval[1]))
       nhc = length(endyrvec)-1
-      naive.eval = log(obs.eval[1:nhc])-log(obs.eval[2:(nhc+1)]) # add log for v1.1   
-      npe <- length(naive.eval[is.na(naive.eval)==F])  # number of prection errors
-      scaler = mean(abs(naive.eval[is.na(naive.eval)==F]))
+      
+      #if(length(endyrvec[yr%in%endyrvec])>0 & length(which(yr.eval%in%yr))>1){ # ><>
+        
+      
       py = xv$year[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
       obs =xv$obs[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
       hat = xv$hat[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
       lc = xv$hat.lci[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
       uc = xv$hat.uci[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
       plot(0, type = "n", xlim = c(max(min(yr),min(endyrvec-xmin+1)),min(c(max(yr),max(endyrvec)))), yaxs = "i", 
-           ylim = c(ifelse(min(c(lc,obs))*0.5<0.5,0,min(c(lc,obs))*0.5),max(c(uc,obs)*1.25)), xlab = "Year", ylab = "Index")
+           ylim = c(ifelse(min(c(lc,obs))*0.5<0.5,0,min(c(lc,obs))*0.5),max(c(uc,obs)*1.25*ymax)), xlab = "Year", ylab = "Index")
       
       polygon(c(py,rev(py)),c(lc,rev(uc)),col=grey(0.5,0.4),border=grey(0.5,0.4))
       polygon(c(py[py<=min(endyrvec)],rev(py[py<=min(endyrvec)])),c(lc[py<=min(endyrvec)],rev(uc[py<=min(endyrvec)])),col=grey(0.4,0.4),border=grey(0.4,0.4))
@@ -1593,11 +1658,16 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
       points(py,obs,pch=21,cex=1.6,bg="white")
       lines(py,hat,col=1,lwd=2,lty=1,type="l",pch=16)
       
+      if(verbose) cat(paste("\n","Computing MASE with",ifelse(npe<(length(endyrvec)-1),"only","all"),
+                            npe,"of",length(endyrvec)-1," prediction residuals for Index",xv$name[1]),"\n")
+      if(verbose & npe<(length(endyrvec)-1))cat(paste("\n","Warning:  Unequal spacing of naive predictions residuals may influence the interpretation of MASE","\n"))
+      
+      
+      
       pred.resid = NULL
       for(j in 1:(length(peels)-1)){
-        if(is.na(naive.eval[peels[length(peels)-peels[j]]])==FALSE){
-          
-          
+        if(endyrvec[j] %in% xv$year){
+         
           x <- min(py):max(yr.eval)
           x <- x[1:(length(x)-peels[j])]
           x = x[x%in%unique(xv$year)]
@@ -1613,10 +1683,14 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
                  bg=cols[j],col=1, type="p",cex=1)
           
         }}
+      naive.eval=log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)==F])])-log(obs.eval[is.na(obs.eval)==F][-1])
+      nhc = length(endyrvec)-1
       points(yr.eval[-1][1:(nhc)][is.na(naive.eval)==F],obs.eval[-1][1:(nhc)][is.na(naive.eval)==F],pch=21,cex=1.6,bg=(rev(cols[1:(length(peels)-1)]))[is.na(naive.eval)==F])
       
-      
       maepr =  mean(abs(pred.resid))
+      if(is.na(obs.eval[1])) obs.eval[1] =  rev(obs[obs%in%obs.eval==F])[1] 
+      scaler = mean(abs(naive.eval))
+      
       mase=maepr/scaler
       MASE.i = NULL
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=mase,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
@@ -1625,7 +1699,7 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
       
       if(single.plots==TRUE & as.png==TRUE) dev.off()
       if(legend.add==T){
-      if(single.plots==TRUE | i==1){ legend(legend.loc,paste(rev(endyrvec[-1])),pt.bg=cols,bty="n",cex=legend.cex,pt.cex=1.2,pch=21)}
+      if(single.plots==TRUE | i==1){ legend(legend.loc,paste(c("Ref",endyrvec[-1])),col=c(1,cols),bty="n",cex=legend.cex,lwd=2)}
       }
       
       } else{
@@ -1644,5 +1718,6 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
   if(single.plots==FALSE & as.png==TRUE) dev.off()
   
   return(MASE)
-}
+  }
+  
 # End of jbplot_hcxval
