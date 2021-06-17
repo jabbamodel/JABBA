@@ -20,12 +20,13 @@ jbpar <- function(mfrow=c(1,1),plot.cex=1,mai=c(0.35,0.15,0,.15),labs=TRUE){
 #' @param height plot hight
 #' @param add if TRUE par is not called to enable manual multiplots
 #' @param add.legend option to add legend
+#' @param legend.loc place lengend
 #' @param ylab option to change y-axis label
 #' @param xlab option to change x-axis label
 #' @param plot.cex cex graphic option
 #' @param cols option to choose own colour palette
 #' @export
-jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,height=4.5,plot.cex=0.9,xlab="Year",ylab="Abundance index",add=FALSE,add.legend=TRUE,cols=NULL){
+jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,height=4.5,plot.cex=0.9,xlab="Year",ylab="Abundance index",add=FALSE,add.legend=TRUE,legend.loc="topright",cols=NULL){
   
   years =   jabbainput$data$yr  
   abundance =jabbainput$settings$model.type
