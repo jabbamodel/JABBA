@@ -15,6 +15,7 @@ jbplot_indices(
   ylab = "Abundance index",
   add = FALSE,
   add.legend = TRUE,
+  legend.loc = "topright",
   cols = NULL
 )
 }
@@ -38,6 +39,8 @@ jbplot_indices(
 \item{add}{if TRUE par is not called to enable manual multiplots}
 
 \item{add.legend}{option to add legend}
+
+\item{legend.loc}{place lengend}
 
 \item{cols}{option to choose own colour palette}
 }
