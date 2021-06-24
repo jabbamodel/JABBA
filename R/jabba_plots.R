@@ -1371,7 +1371,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
         if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
-        legend("top", paste0("Mohn's rho = ",round(mean(rho[i-1,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+        legend("top", paste0("Mohn's rho = ",round(mean(rho[,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
         
         }  else {
         # Plot SP
@@ -1383,7 +1383,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
           }      
         }
-          legend("top", paste0("Mohn's rho = ",round(mean(rho[i-1,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+          legend("top", paste0("Mohn's rho = ",round(mean(rho[,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
           
           }
       
