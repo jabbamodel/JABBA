@@ -1446,9 +1446,10 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       
     }
     jabba$pfunc$level = scenarios[i]
-    jbs$timeseries$mu = rbind(jbs$timeseries$mu,data.frame(factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"mu",])) 
-    jbs$timeseries$lci = rbind(jbs$timeseries$lci,data.frame(factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"lci",])) 
-    jbs$timeseries$uci = rbind(jbs$timeseries$uci,data.frame(factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"uci",])) 
+   
+    jbs$timeseries$mu = rbind(jbs$timeseries$mu,data.frame(year=jabba$yr,factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"mu",])) 
+    jbs$timeseries$lci = rbind(jbs$timeseries$lci,data.frame(year=jabba$yr,factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"lci",])) 
+    jbs$timeseries$uci = rbind(jbs$timeseries$uci,data.frame(year=jabba$yr,factor=jabba$pfunc[1,1],level=jabba$pfunc[1,2],jabba$timeseries[,"uci",])) 
     #jbs$diags = rbind(jbs$diags,jabba$diags) #prevents Catch-Only comparison 
     jbs$refpts= rbind(jbs$refpts,jabba$refpts[1,])
     jbs$pfunc= rbind(jbs$pfunc ,jabba$pfunc)
@@ -1483,16 +1484,19 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       
       
       if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
-        y = jbs$timeseries$mu[,j+2]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+2][years>=Xlim[1] & years<=Xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=Xlim)
+        y = jbs$timeseries$mu[,j+3]
+        years = jbs$timeseries$mu$year
+        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=Xlim[1] & years<=Xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=Xlim)
         if(plotCIs==TRUE){
           for(i in 1:length(scenarios)){
-            ylc = jbs$timeseries$lci[runs%in%scenarios[i],j+2]
-            yuc = jbs$timeseries$uci[runs%in%scenarios[i],j+2]
-            polygon(c(years,rev(years)),c(ylc,rev(yuc)),col=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"),border=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"))
+            yr = jbs$timeseries$uci[runs%in%scenarios[i],"year"]
+            ylc = jbs$timeseries$lci[runs%in%scenarios[i],j+3]
+            yuc = jbs$timeseries$uci[runs%in%scenarios[i],j+3]
+            polygon(c(yr,rev(yr)),c(ylc,rev(yuc)),col=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"),border=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"))
           }}
         for(i in 1:length(scenarios)){
-          lines(years,y[runs%in%scenarios[i]],col= cols[i],lwd=2,lty=1)
+          yr = jbs$timeseries$uci[runs%in%scenarios[i],"year"]
+          lines(yr,y[runs%in%scenarios[i]],col= cols[i],lwd=2,lty=1)
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
       }  else {
@@ -1521,16 +1525,19 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       
       
       if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
-        y = jbs$timeseries$mu[,j+2]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+2][years>=Xlim[1] & years<=Xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=Xlim)
+        years= jbs$timeseries$mu$year
+        y = jbs$timeseries$mu[,j+3]
+        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=Xlim[1] & years<=Xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=Xlim)
         if(plotCIs==TRUE){
           for(i in 1:length(scenarios)){
-            ylc = jbs$timeseries$lci[runs%in%scenarios[i],j+2]
-            yuc = jbs$timeseries$uci[runs%in%scenarios[i],j+2]
-            polygon(c(years,rev(years)),c(ylc,rev(yuc)),col=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"),border=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"))
+            ylc = jbs$timeseries$lci[runs%in%scenarios[i],j+3]
+            yuc = jbs$timeseries$uci[runs%in%scenarios[i],j+3]
+            yr = jbs$timeseries$uci[runs%in%scenarios[i],"year"]
+            polygon(c(yr,rev(yr)),c(ylc,rev(yuc)),col=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"),border=ifelse(length(scenarios)>1,scales::alpha(cols[i],0.2),"grey"))
           }}
         for(i in 1:length(scenarios)){
-          lines(years,y[runs%in%scenarios[i]],col= cols[i],lwd=2,lty=1)
+          yr = jbs$timeseries$uci[runs%in%scenarios[i],"year"]
+          lines(yr,y[runs%in%scenarios[i]],col= cols[i],lwd=2,lty=1)
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
         if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(scenarios),col=cols,bty="n",cex=legend.cex,pt.cex=0.7,lwd=c(2,rep(1,length(scenarios))))
