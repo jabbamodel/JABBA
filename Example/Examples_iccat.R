@@ -25,6 +25,8 @@ jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessm
 # Fit JABBA (here mostly default value - careful)
 bet1 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir,quickmcmc = TRUE) # quick run
 
+head(bet1$kobe)
+
 # Make individual plots
 jbplot_catch(bet1)
 jbplot_catcherror(bet1)
@@ -35,6 +37,10 @@ jbplot_cpuefits(bet1)
 jbplot_runstest(bet1)
 jbplot_logfits(bet1)
 jbplot_procdev(bet1)
+
+jbpar(mfrow=c(3,2),plot.cex = 0.8)
+jbplot_trj(bet1,add=T)
+jbplot_spphase(bet1,add=T)
 
 # Try to improve runs test diagnostics by changing the variance settings
 jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,scenario = "Ref",model.type = "Fox",sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001),psi.prior = c(1,0.1))
