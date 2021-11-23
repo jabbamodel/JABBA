@@ -155,5 +155,14 @@ runs_sig3 <- function(x,type=NULL) {
   return(list(sig3lim=c(lcl,ucl),p.runs= pvalue))
 }
 
-
+#' normIndex()
+#'
+#' Function function to normalize CPUE indices
+#' @param cpue first column must be year
+#' @return normalized cpue
+#' @export
+normIndex <- function(cpue){
+  cpue[,-1] = t(t(cpue[,-1])/apply(cpue[,-1],2,mean,na.rm=TRUE))
+  return(cpue)
+}
 
