@@ -52,7 +52,9 @@ fit_jabba = function(jbinput,
                      save.jabba = FALSE,
                      save.csvs = FALSE,
                      output.dir = getwd(),
-                     quickmcmc = FALSE
+                     quickmcmc = FALSE,
+                     verbose=TRUE,
+                     progress.bar = "text"
                      
 ){
   #write jabba model
@@ -108,7 +110,7 @@ fit_jabba = function(jbinput,
 
   ptm <- proc.time()
 
-  mod <- R2jags::jags(jbd, inits,params,paste0(tempdir(),"/JABBA.jags"), n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb)  # adapt is burn-in
+  mod <- R2jags::jags(jbd, inits,params,paste0(tempdir(),"/JABBA.jags"), n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, quiet=!verbose, progress.bar = progress.bar)  # adapt is burn-in
 
   proc.time() - ptm
   save.time = proc.time() - ptm
@@ -127,7 +129,8 @@ fit_jabba = function(jbinput,
 
   # if run with library(rjags)
   posteriors = mod$BUGSoutput$sims.list
-  cat(paste0("\n","><> Produce results output of ",settings$model.type," model for ",settings$assessment," ",settings$scenario," <><","\n"))
+  if(verbose)
+  message(paste0("\n","><> Produce results output of ",settings$model.type," model for ",settings$assessment," ",settings$scenario," <><","\n"))
 
   #-----------------------------------------------------------
   # <><<><<><<><<><<><<>< Outputs ><>><>><>><>><>><>><>><>><>
@@ -213,7 +216,8 @@ fit_jabba = function(jbinput,
   #-------------------------------------------------------
   
   if(jbinput$settings$projection==TRUE){
-    cat("\n","><> compiling Future Projections under fixed quota <><","\n")
+  if(verbose)
+    message("\n","><> compiling Future Projections under fixed quota <><","\n")
     pyrs = jbinput$jagsdata$pyrs
     TACs = jbinput$jagsdata$TAC[pyrs,] 
     nTAC = length(TACs) 
@@ -334,7 +338,8 @@ fit_jabba = function(jbinput,
   out=data.frame(posteriors[params[sel.par]])
   outman = man.dat[,1:4]
   colnames(outman) = c("Fmsy","Bmsy","MSY","BmsyK")
-  cat(paste0("\n","\n",paste0("><> Scenario ", jbinput$settings$scenario,"_",jbinput$settings$model.type," completed in ",as.integer(save.time[3]/60)," min and ",round((save.time[3]/60-as.integer(save.time[3]/60))*100)," sec <><","\n")))
+  if(verbose)
+  message(paste0("\n","\n",paste0("><> Scenario ", jbinput$settings$scenario,"_",jbinput$settings$model.type," completed in ",as.integer(save.time[3]/60)," min and ",round((save.time[3]/60-as.integer(save.time[3]/60))*100)," sec <><","\n")))
 
 
 
