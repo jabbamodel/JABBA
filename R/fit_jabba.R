@@ -57,8 +57,12 @@ fit_jabba = function(jbinput,
                      progress.bar = "text"
                      
 ){
+
+  tmpath <- tempfile()
+  dir.create(tmpath)
+
   #write jabba model
-  jabba2jags(jbinput)
+  jabba2jags(jbinput, tmpath)
   
   # mcmc saved
   nsaved = (ni-nb)/nt*nc
@@ -110,7 +114,7 @@ fit_jabba = function(jbinput,
 
   ptm <- proc.time()
 
-  mod <- R2jags::jags(jbd, inits,params,paste0(tempdir(),"/JABBA.jags"), n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, quiet=!verbose, progress.bar = progress.bar)  # adapt is burn-in
+  mod <- R2jags::jags(jbd, inits,params,file.path(tmpath,"JABBA.jags"), n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, quiet=!verbose, progress.bar = progress.bar)  # adapt is burn-in
 
   proc.time() - ptm
   save.time = proc.time() - ptm
