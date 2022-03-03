@@ -4,11 +4,10 @@
 #' @param jbinput JABBA input object from build_jabba()
 #' @export
 
-jabba2jags = function(jbinput){
-
+jabba2jags = function(jbinput, dir){
 
   # JAGS MODEL Standard
-  sink(paste0(tempdir(),"/JABBA.jags"))
+  sink(file.path(dir,"JABBA.jags"))
   cat("
 
     model {
@@ -71,7 +70,7 @@ jabba2jags = function(jbinput){
 
   if(jbinput$settings$sigma.est==TRUE){
     cat("
-      # Obsevation variance
+      # Observation variance
       for(i in 1:nvar)
       {
       # Observation error
@@ -91,7 +90,7 @@ jabba2jags = function(jbinput){
       }}
       ",append=TRUE)
   }else{ cat("
-      # Obsevation variance
+      # Observation variance
            for(i in 1:nvar)
            {
            # Observation error
