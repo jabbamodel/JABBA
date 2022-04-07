@@ -15,6 +15,8 @@
 #' @param peels = NULL, # retro peel option
 #' @param quickmcmc option to run short mcmc
 #' @param verbose option show cat comments and progress
+#' @param par.quantile quantile of parameter posterior, default median 0.5 
+#' @param b.quantile quantile of biomass posterior, default median 0.5 
 #' @return A result list containing estimates of model input, settings and results
 #' @export
 #' @examples
@@ -33,7 +35,9 @@ mp_jabba = function(jbinput,
                      init.values = FALSE,
                      init.K = NULL,
                      init.r = NULL,
-                     init.q = NULL,# vector
+                     init.q = NULL,# vector,
+                     par.quantile = 0.5,
+                     b.quantile = 0.5,
                      quickmcmc = TRUE,
                      verbose=FALSE
 ){
@@ -106,8 +110,8 @@ mp_jabba = function(jbinput,
   
   # Refpoints
   jabba = list(
-  B = apply(posteriors$SB,2,median),
-  refpts = apply(par.dat,2,median),
+  B = apply(posteriors$SB,2, b.quantile,quantile),
+  refpts = apply(par.dat,2, par.quantile,quantile),
   convergence = data.frame(Geweke.p=round(pvalues,3),Heidel.p = round(heidle[,3],3))
   )
   

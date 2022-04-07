@@ -14,6 +14,8 @@ mp_jabba(
   init.K = NULL,
   init.r = NULL,
   init.q = NULL,
+  par.quantile = 0.5,
+  b.quantile = 0.5,
   quickmcmc = TRUE,
   verbose = FALSE
 )
@@ -38,6 +40,10 @@ Initial values}
 \item{init.r}{= NULL,}
 
 \item{init.q}{= NULL,# vector}
+
+\item{par.quantile}{quantile of parameter posterior, default median 0.5}
+
+\item{b.quantile}{quantile of biomass posterior, default median 0.5}
 
 \item{quickmcmc}{option to run short mcmc}
 
