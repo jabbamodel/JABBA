@@ -110,7 +110,7 @@ mp_jabba = function(jbinput,
   
   # Refpoints
   jabba = list(
-  B = data.frame(year= years,stock= apply(posteriors$SB,2,quantile,b.quantile)),
+  B = data.frame(age="all",year= years,unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$SB,2,quantile,b.quantile)),
   refpts = apply(par.dat,2,quantile,par.quantile),
   convergence = data.frame(Geweke.p=round(pvalues,3),Heidel.p = round(heidle[,3],3))
   )
