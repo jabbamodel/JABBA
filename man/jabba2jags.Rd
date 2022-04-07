@@ -4,7 +4,7 @@
 \alias{jabba2jags}
 \title{Function to write JABBA model in JAGS}
 \usage{
-jabba2jags(jbinput)
+jabba2jags(jbinput, dir)
 }
 \arguments{
 \item{jbinput}{JABBA input object from build_jabba()}

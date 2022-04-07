@@ -44,6 +44,7 @@
 #' @param Biplot= FALSE, # Produces a "post-modern" biplot with buffer and target zones (Quinn & Collie 2005)
 #' @param harvest.label = c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy
 #' @param catch.metric  "(t)" # Define catch input metric e.g. (tons) "000 t" 
+#' @param verbose option show cat comments
 #' @return List to be used as data input to JABBA JAGS model.
 #' @export
 
@@ -90,33 +91,36 @@ build_jabba <- function(
   KOBE.type = c("ICCAT","IOTC")[2], # ICCAT uses 3 colors; IOTC 4 (incl. orange)
   Biplot= FALSE, # Produces a "post-modern" biplot with buffer and target zones (Quinn & Collie 2005)
   harvest.label = c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy
-  catch.metric = "(t)" # Define catch input metric e.g. (tons) "000 t" etc
+  catch.metric = "(t)", # Define catch input metric e.g. (tons) "000 t" etc
+  verbose=TRUE
 ){
-
-
+  
+  
   # define model typue
   mod.names = model.type[1]
   model = which(c("Schaefer","Fox","Pella","Pella_m")%in%mod.names)
   # Set up output structure
-
-
+  
+  
   #-------------------------
   # Prepare input data
   #-------------------------
-  cat("\n","><> Prepare JABBA input data <><","\n","\n")
-
-
+  if(verbose)
+    message("\n","><> Prepare JABBA input data <><","\n","\n")
+  
+  
   if(is.null(catch)) stop("\n","\n","><> Catch Time series not provided <><","\n","\n")
   years = catch[,1]
   styr = min(years)
   endyr = max(years)
   n.years = length(years)
   if(length(which(styr:endyr%in%catch[,1]==FALSE))>0) stop("\n","\n","><> catch time series must have years in sequential order <><","\n","\n")
-
+  
   if(is.null(se)) SE.I = FALSE
   if(is.null(cpue)){
     CatchOnly = TRUE
-    cat(paste0("\n","><> Running Catch-Only mode: CatchOnly = TRUE <><","\n","\n"))
+    if(verbose)
+      message(paste0("\n","><> Running Catch-Only mode: CatchOnly = TRUE <><","\n","\n"))
     cpue= catch[,1:2]
     colnames(cpue) = c("Year","Dummy Index")
     cpue[,2] = NA
@@ -129,7 +133,7 @@ build_jabba <- function(
     n.indices = 1
   } else {
     CatchOnly = FALSE
-
+    
   }
   if(nrow(catch)!=nrow(cpue)) stop("\n","\n","><> cpue and catch differ in number of year <><","\n","\n")
   catches = names(catch)[2:ncol(catch)]
@@ -138,31 +142,35 @@ build_jabba <- function(
   styr.catch = min(catch[,1])
   styr.C = styr.catch-styr+1
   conv.catch = as.numeric(rbind(matrix(rep(NA,(styr.C-1)*n.catches),styr.C-1,n.catches),as.matrix(catch[,-1])))
-
+  
   if(length(which(conv.catch<0.0001)>0)) {
-    cat(paste0("\n","><> Warnning: Replacing 0 Catch by small constant 0.0001 <><","\n","\n"))
+    if(verbose)
+      message(paste0("\n","><> Warnning: Replacing 0 Catch by small constant 0.0001 <><","\n","\n"))
     conv.catch[conv.catch< 0.001]=0
   }
   if(length(which(is.na(conv.catch)))>0) stop("\n","\n","><> Missing Catch values currently not permitted (NAs should be 0) <><","\n","\n")
-
+  
   # Build Catch input
   Catch=matrix(conv.catch,nrow=n.years,ncol=n.catches)
   if(ncol(Catch)>1){
-    cat(paste0("\n","><> Aggrigating multiple catch colums (assumed by fleet) to a single total catch column <><","\n","\n"))
+    if(verbose)
+      message(paste0("\n","><> Aggrigating multiple catch colums (assumed by fleet) to a single total catch column <><","\n","\n"))
     Catch = apply(Catch,1,sum)
   }
   TC = as.numeric(Catch) # Total Catch
-
+  
   # Catch CV option.
   if(add.catch.CV==TRUE){
     if(length(catch.cv)>1) {CV.C =catch.cv[,2]} else {CV.C = rep(catch.cv,length(TC))}
-    cat("\n","><> Assume Catch with error CV = ",mean(CV.C)," <><","\n","\n")
+    if(verbose)
+      message("\n","><> Assume Catch with error CV = ",mean(CV.C)," <><","\n","\n")
   } else {
-    cat("\n","><> Assume Catch to be known without error <><","\n","\n")
+    if(verbose)
+      message("\n","><> Assume Catch to be known without error <><","\n","\n")
   }
-
-
-
+  
+  
+  
   # Build CPUE input
   indices = names(cpue)[2:ncol(cpue)]
   n.indices = max(length(indices),1)
@@ -171,11 +179,12 @@ build_jabba <- function(
   # Convert input data to matrices for JAGS input
   conv.cpue = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(cpue[,-1])))
   CPUE=matrix(conv.cpue,nrow=n.years,ncol=n.indices)
-
+  
   # Build Standard Error matrix
   if(is.null(se)){SE.I=FALSE} else {SE.I=TRUE}
   if(SE.I==FALSE){
-    cat("\n","><> SE.I=FALSE: Creatinng SE dummy matrix <><","\n","\n")
+    if(verbose)
+      message("\n","><> SE.I=FALSE: Creatinng SE dummy matrix <><","\n","\n")
     se = cpue
     conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(cpue[,-1])))
     se2 = matrix(ifelse(fixed.obsE>0,fixed.obsE^2,10^-10),n.years,n.indices)#/2
@@ -184,8 +193,8 @@ build_jabba <- function(
     conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(se[,-1])))
     se2 = matrix(ifelse(is.na(conv.se),0.3^2,conv.se)^2,n.years,n.indices)+fixed.obsE^2#/2
   }
-
-
+  
+  
   # Add depletion prior
   if((b.prior[1])==FALSE){
     b.yr = rep(0,n.years) # activate by setting one year to one
@@ -195,13 +204,13 @@ build_jabba <- function(
     if(as.numeric(b.prior[3]) %in% years){
       b.pr = as.numeric(c(b.prior[1:2],years[which(years %in% b.prior[3])],which(c("bk","bbmsy","ffmsy")%in%b.prior[4])-1))
       b.yr[which(years %in% b.prior[3])] =1
-    
+      
     } else {
       b.yr[n.years] = 1
       b.pr = as.numeric(c(b.prior[1:2],years[n.years],which(c("bk","bbmsy","ffmsy")%in%b.prior[4])-1))
     }}
-
-
+  
+  
   #---------------------
   # Index color palette
   #---------------------
@@ -209,12 +218,12 @@ build_jabba <- function(
                                 "#0082c8","#f58231", "#911eb4",
                                 "#46f0f0", "#f032e6", "#d2f53c",
                                 "#fabebe", "#008080","#e6beff", "#aa6e28",rainbow(10)))
-
-
+  
+  
   #----------------------------------------------------------
   # Get JABBA parameterization and suplus production function
   #----------------------------------------------------------
-
+  
   # For Pella-Tomlinson
   getshape = function(model,BmsyK){
     if(model==3 | model==4){
@@ -223,7 +232,7 @@ build_jabba <- function(
       ishape = NULL
       # Find shape for  SBmsytoK
       ishape = seq(0.1,10,0.001)
-
+      
       check.shape =((ishape)^(-1/(ishape-1))-BmsyK)^2
       #  Set shape (> 0, with 1.001 ~ Fox and 2 = Schaefer)
       shape =  ishape[check.shape==min(check.shape)]
@@ -231,14 +240,14 @@ build_jabba <- function(
     return(shape)
   }
   shape = getshape(model=model,BmsyK=BmsyK)
-
+  
   # Set shape m for Fox and Schaefer: Fox m ~1; Schaefer m =2
   if(shape==FALSE){
     if(model == 1){m=2} else {m = 1.001}}else{m=shape}
-
+  
   #------------------------------------------------
-
-
+  
+  
   #----------------------------------------------------
   #----------------------------------------------------
   if(r.dist[1]=="range"){
@@ -249,7 +258,7 @@ build_jabba <- function(
           start.r <- c(0.2,0.8)}    else if(r.prior == "Low") {
             start.r <- c(0.05,0.5)}  else { # i.e. res== "Very low"
               start.r <- c(0.015,0.1)}
-
+    
     log.r = mean(log(start.r))
     sd.r = abs(log.r - log(start.r[1]))/2
     r.prior = c(exp(log.r),sd.r)
@@ -259,33 +268,33 @@ build_jabba <- function(
     sd.r = r.prior[2]
     CV.r = sqrt(exp(sd.r^2)-1)
   }
-
+  
   #----------------------------------------------------
   # Prepare K prior
   #----------------------------------------------------
   if(is.null(K.prior)) K.prior = c(8*max(Catch),1) # mean and CV
   if(length(K.prior)<2) K.prior[2] = 1
-
-
+  
+  
   if(K.dist[1]=="range"){
     log.K =  mean(log(K.prior))
     sd.K= abs(log.K - log(K.prior[1]))/2
     log.K = mean(log(K.prior))+0.5*sd.K^2 # Will be back-bias corrected in lognorm function
     CV.K = sqrt(exp(sd.K^2)-1)
   } else {
-
+    
     CV.K = K.prior[2]
     sd.K=sqrt(log(CV.K^2+1))
     log.K = log(K.prior[1])#-0.5*sd.K^2
   }
-
-
-
-
+  
+  
+  
+  
   # Get input priors
   K.pr = plot_lnorm(exp(log.K),CV.K,Prior="K")
   r.pr = plot_lnorm(mu=exp(log.r),CV=CV.r,Prior="r")
-
+  
   psi.dist = psi.dist[1]
   if(psi.dist=="beta"){
     psi.pr = get_beta(mu=psi.prior[1],CV=psi.prior[2],Min=0,Prior=paste0("Prior B(",years[1],")/K"))} else {
@@ -296,32 +305,35 @@ build_jabba <- function(
     dm = dm/max(dm)
     bmsyk  = (seq(0.001,5,0.1))^(-1/(seq(0.001,5,0.1)-1))
   }
-
-
+  
+  
   # Note PRIORS and save input subfolder
   Priors =rbind(c(K.pr[1],CV.K),psi.prior,c(r.pr[1],CV.r))
   row.names(Priors) = c("K","Psi","r")
   colnames(Priors) = c("Mean","CV")
   Priors = data.frame(Priors)
   Priors$log.sd = sqrt(log(Priors[,2]^2+1))
-
   
-  cat("\n","><> Model type:",model.type," <><","\n")
-  if(model<4){cat("\n","><> Shape m =",m ,"\n")} else {cat("\n","><> Shape m is estmated with a mean",m,"and a CV",shape.CV,"\n")}
-  cat("\n","><> K prior mean =",K.pr[1],"and CV =", CV.K,"(log.sd = ",K.pr[2],")","\n")
-  cat("\n","><> r prior mean =",r.pr[1],"and CV =", CV.r,"(log.sd = ",r.pr[2],")","\n")
-  cat("\n","><> Psi (B1/K) prior mean =",psi.prior[1],"and CV =",psi.prior[2],"with",psi.dist,"destribution","\n")
+  
+  if(verbose) {
+    message("\n","><> Model type:",model.type," <><","\n")
+    if(model<4){message("\n","><> Shape m =",m ,"\n")} else {message("\n","><> Shape m is estmated with a mean",m,"and a CV",shape.CV,"\n")}
+    message("\n","><> K prior mean =",K.pr[1],"and CV =", CV.K,"(log.sd = ",K.pr[2],")","\n")
+    message("\n","><> r prior mean =",r.pr[1],"and CV =", CV.r,"(log.sd = ",r.pr[2],")","\n")
+    message("\n","><> Psi (B1/K) prior mean =",psi.prior[1],"and CV =",psi.prior[2],"with",psi.dist,"destribution","\n")
+  }
   
   
   
   #----------------------------------------------------------
   # Set up JABBA
   #----------------------------------------------------------
-  cat("\n","\n","\n","><> ALWAYS ENSURE to adjust default settings to your specific stock <><","\n","\n")
+  if(verbose)
+    message("\n","\n","\n","><> ALWAYS ENSURE to adjust default settings to your specific stock <><","\n","\n")
   # Plot MSY
   # remove scientific numbers
   options(scipen=999)
-
+  
   #----------------------------------------------------------
   # Setup TAC projection
   #---------------------------------------------------------
@@ -330,60 +342,60 @@ build_jabba <- function(
   # default avg last 3 years
   if(is.null(imp.yr))imp.yr = years[n.years]+1 # default last year plus ONE
   if(is.null(pyrs)) pyrs = 10 # Set number of projections years
-
+  
   if(projection==TRUE){
     nTAC = length(TACs)
     TAC = mat.or.vec(pyrs,nTAC)
     yr.last = max(years) # assessment year
-
-  if(length(TACint)>1 & length(TACint) < imp.yr-yr.last-1){
-  stop("too few intial catches for initial projections specified")}
-  
+    
+    if(length(TACint)>1 & length(TACint) < imp.yr-yr.last-1){
+      stop("too few intial catches for initial projections specified")}
+    
     if(length(TACint)==1) TACint = rep(TACint,max(imp.yr-yr.last-1,1))
     
     for(i in 1:nTAC){
       if(imp.yr-yr.last-1>0){
         TAC[,i] = c(TACint,rep(TACs[i],pyrs-(imp.yr-yr.last-1)))} else{
           TAC[,i] = c(rep(TACs[i],pyrs-(imp.yr-yr.last-1)))
-      }
+        }
     }
-
+    
   }else{
     nTAC = 1
     TAC = TC[n.years] #
     pyrs = 1
   }
-
-
-
-
+  
+  
+  
+  
   #---------------------------------------------------------------
   # JABBA Schaefer/Fox Models 1-2, Pella 3, 4 estimate shape
   #---------------------------------------------------------------
-
+  
   # Slope of hockey-stick
   slope.HS = ifelse(Plim==0,1/10^-10,1/Plim)
   nSel = 1 # setup for JABBA-SELECT version (in prep)
   nI = ncol(CPUE) # number of CPUE series
   stI = ifelse(proc.dev.all==TRUE,1, c(1:n.years)[is.na(apply(CPUE,1,mean,na.rm=TRUE))==FALSE][1]) #first year with CPUE
-
+  
   # starting values
   nq = length(unique(sets.q))
   nvar = length(unique(sets.var))
-
-
+  
+  
   # JABBA input data
   surplus.dat = list(N=n.years, TC = TC,I=CPUE,SE2=se2,r.pr=r.pr,psi.pr=psi.pr,K.pr = K.pr,
                      nq=nq,nI = nI,nvar=nvar,sigma.fixed=ifelse(sigma.proc==TRUE,0,sigma.proc),
                      sets.var=sets.var, sets.q=sets.q,Plim=Plim,slope.HS=slope.HS,
                      nTAC=nTAC,pyrs=pyrs,TAC=TAC,igamma = igamma,stI=stI,pen.P = rep(0,n.years) ,pen.bk = rep(0,n.years),proc.pen=0,K.pen = 0,
                      obs.pen = rep(0,nvar),P_bound=P_bound,q_bounds=q_bounds,sigmaobs_bound=sigmaobs_bound,sigmaproc_bound=sigmaproc_bound,K_bounds=K_bounds,mu.m=m,b.yr=b.yr, b.pr = b.pr)
-
-
+  
+  
   # PARAMETERS TO MONITOR
   params <- c("K","r", "q", "psi","sigma2", "tau2","m","Hmsy","SBmsy", "MSY", "BtoBmsy","HtoHmsy","CPUE","Ihat","Proc.Dev","P","SB","H","prP","prBtoBmsy","prHtoHmsy","TOE")
-
-
+  
+  
   #-----------------------------------------------
   # If shape parameter is estimated (Model =4)
   if(model==4){
@@ -393,11 +405,11 @@ build_jabba <- function(
   if(add.catch.CV==TRUE){
     surplus.dat$CV.C = CV.C
     params = c(params,"estC")
-
+    
   }
-
-
-
+  
+  
+  
   #--------------------------
   # Capture Settings
   #--------------------------
@@ -434,9 +446,9 @@ build_jabba <- function(
   #capture.output(jbinput, file=paste0(output.dir,"/Settings.txt"))
   #-------------------------------------------------------------------
   # write JAGS MODEL
-
+  
   #jabba2jags(jbinput)
-
+  
   return(jbinput)
-
+  
 } # end of build_jabba()

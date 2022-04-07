@@ -21,7 +21,8 @@ fit_jabba(
   save.jabba = FALSE,
   save.csvs = FALSE,
   output.dir = getwd(),
-  quickmcmc = FALSE
+  quickmcmc = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -58,6 +59,10 @@ Initial values}
 \item{save.csvs}{option to write csv outputs}
 
 \item{output.dir}{path to save plot. default is getwd()}
+
+\item{quickmcmc}{option to run short mcmc}
+
+\item{verbose}{option show cat comments and progress}
 }
 \value{
 A result list containing estimates of model input, settings and results
@@ -68,7 +73,7 @@ Fits JABBA model in JAGS and produce output object as list()
 \examples{
 data(iccat)
 jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
-bet1 = fit_jabba(jbinput,quickmcmc=TRUE)
+bet1 = fit_jabba(jbinput,quickmcmc=TRUE,verbose=TRUE)
 jbplot_cpuefits(bet1)
 jbplot_ppdist(bet1)
 par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))

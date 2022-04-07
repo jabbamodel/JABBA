@@ -4,11 +4,10 @@
 #' @param jbinput JABBA input object from build_jabba()
 #' @export
 
-jabba2jags = function(jbinput){
-
-
+jabba2jags = function(jbinput, dir){
+  
   # JAGS MODEL Standard
-  sink(paste0(tempdir(),"/JABBA.jags"))
+  sink(file.path(dir,"JABBA.jags"))
   cat("
 
     model {
@@ -32,7 +31,7 @@ jabba2jags = function(jbinput){
     r ~ dlnorm(log(r.pr[1]),pow(r.pr[2],-2))
 
     ")
-
+  
   if(jbinput$settings$model.id==4){
     cat("
       # Shape m prior
@@ -41,7 +40,7 @@ jabba2jags = function(jbinput){
   }else{ cat("
       m <- mu.m
     ",append=TRUE)}
-
+  
   if(jbinput$settings$psi.dist =="beta"){
     cat("
       # Beta Prior for Biomass depletion at the start (deteministic)
@@ -53,7 +52,7 @@ jabba2jags = function(jbinput){
       psi ~ dlnorm(log(psi.pr[1]),pow(psi.pr[2],-2)) #I(0.1,1.1)
       ",append=TRUE)
   }
-
+  
   if(jbinput$settings$sigma.proc==TRUE){
     cat("
       # Process variance
@@ -68,10 +67,10 @@ jabba2jags = function(jbinput){
            sigma <- sqrt(sigma2)
 
            ",append=TRUE)}
-
+  
   if(jbinput$settings$sigma.est==TRUE){
     cat("
-      # Obsevation variance
+      # Observation variance
       for(i in 1:nvar)
       {
       # Observation error
@@ -91,7 +90,7 @@ jabba2jags = function(jbinput){
       }}
       ",append=TRUE)
   }else{ cat("
-      # Obsevation variance
+      # Observation variance
            for(i in 1:nvar)
            {
            # Observation error
@@ -113,7 +112,7 @@ jabba2jags = function(jbinput){
            }}
 
            ",append=TRUE)}
-
+  
   # Run standard JABBA
   if(jbinput$settings$add.catch.CV==FALSE){
     cat("
@@ -127,14 +126,14 @@ jabba2jags = function(jbinput){
   }
 
 ",append=TRUE)} else {
-cat("
+  cat("
   for(t in 1:N){
   cdev[t] ~ dnorm(0,pow(CV.C[t],-2))
   cpos[t] <- sqrt(pow(cdev[t],2))
   estC[t] <- exp(log(TC[t])+cpos[t]) 
   }
 ",append=TRUE)}  
-cat("
+  cat("
 
     #Process equation
     Pmean[1] <- log(psi)
@@ -222,10 +221,10 @@ cat("
     }
 
     ", append=TRUE)
-
-# PROJECTION
-if(jbinput$settings$projection==TRUE){
-  cat("
+  
+  # PROJECTION
+  if(jbinput$settings$projection==TRUE){
+    cat("
       for(i in 1:nTAC){
       # Project first year into the future
       prPmean[1,i] <- ifelse(P[N] > Plim,
@@ -255,9 +254,9 @@ if(jbinput$settings$projection==TRUE){
             prP <- 1
             prBtoBmsy <- 1
             ", append=TRUE)}
-
-cat("
+  
+  cat("
 } # END OF MODEL
     ",append=TRUE,fill = TRUE)
-sink()
+  sink()
 } # #END jabba JAGS

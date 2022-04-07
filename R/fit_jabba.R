@@ -19,12 +19,14 @@
 #' @param save.jabba saves jabba fit as rdata object
 #' @param save.all add complete posteriors to fitted object 
 #' @param output.dir path to save plot. default is getwd()
+#' @param quickmcmc option to run short mcmc
+#' @param verbose option show cat comments and progress
 #' @return A result list containing estimates of model input, settings and results
 #' @export
 #' @examples
 #' data(iccat)
 #' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
-#' bet1 = fit_jabba(jbinput,quickmcmc=TRUE)
+#' bet1 = fit_jabba(jbinput,quickmcmc=TRUE,verbose=TRUE)
 #' jbplot_cpuefits(bet1)
 #' jbplot_ppdist(bet1)
 #' par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
@@ -35,7 +37,7 @@
 #' jbplot_spphase(bet1,add=T)
 #' jbplot_kobe(bet1,add=T)
 fit_jabba = function(jbinput,
-                   # MCMC settings
+                     # MCMC settings
                      ni = 30000, # Number of iterations
                      nt = 5, # Steps saved
                      nb = 5000, # Burn-in
@@ -52,11 +54,19 @@ fit_jabba = function(jbinput,
                      save.jabba = FALSE,
                      save.csvs = FALSE,
                      output.dir = getwd(),
-                     quickmcmc = FALSE
-                     
+                     quickmcmc = FALSE,
+                     verbose=TRUE
 ){
+  
+  tmpath <- tempfile()
+  dir.create(tmpath)
+  if(!verbose) {
+    progress.bar="none"
+  } else {
+    progress.bar="text"
+  }
   #write jabba model
-  jabba2jags(jbinput)
+  jabba2jags(jbinput, tmpath)
   
   # mcmc saved
   nsaved = (ni-nb)/nt*nc
@@ -89,30 +99,30 @@ fit_jabba = function(jbinput,
       stop("\n","\n","><> init.q vector must match length of estimable q's, length(unique(sets.q))   <><","\n","\n")
     inits = function(){ list(K= init.K,r=init.r,q = init.q,psi=rbeta(1,ab[1],ab[2]), isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
   }
-
+  
   out = output.dir
   if(file.exists(out)==FALSE) stop("\n","\n","><> output.dir does not exist <><","\n","\n")
-
-
+  
+  
   # retrospecitive peel
   years = jbinput$data$yr
   if(is.null(peels)) peels = 0
   if(peels > 0){
     jbd$I[(length(years)-peels+1) : length(years),]  = NA
-  
+    
   }
   jbinput$jagsdata$I = jbd$I # update
   # jabba model building conditions
   params = jbinput$settings$params
-
-
+  
+  
   ptm <- proc.time()
-
-  mod <- R2jags::jags(jbd, inits,params,paste0(tempdir(),"/JABBA.jags"), n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb)  # adapt is burn-in
-
+  
+  mod <- R2jags::jags(jbd, inits,params,file.path(tmpath,"JABBA.jags"), n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, quiet=!verbose, progress.bar = progress.bar)  # adapt is burn-in
+  
   proc.time() - ptm
   save.time = proc.time() - ptm
-
+  
   # unpack
   settings= c(jbinput$data,jbinput$jagsdata,jbinput$settings)
   catch = settings$catch
@@ -124,66 +134,67 @@ fit_jabba = function(jbinput,
   scenario = settings$scenario
   CPUE = settings$I
   n.indices = settings$nI
-
+  
   # if run with library(rjags)
   posteriors = mod$BUGSoutput$sims.list
-  cat(paste0("\n","><> Produce results output of ",settings$model.type," model for ",settings$assessment," ",settings$scenario," <><","\n"))
-
+  if(verbose)
+    message(paste0("\n","><> Produce results output of ",settings$model.type," model for ",settings$assessment," ",settings$scenario," <><","\n"))
+  
   #-----------------------------------------------------------
   # <><<><<><<><<><<><<>< Outputs ><>><>><>><>><>><>><>><>><>
   #-----------------------------------------------------------
-
+  
   # run some mcmc convergence tests
   par.dat= data.frame(posteriors[params[c(1:7)]])
   geweke = coda::geweke.diag(data.frame(par.dat))
   pvalues <- 2*pnorm(-abs(geweke$z))
   pvalues
-
+  
   heidle = coda::heidel.diag(data.frame(par.dat))
-
+  
   # postrior means + 95% BCIs
   #Model  parameter
   apply(par.dat,2,quantile,c(0.025,0.5,0.975))
-
+  
   man.dat = data.frame(posteriors[params[8:10]],bmsyk=as.numeric(posteriors$SBmsy)/as.numeric(posteriors$K))
   
   #Management quantaties
   apply(man.dat,2,quantile,c(0.025,0.5,0.975))
-
+  
   # Depletion
   Depletion = posteriors$P[,c(1,n.years)]
   colnames(Depletion) = c(paste0("P",years[1]),paste0("P",years[n.years]))
-
+  
   # Current stock status (Kobe posterior)
   H_Hmsy.cur = posteriors$HtoHmsy[,c(n.years)]
   B_Bmsy.cur = posteriors$BtoBmsy[,c(n.years)]
-
-
+  
+  
   # Prepare posterior quantaties
   man.dat = data.frame(man.dat,Depletion,B_Bmsy.cur,H_Hmsy.cur)
-
+  
   results = t(cbind(apply(par.dat,2,quantile,c(0.025,0.5,0.975)))) 
-
+  
   results = data.frame(Median = results[,2],LCI=results[,1],UCI=results[,3],Geweke.p=round(pvalues,3),Heidel.p = round(heidle[,3],3))
-
+  
   ref.points = round(t(cbind(apply(man.dat,2,quantile,c(0.025,0.5,0.975)))),3)
-
+  
   ref.points = data.frame(Median = ref.points[,2],LCI=ref.points[,1],UCI=ref.points[,3])
   # get number of parameters
   npar = length(par.dat)
   # number of years
   N=n.years
-
+  
   #-------------------------------------------------------------------------
   # Save parameters, results table and current status posterior in csv files
   #-------------------------------------------------------------------------
-
+  
   # Make standard results table with parameter estimates and reference points
   Table = rbind(data.frame(results)[c("K","r","psi","sigma2","m"),1:3],data.frame(ref.points))
   Table[4,] = round(sqrt((Table[4,])),3)
   rownames(Table)[4] = "sigma.proc"
   colnames(Table)  <- c("mu","lci","uci")
-
+  
   #-----------------------------------------------
   # Stock trajectories
   #-----------------------------------------------
@@ -203,17 +214,18 @@ fit_jabba = function(jbinput,
                             t(apply(posteriors$P,2,quantile,c(0.5,0.025,0.975)))[,i],
                             t(apply(posteriors$Proc.Dev,2,quantile,c(0.5,0.025,0.975)))[,i],
                             t(cbind(rep(0,3),apply(posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]+catch.temp[,-ncol(posteriors$SB)],2,quantile,c(0.5,0.025,0.975))))[,i]
-                            )
-
+    )
+    
   }
-
+  
   
   #--------------------------------------------------------
   # Projections
   #-------------------------------------------------------
   
   if(jbinput$settings$projection==TRUE){
-    cat("\n","><> compiling Future Projections under fixed quota <><","\n")
+    if(verbose)
+      message("\n","><> compiling Future Projections under fixed quota <><","\n")
     pyrs = jbinput$jagsdata$pyrs
     TACs = jbinput$jagsdata$TAC[pyrs,] 
     nTAC = length(TACs) 
@@ -256,26 +268,26 @@ fit_jabba = function(jbinput,
   SP = Hmsy.sp/(1-1/m.sp)*Bit*(1-(Bit/SB0.sp)^(m.sp-1))
   Bmsy.sp = median(posteriors$SBmsy)
   MSY.sp = quantile(posteriors$SBmsy*posteriors$Hmsy,c(0.025,0.5,0.975))
-
+  
   #------------------
   # Goodness-of-Fit
   #------------------
   DIC =round(mod$BUGSoutput$DIC,1)
-
+  
   if(settings$CatchOnly==FALSE){
     # get residuals
     Resids = NULL
     for(i in 1:n.indices){
       Resids =rbind(Resids,log(CPUE[,i])-log(apply(posteriors$CPUE[,,i],2,quantile,c(0.5))))
     }
-
+    
     # Standardized Residuals
     StResid = NULL
     for(i in 1:n.indices){
       StResid =rbind(StResid,log(CPUE[,i]/apply(posteriors$CPUE[,,i],2,quantile,c(0.5)))/
                        apply(posteriors$TOE[,,i],2,quantile,c(0.5))+0.5*apply(posteriors$TOE[,,i],2,quantile,c(0.5)))
     }
-
+    
     Nobs =length(as.numeric(Resids)[is.na(as.numeric(Resids))==FALSE])
     DF = Nobs-npar
     RMSE = round(100*sqrt(sum(Resids^2,na.rm =TRUE)/DF),1)
@@ -283,32 +295,32 @@ fit_jabba = function(jbinput,
     Crit.value = (qchisq(.95, df=(Nobs-1))/(Nobs-1))^0.5
     # Produce statistice describing the Goodness of the Fit
   } else {
-
+    
     Nobs =DF = RMSE = SDNR = Crit.value = NA
-
+    
   }
-
+  
   # Save Obs,Fit,Residuals
   jabba.res = NULL
   if(settings$CatchOnly==FALSE){
     for(i in 1:n.indices){
-
+      
       Yr = years
       Yr = min(Yr):max(Yr)
       yr = Yr-min(years)+1
-
+      
       exp.i = apply(posteriors$CPUE[,,i],2,quantile,c(0.5))[is.na(cpue[,i+1])==F]
       expLCI.i = apply(posteriors$CPUE[,,i],2,quantile,c(0.025))[is.na(cpue[,i+1])==F]
       expUCI.i = apply(posteriors$CPUE[,,i],2,quantile,c(0.975))[is.na(cpue[,i+1])==F]
-
+      
       obs.i = cpue[is.na(cpue[,i+1])==F,i+1]
       sigma.obs.i = (apply(posteriors$TOE[,,i],2,quantile,c(0.5)))[is.na(cpue[,i+1])==F]
-
+      
       yr.i = Yr[is.na(cpue[,i+1])==F]
       jabba.res = rbind(jabba.res,data.frame(scenario=settings$scenario,name=names(cpue)[i+1],year=yr.i,obs=obs.i,obs.err=sigma.obs.i,hat=exp.i,hat.lci=expLCI.i,hat.uci=expUCI.i,residual=log(obs.i)-log(exp.i),retro.peels=peels))
     }
   }
-
+  
   #----------------------------------
   # Predicted CPUE
   #----------------------------------
@@ -319,14 +331,14 @@ fit_jabba = function(jbinput,
   #------------------------------------
   # Posterior Predictive Distribution
   #------------------------------------
-
+  
   cpue.ppd = array(data=NA,dim=c(N,5,n.indices),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
   for(i in 1:n.indices){
     cpue.ppd[,,i] = cbind(t(apply(posteriors$CPUE[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$CPUE[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
   }
-
-
-
+  
+  
+  
   #-----------------------------------
   # Note posteriors of key parameters
   #-----------------------------------
@@ -334,10 +346,11 @@ fit_jabba = function(jbinput,
   out=data.frame(posteriors[params[sel.par]])
   outman = man.dat[,1:4]
   colnames(outman) = c("Fmsy","Bmsy","MSY","BmsyK")
-  cat(paste0("\n","\n",paste0("><> Scenario ", jbinput$settings$scenario,"_",jbinput$settings$model.type," completed in ",as.integer(save.time[3]/60)," min and ",round((save.time[3]/60-as.integer(save.time[3]/60))*100)," sec <><","\n")))
-
-
-
+  if(verbose)
+    message(paste0("\n","\n",paste0("><> Scenario ", jbinput$settings$scenario,"_",jbinput$settings$model.type," completed in ",as.integer(save.time[3]/60)," min and ",round((save.time[3]/60-as.integer(save.time[3]/60))*100)," sec <><","\n")))
+  
+  
+  
   #-------------------------------
   # summarize results in jabba list
   #-------------------------------
@@ -362,13 +375,13 @@ fit_jabba = function(jbinput,
   jabba$refpts = data.frame(factor=assessment,level=settings$scenario,quant = c("hat","logse"), k=c(median(posteriors$K),sd(log(posteriors$K))),bmsy=c(median(posteriors$SBmsy),sd(log(posteriors$SBmsy))),
                             fmsy=c(median(posteriors$Hmsy),sd(log(posteriors$Hmsy))),msy=c(median(posteriors$SBmsy*posteriors$Hmsy),sd(log(posteriors$SBmsy*posteriors$Hmsy))))
   jabba$pfunc = data.frame(factor=assessment,level=scenario,SB_i=round(Bit,3),SP=round(SP,3),Hmsy=round(Hmsy.sp,4),r=round(Hmsy.sp*(m.sp-1)/(1-1/m.sp),4),m=round(m.sp,3),MSY=round(as.numeric(MSY.sp[2]),3),SB0=round(SB0.sp,3),Cmsy=round(Cmsy,3))
-
+  
   if(settings$CatchOnly==FALSE){
     jabba$diags = data.frame(factor=assessment,level=settings$scenario,name=jabba.res$name,year=jabba.res$year,season=1,obs=jabba.res$obs,hat=jabba.res$hat,hat.lci=jabba.res$hat.lci,hat.uci=jabba.res$hat.uci,residual=jabba.res$residual,retro.peels=jabba.res$retro.peels)
     jabba$residuals = array(Resids,dim=c(nrow(Resids),ncol(Resids)),dimnames = list(names(cpue)[-1],years))
     jabba$std.residuals = array(StResid,dim=c(nrow(StResid),ncol(StResid)),dimnames = list(names(cpue)[-1],years))
-
-
+    
+    
   } else {
     jabba$diags = "Not Available for Catch-Only option"
     jabba$residuals = "Not Available for Catch-Only option"
@@ -379,9 +392,9 @@ fit_jabba = function(jbinput,
   jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N],bk=posteriors$P[,N])
   # add b.ppdist
   if(jbinput$jagsdata$b.pr[3]==0){jabba$bppd = "No biomass prior used"} else {
-  if(jbinput$jagsdata$b.pr[4]==0){jabba$bppd = posteriors$P[,which(years%in%jbinput$jagsdata$b.pr[3])]} 
-  if(jbinput$jagsdata$b.pr[4]==1){jabba$bppd = posteriors$BtoBmsy[,which(years%in%jbinput$jagsdata$b.pr[3])]}
-  if(jbinput$jagsdata$b.pr[4]==2){jabba$bppd = posteriors$HtoHmsy[,which(years%in%jbinput$jagsdata$b.pr[3])]}
+    if(jbinput$jagsdata$b.pr[4]==0){jabba$bppd = posteriors$P[,which(years%in%jbinput$jagsdata$b.pr[3])]} 
+    if(jbinput$jagsdata$b.pr[4]==1){jabba$bppd = posteriors$BtoBmsy[,which(years%in%jbinput$jagsdata$b.pr[3])]}
+    if(jbinput$jagsdata$b.pr[4]==2){jabba$bppd = posteriors$HtoHmsy[,which(years%in%jbinput$jagsdata$b.pr[3])]}
   }  
   if(jbinput$settings$projection==FALSE){ jabba$projections = "Required setting projection = TRUE in build_jabba()" } else{
     jabba$projections = Stock_prj
@@ -393,11 +406,11 @@ fit_jabba = function(jbinput,
     stock =  posteriors$BtoBmsy
     colnames(stock) <- jabba$yr
     kbtrj = cbind(reshape::melt(stock),reshape::melt(posteriors$HtoHmsy)[,3],
-                    reshape::melt(posteriors$P)[,3],cmsy,reshape::melt(posteriors$Proc.Dev)[,3])
+                  reshape::melt(posteriors$P)[,3],cmsy,reshape::melt(posteriors$Proc.Dev)[,3])
     colnames(kbtrj) <- c("iter","year","stock","harvest","bk","cmsy","procdev")
     jabba$trj_posterior = kbtrj
   }
-    
+  
   if(save.prj==TRUE){
     prj_posterior = kobeJabbaProj(projections)
     #save(prjkb,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_prjkb.rdata"))
@@ -422,8 +435,8 @@ fit_jabba = function(jbinput,
     write.csv(jabba$stats,paste0(output.dir,"/GoodnessFit_",settings$assessment,"_",settings$scenario,".csv"))
   }
   
-
-
+  
+  
   return(jabba)
-
+  
 } # end of fit_jabba()
