@@ -15,15 +15,15 @@
 #' @param peels = NULL, # retro peel option
 #' @param quickmcmc option to run short mcmc
 #' @param verbose option show cat comments and progress
-#' @param par.quantile quantile of parameter posterior, default median 0.5 
-#' @param b.quantile quantile of biomass posterior, default median 0.5 
+#' @param par.quantile quantile(s) of parameter posterior, default median 0.5 
+#' @param b.quantile quantile(s) of biomass posterior, default median 0.5
 #' @return A result list containing estimates of model input, settings and results
 #' @export
 #' @examples
 #' data(iccat)
 #' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox",verbose=FALSE)
 #' system.time(fit_jabba(jbinput,quickmcmc=TRUE,verbose=FALSE))
-#' system.time(mp_jabba(jbinput,quickmcmc=TRUE,verbose=FALSE))
+#' system.time(mp_jabba(jbinput))
 
 mp_jabba = function(jbinput,
                      # MCMC settings
@@ -110,8 +110,8 @@ mp_jabba = function(jbinput,
   
   # Refpoints
   jabba = list(
-  B = apply(posteriors$SB,2, b.quantile,quantile),
-  refpts = apply(par.dat,2, par.quantile,quantile),
+  B = apply(posteriors$SB,2,quantile,b.quantile),
+  refpts = apply(par.dat,2,quantile,par.quantile),
   convergence = data.frame(Geweke.p=round(pvalues,3),Heidel.p = round(heidle[,3],3))
   )
   

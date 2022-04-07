@@ -41,9 +41,9 @@ Initial values}
 
 \item{init.q}{= NULL,# vector}
 
-\item{par.quantile}{quantile of parameter posterior, default median 0.5}
+\item{par.quantile}{quantile(s) of parameter posterior, default median 0.5}
 
-\item{b.quantile}{quantile of biomass posterior, default median 0.5}
+\item{b.quantile}{quantile(s) of biomass posterior, default median 0.5}
 
 \item{quickmcmc}{option to run short mcmc}
 
@@ -61,5 +61,5 @@ Fits JABBA model in JAGS and produce output object as list()
 data(iccat)
 jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox",verbose=FALSE)
 system.time(fit_jabba(jbinput,quickmcmc=TRUE,verbose=FALSE))
-system.time(mp_jabba(jbinput,quickmcmc=TRUE,verbose=FALSE))
+system.time(mp_jabba(jbinput))
 }
