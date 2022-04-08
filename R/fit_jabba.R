@@ -388,14 +388,14 @@ fit_jabba = function(jbinput,
   
   # produce flqs with on step ahead bio
   if(jbinput$settings$add.catch.CV ==TRUE){
-    flcatch = data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(apply(posteriors$estC,2,quantile,b.quantile),NA),qname="catch")
+    flcatch = data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(apply(posteriors$estC,2,quantile,0.5),NA),qname="catch")
   } else {
     flcatch = data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(jbinput$jagsdata$TC,NA),qname="catch")
   }
   flqs = rbind( 
-    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$SB,2,quantile,b.quantile),qname="biomass"),
+    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$SB,2,quantile,0.5),qname="biomass"),
     flcatch,
-    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$BtoBmsy,2,quantile,b.quantile),qname="stock"),
+    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$BtoBmsy,2,quantile,0.5),qname="stock"),
     data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(apply(posteriors$HtoHmsy,2,quantile,0.5),NA),qname="harvest")
   )  
   flqs$qname = factor(flqs$qname,levels=c("biomass","catch","stock","harvest"))
