@@ -143,16 +143,18 @@ jabba2jags = function(jbinput, dir){
     penBK[1] <- 0
 
     # Process equation
-    for (t in 2:N)
+    for (t in 2:(N+1))
     {
     Pmean[t] <- ifelse(P[t-1] > Plim,
     log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1)) - estC[t-1]/K,0.001)),
     log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1))*P[t-1]*slope.HS - estC[t-1]/K,0.001)))
     iPV[t] <- ifelse(t<(stI),10000,isigma2) # inverse process variance
     P[t] ~ dlnorm(Pmean[t],iPV[t])
+    }
+    for (t in 2:N)
+    {
     penB[t]  <- ifelse(P[t]<(P_bound[1]),log(K*P[t])-log(K*(P_bound[1])),ifelse(P[t]>P_bound[2],log(K*P[t])-log(K*(P_bound[2])),0)) # penalty if Pmean is outside viable biomass
     # Depletion prior
-    
     penBK[t] <- ifelse(b.yr[t] < 1,0,log(ifelse(b.pr[4]<1,P[t],ifelse(b.pr[4]>1,HtoHmsy[t],BtoBmsy[t])))-log(b.pr[1]))
     }
 
@@ -169,12 +171,27 @@ jabba2jags = function(jbinput, dir){
     }
 
     Hmsy <- r*pow(m-1,-1)*(1-1/m)
-
+    SBmsy_K <- (m)^(-1/(m-1))
+    SBmsy <- SBmsy_K*K
+    MSY <- SBmsy*Hmsy
+    
     for (t in 1:N)
     {
-    SB[t] <- K*P[t]
+    
     H[t] <- TC[t]/SB[t]
+    HtoHmsy[t] <- H[t]/(Hmsy)
     }
+
+
+    
+    
+    for (t in 1:(N+1)) # One step ahead biomass
+    {
+    SB[t] <- K*P[t]
+    BtoBmsy[t] <- SB[t]/SBmsy
+    }
+
+
 
     # Observation equation in related to EB
 
@@ -190,20 +207,8 @@ jabba2jags = function(jbinput, dir){
 }}
 
 
-    #Management quantaties
-    SBmsy_K <- (m)^(-1/(m-1))
-    SBmsy <- SBmsy_K*K
 
-    MSY <- SBmsy*Hmsy
-    for (t in 1:N)
-    {
-    # use x y to put them towards the end of the alphabetically sorted  mcmc object
-    #SP[t] <- pow(r.pella,-(m-1))*SB[t]*(1-pow(P[t],m-1))
-    BtoBmsy[t] <- SB[t]/SBmsy
-    HtoHmsy[t] <- H[t]/(Hmsy)
-    }
-
-
+   
     # Enforce soft penalty on K if < K_bounds >
     K.pen ~ dnorm(penK,1000) # enforce penalty
     penK  <- ifelse(K<(K_bounds[1]),log(K)-log(K_bounds[1]),ifelse(K>K_bounds[2],log(K)-log(K_bounds[2]),0)) # penalty if Pmean is outside viable biomass

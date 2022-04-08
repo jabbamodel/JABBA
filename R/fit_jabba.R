@@ -153,13 +153,7 @@ fit_jabba = function(jbinput,
   heidle = coda::heidel.diag(data.frame(par.dat))
   
   # postrior means + 95% BCIs
-  #Model  parameter
-  apply(par.dat,2,quantile,c(0.025,0.5,0.975))
-  
   man.dat = data.frame(posteriors[params[8:10]],bmsyk=as.numeric(posteriors$SBmsy)/as.numeric(posteriors$K))
-  
-  #Management quantaties
-  apply(man.dat,2,quantile,c(0.025,0.5,0.975))
   
   # Depletion
   Depletion = posteriors$P[,c(1,n.years)]
@@ -205,15 +199,16 @@ fit_jabba = function(jbinput,
   #Bt_K = posteriors$P
   catch.temp = matrix(rep(catch[,2],each=nrow(posteriors$SB)),ncol=nrow(jbinput$data$catch),nrow=nrow(posteriors$SB))
   
-  Stock_trj = array(data=NA,dim=c(ncol(posteriors$SB),3,7),dimnames = list(years,c("mu","lci","uci"),c("B","F","BBmsy","FFmsy","BB0","procB","SPt")))
+  yrdim = length(years)
+  Stock_trj = array(data=NA,dim=c(yrdim,3,7),dimnames = list(years,c("mu","lci","uci"),c("B","F","BBmsy","FFmsy","BB0","procB","SPt")))
   for(i in 1:3){
-    Stock_trj[,i,] =  cbind(t(apply(posteriors$SB,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$H,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$BtoBmsy,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$HtoHmsy,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$P,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$Proc.Dev,2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(cbind(rep(0,3),apply(posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]+catch.temp[,-ncol(posteriors$SB)],2,quantile,c(0.5,0.025,0.975))))[,i]
+    Stock_trj[,i,] =  cbind(t(apply(posteriors$SB[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$H[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$BtoBmsy[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$HtoHmsy[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$P[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(apply(posteriors$Proc.Dev[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
+                            t(cbind(rep(0,3),apply(posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]+catch.temp[,-ncol(posteriors$SB)],2,quantile,c(0.5,0.025,0.975)))[,1:yrdim])[,i]
     )
     
   }
@@ -390,6 +385,23 @@ fit_jabba = function(jbinput,
   jabba$pars_posterior = out
   jabba$refpts_posterior = outman
   jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N],bk=posteriors$P[,N])
+  
+  # produce flqs with on step ahead bio
+  if(jbinput$settings$add.catch.CV ==TRUE){
+    flcatch = data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(apply(posteriors$estC,2,quantile,b.quantile),NA),qname="catch")
+  } else {
+    flcatch = data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(jbinput$jagsdata$TC,NA),qname="catch")
+  }
+  flqs = rbind( 
+    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$SB,2,quantile,b.quantile),qname="biomass"),
+    flcatch,
+    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$BtoBmsy,2,quantile,b.quantile),qname="stock"),
+    data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= c(apply(posteriors$HtoHmsy,2,quantile,0.5),NA),qname="harvest")
+  )  
+  flqs$qname = factor(flqs$qname,levels=c("biomass","catch","stock","harvest"))
+  
+  jabba$flqs =  flqs
+  
   # add b.ppdist
   if(jbinput$jagsdata$b.pr[3]==0){jabba$bppd = "No biomass prior used"} else {
     if(jbinput$jagsdata$b.pr[4]==0){jabba$bppd = posteriors$P[,which(years%in%jbinput$jagsdata$b.pr[3])]} 
