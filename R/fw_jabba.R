@@ -143,9 +143,13 @@ jabba_fw <- function(jabba,nyears = 10, imp.yr = 2,
     runs = paste0(round(100*values,0),"%")
   }
   if(type=="msy"){
-    if(quant=="F") vals = values*median(fmsy)
-    if(quant=="Catch") vals = values*median(msy)
-    runs = paste0(round(100*values,0),"%")
+    if(quant=="F"){
+      vals = c(status.quo,values*median(fmsy))
+      runs = c("Fsq",paste0(round(100*values,0),"%"))}
+    
+      if(quant=="Catch"){
+      vals = c(status.quo,values*median(msy))
+      runs = c("Csq",paste0(round(100*values,0),"%"))}
   }
   if(type=="abs"){
     vals =  values 
