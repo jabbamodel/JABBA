@@ -234,13 +234,13 @@ jabba2jags = function(jbinput, dir){
       # Project first year into the future
       prPmean[1,i] <- ifelse(P[N] > Plim,
       log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1)) - TC[N]/K,0.005)),
-      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1))*4*P[N] - TC[N]/K,0.001)))
+      log(max(P[N] +  Hmsy/(1-1/m)*P[N]*(1-pow(P[N],m-1))*4*P[N] - TC[N]/K,0.005)))
       prP[1,i] ~ dlnorm(prPmean[1,i],isigma2)
       # Project all following years
       for(t in 2:pyrs){
       prPmean[t,i] <- ifelse(prP[t-1,i] > Plim,
-      log(max(prP[t-1,i] +  Hmsy/(1-1/m)*prP[t-1,i]*(1-pow(prP[t-1,i],m-1)) - TAC[t-1,i]/K,0.001)),
-      log(max(prP[t-1,i] +  Hmsy/(1-1/m)*prP[t-1,i]*(1-pow(prP[t-1,i],m-1))*slope.HS*prP[t-1,i] - TAC[t-1,i]/K,0.001)))
+      log(max(prP[t-1,i] +  Hmsy/(1-1/m)*prP[t-1,i]*(1-pow(prP[t-1,i],m-1)) - TAC[t-1,i]/K,0.005)),
+      log(max(prP[t-1,i] +  Hmsy/(1-1/m)*prP[t-1,i]*(1-pow(prP[t-1,i],m-1))*slope.HS*prP[t-1,i] - TAC[t-1,i]/K,0.005)))
       # process error (as monte-carlo simular)
       prP[t,i] ~ dlnorm(prPmean[t,i],isigma2)}
       for(t in 1:pyrs){

@@ -10,7 +10,7 @@ jbplot_runstest(
   output.dir = getwd(),
   add = FALSE,
   as.png = FALSE,
-  single.plots = FALSE,
+  single.plots = add,
   width = NULL,
   height = NULL
 )

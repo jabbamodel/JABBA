@@ -12,7 +12,8 @@ jbplot_summary(
   save.summary = FALSE,
   output.dir = getwd(),
   as.png = FALSE,
-  single.plots = FALSE,
+  single.plots = add,
+  add = FALSE,
   width = NULL,
   height = NULL,
   Xlim = NULL,
@@ -39,6 +40,8 @@ jbplot_summary(
 \item{as.png}{save as png file of TRUE}
 
 \item{single.plots}{if TRUE plot invidual fits else make multiplot}
+
+\item{add}{adds single plots to mfrow set up}
 
 \item{width}{plot width}
 

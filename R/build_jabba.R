@@ -53,7 +53,7 @@ build_jabba <- function(
   cpue = NULL,
   se =  NULL,
   assessment = "bet_example",
-  scenario = "test",
+  scenario = "jabba",
   model.type = c("Schaefer","Fox","Pella","Pella_m"),
   add.catch.CV = TRUE, # to match original assessment
   catch.cv = 0.1, # CV for catch error

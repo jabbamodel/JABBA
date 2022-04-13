@@ -5,9 +5,9 @@
 #' @param mfrow determines plot frame set up
 #' @param plot.cex cex graphic option
 #' @export
-jbpar <- function(mfrow=c(1,1),plot.cex=1,mai=c(0.35,0.15,0,.15),labs=TRUE){
+jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.35,0.15,0,.15),labs=TRUE){
   if(labs)  mai=c(0.5,0.5,0.15,.15)
-  par(list(mfrow=mfrow,mai = mai, mgp =c(2.,0.5,0),omi = c(0.3,0.3,0.2,0) + 0.1, tck = -0.02,cex=0.8))
+  par(list(mfrow=mfrow,mai = mai, mgp =c(1.5,0.5,0),omi = c(0.2,0.2,0.2,0) + 0.1,mar=c(2.5,2.5, 0.7, 0.7), tck = -0.02,cex=0.8))
 }
 
 #' jbplot_indices
@@ -297,8 +297,8 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' @param width plot width
 #' @param height plot hight
 #' @export
-jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
-
+jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
+  if(as.png==TRUE) add=FALSE
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
@@ -422,10 +422,10 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @param height plot hight
 #' @export
 
-jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
+jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_logfits()  <><","\n"))
-    
+    if(as.png==TRUE) add= FALSE
     if(is.null(index)) index = 1:jabba$settings$nI
     N = jabba$settings$N
     years= jabba$yr
@@ -641,8 +641,8 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' @param width plot width
 #' @param height plot hight
 #' @export
-jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL){
-
+jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
+  if(as.png==TRUE) add=FALSE
   if(jabba$settings$CatchOnly==FALSE){
     cat(paste0("\n","><> jbplot_runstest()   <><","\n"))
 
@@ -1408,6 +1408,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
+#' @param add adds single plots to mfrow set up
 #' @param width plot width
 #' @param height plot hight
 #' @param Xlim allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
@@ -1417,9 +1418,12 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
 #' @param legend.add show legend
 #' @param plot.cex cex setting in par()
 #' @export
-jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8){
+jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8){
   
-  cat(paste0("\n","><> jbplot_compare() - requires save.jabba = TRUE in fit_jabba() <><","\n"))
+  if(!is.null(jabbas$settings)) jabbas = list(jabbas)
+  if(as.png) add=FALSE
+  
+  cat(paste0("\n","><> jbplot_summary()"))
   jbs = list(assessment=jabbas[[1]]$assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
   if(single.plots==F) type=c("B","F","BBmsy","FFmsy","BB0","SP")
   scenarios = NULL
@@ -1478,7 +1482,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
-      if(as.png==TRUE | k==1) par(Par)
+      if(!add) if(as.png==TRUE | k==1) par(Par)
       
       j = which(c("B","F","BBmsy","FFmsy","BB0","SP")%in%type[k])
       
@@ -1580,8 +1584,8 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
 #' @param verbose if FALSE then silent
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.plots=FALSE,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE,verbose=TRUE,ymax=1){
-  
+jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE,verbose=TRUE,ymax=1){
+  if(as.png==TRUE) add= FALSE
   MASE = NULL
   if(is.null(cols)) cols = hc$settings$cols
   d. = hc$diags

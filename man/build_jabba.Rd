@@ -9,7 +9,7 @@ build_jabba(
   cpue = NULL,
   se = NULL,
   assessment = "bet_example",
-  scenario = "test",
+  scenario = "jabba",
   model.type = c("Schaefer", "Fox", "Pella", "Pella_m"),
   add.catch.CV = TRUE,
   catch.cv = 0.1,

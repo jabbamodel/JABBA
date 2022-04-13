@@ -9,7 +9,7 @@ jbplot_hcxval(
   index = NULL,
   output.dir = getwd(),
   as.png = FALSE,
-  single.plots = FALSE,
+  single.plots = add,
   add = FALSE,
   width = NULL,
   height = NULL,

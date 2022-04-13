@@ -14,7 +14,6 @@
 #' @param init.q = NULL,# vector
 #' @param peels = NULL, # retro peel option
 #' @param save.trj adds posteriors of stock, harvest and bk trajectories
-#' @param save.prj adds posteriors of stock, harvest and bk projections
 #' @param save.csvs option to write csv outputs
 #' @param save.jabba saves jabba fit as rdata object
 #' @param save.all add complete posteriors to fitted object 
@@ -48,9 +47,8 @@ fit_jabba = function(jbinput,
                      init.r = NULL,
                      init.q = NULL,# vector
                      peels = NULL, # retro peel option
+                     save.trj = TRUE,
                      save.all = FALSE,
-                     save.trj = FALSE,
-                     save.prj = FALSE,
                      save.jabba = FALSE,
                      save.csvs = FALSE,
                      output.dir = getwd(),
@@ -65,6 +63,9 @@ fit_jabba = function(jbinput,
   } else {
     progress.bar="text"
   }
+  
+  if(jbinput$settings$projection==TRUE) save.trj=TRUE
+  
   #write jabba model
   jabba2jags(jbinput, tmpath)
   
@@ -74,7 +75,7 @@ fit_jabba = function(jbinput,
   jbd = jbinput$jagsdata
   
   if(quickmcmc==TRUE){
-    ni = 12000
+    ni = 8000
     nb = 2000
     nt = 2
     nc = 2
@@ -139,6 +140,8 @@ fit_jabba = function(jbinput,
   posteriors = mod$BUGSoutput$sims.list
   if(verbose)
     message(paste0("\n","><> Produce results output of ",settings$model.type," model for ",settings$assessment," ",settings$scenario," <><","\n"))
+  
+  
   
   #-----------------------------------------------------------
   # <><<><<><<><<><<><<>< Outputs ><>><>><>><>><>><>><>><>><>
@@ -214,43 +217,7 @@ fit_jabba = function(jbinput,
   }
   
   
-  #--------------------------------------------------------
-  # Projections
-  #-------------------------------------------------------
   
-  if(jbinput$settings$projection==TRUE){
-    if(verbose)
-      message("\n","><> compiling Future Projections under fixed quota <><","\n")
-    pyrs = jbinput$jagsdata$pyrs
-    TACs = jbinput$jagsdata$TAC[pyrs,] 
-    nTAC = length(TACs) 
-    proj.yrs =  years[n.years]:(years[n.years]+pyrs)
-    # Dims 1: saved MCMC,2: Years, 3:alternatic TACs, 4: P, H/Hmsy, B/Bmsy
-    projections = array(NA,c(nsaved,length(proj.yrs),nTAC,3),dimnames = list(1:nsaved,proj.yrs,TACs,c("BB0","BBmsy","FFmsy")))
-    
-    for(i in 1:nTAC){
-      projections[,,i,1] = cbind(posteriors$P[,(n.years):n.years],posteriors$prP[,,i])
-    }
-    
-    for(i in 1:nTAC){
-      projections[,,i,2] = cbind(posteriors$BtoBmsy[,(n.years):n.years],posteriors$prBtoBmsy[,,i])
-    }
-    for(i in 1:nTAC){
-      projections[,,i,3] = cbind(posteriors$HtoHmsy[,(n.years):n.years],posteriors$prHtoHmsy[,,i])
-    }
-    
-    
-    Stock_prj = array(data=NA,dim=c(pyrs+1,3,length(TACs),3),dimnames = list(proj.yrs,c("mu","lci","uci"),TACs,c("BB0","BBmsy","FFmsy")))
-    for(j in 1:length(TACs)){
-      for(i in 1:3){
-        Stock_prj[,i,j,] =  cbind(t(apply(projections[,,j,"BB0"],2,quantile,c(0.5,0.1,0.9)))[,i],
-                                  t(apply(projections[,,j,"BBmsy"],2,quantile,c(0.5,0.1,0.95)))[,i],
-                                  t(apply(projections[,,j,"FFmsy"],2,quantile,c(0.5,0.1,0.95)))[,i])
-        
-      }}
-    
-    
-  }
   #------------------------
   # Production function
   #------------------------
@@ -333,7 +300,6 @@ fit_jabba = function(jbinput,
   }
   
   
-  
   #-----------------------------------
   # Note posteriors of key parameters
   #-----------------------------------
@@ -384,6 +350,8 @@ fit_jabba = function(jbinput,
   jabba$stats = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
   jabba$pars_posterior = out
   jabba$refpts_posterior = outman
+  
+  
   jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N],bk=posteriors$P[,N])
   
   # produce flqs with on step ahead bio
@@ -408,27 +376,53 @@ fit_jabba = function(jbinput,
     if(jbinput$jagsdata$b.pr[4]==1){jabba$bppd = posteriors$BtoBmsy[,which(years%in%jbinput$jagsdata$b.pr[3])]}
     if(jbinput$jagsdata$b.pr[4]==2){jabba$bppd = posteriors$HtoHmsy[,which(years%in%jbinput$jagsdata$b.pr[3])]}
   }  
-  if(jbinput$settings$projection==FALSE){ jabba$projections = "Required setting projection = TRUE in build_jabba()" } else{
-    jabba$projections = Stock_prj
-  }
+  #jabba$prj.inits = prj.inits # New for external projections 
   
+  
+  
+  jabba$kbtrj = NULL
   if(save.trj==TRUE){
     
-    cmsy = rep(jabba$catch, each=nrow(posteriors$MSY))/rep(posteriors$MSY,length(jabba$yr))
-    stock =  posteriors$BtoBmsy
-    colnames(stock) <- jabba$yr
-    kbtrj = cbind(reshape::melt(stock),reshape::melt(posteriors$HtoHmsy)[,3],
-                  reshape::melt(posteriors$P)[,3],cmsy,reshape::melt(posteriors$Proc.Dev)[,3])
-    colnames(kbtrj) <- c("iter","year","stock","harvest","bk","cmsy","procdev")
-    jabba$trj_posterior = kbtrj
+    ## Create new full KOBE output
+    
+    kb = NULL
+    for(i in 1:N){
+      if(settings$add.catch.CV==FALSE){Ci = rep(jabba$catch[i],length(posteriors$K))} else {Ci = posteriors$estC[,i]}    
+      kb = rbind(kb,data.frame(year=years[i],run=jabba$scenario,type="fit",iter=1:length(posteriors$K),
+                               stock=posteriors$BtoBmsy[,i],harvest=posteriors$HtoHmsy[,i],B=posteriors$SB[,i],H=posteriors$H[,i],
+                               Bdev=posteriors$Proc.Dev[,i],Catch=Ci,BB0=posteriors$P[,i]))
+    }
+    jabba$kbtrj = kb
   }
   
-  if(save.prj==TRUE){
-    prj_posterior = kobeJabbaProj(projections)
-    #save(prjkb,file=paste0(output.dir,"/",settings$assessment,"_",settings$scenario,"_prjkb.rdata"))
-    jabba$prj_posterior = prj_posterior
-  }
+  #--------------------------------------------------------
+  # Projections
+  #-------------------------------------------------------
   
+  if(jbinput$settings$projection==TRUE){
+    if(verbose)
+      message("\n","><> compiling Future Projections under fixed quota <><","\n")
+    pyrs = jbinput$jagsdata$pyrs
+    TACs = jbinput$jagsdata$TAC[pyrs,] 
+    nTAC = length(TACs) 
+    proj.yrs =  (years[n.years]+1):(years[n.years]+pyrs)
+    posteriors$prBtoBmsy
+    kbprj = NULL
+    for(j in 1:nTAC){
+      kb.temp = kb[kb$year==max(years),]
+      kb.temp$run = paste0("C",TACs[j])
+      for(i in 1:pyrs){
+        kb.temp = rbind(kb.temp,data.frame(year=proj.yrs[i],run=paste0("C",TACs[j]),type="prj",iter=1:length(posteriors$K),
+                                           stock=posteriors$prBtoBmsy[,i,j],harvest=posteriors$prHtoHmsy[,i,j],B=posteriors$prBtoBmsy[,i,j]*posteriors$SBmsy,H=posteriors$prHtoHmsy[,i,j]*posteriors$Hmsy,
+                                           Bdev=0,Catch= TACs[j],BB0=posteriors$prP[,i,j]))
+      }
+      
+      kbprj = rbind(kbprj,kb.temp) 
+    }
+    kbprj$run = factor(kbprj$run,levels=unique(kbprj$run))
+    
+    jabba$kbtrj = rbind( jabba$kbtrj,kbprj)
+  } # End of projections compilation
   
   # Safe posteriors (Produces large object!)
   if(save.all==TRUE) jabba$posteriors = posteriors
