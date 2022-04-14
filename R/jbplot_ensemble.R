@@ -80,7 +80,7 @@ jbplot_ensemble<- function(kb,
                         plotdir=NULL,
                         filenameprefix="",
                         par=list(mar=c(5,4,1,1)+.1),
-                        verbose=TRUE,
+                        verbose=FALSE,
                         shadecol = NULL, shadealpha=0.3,new=TRUE,
                         add=TRUE,
                         run=NULL,
@@ -141,13 +141,38 @@ jbplot_ensemble<- function(kb,
   
   refquants=c("stock","harvest","B","H","Bdev","Catch","BB0")
   
-  # Check time line
-  #minyr = max(aggregate(year~run,kb,min)[,2])
-  #maxyr = min(aggregate(year~run,kb,max)[,2])
-  #kb = kb[kb$year>=minyr & kb$year<=maxyr,]
+  kbs = aggregate(cbind(stock,harvest,B,H,Bdev,Catch,BB0)~year+run,kb,
+                   quantile, c(0.5,quantiles))
   
+  n             <- length(unique(kbs$run))
+  startyrs      <- min(kbs$year)
+  endyrs        <- max(kbs$year)
+  years         <- unique(kbs$year)
+  
+  col = ss3col(n,1)
+  shadecol <- ss3col(n,shadealpha)
   quants = subplots
   
+  # subfunction to add legend
+  legendfun <- function(legendlabels,cumulative=FALSE) {
+    if(cumulative){
+      legendloc="topleft"
+    }
+    if(is.numeric(legendloc)) {
+      Usr <- par()$usr
+      legendloc <- list(x = Usr[1] + legendloc[1] * (Usr[2] - Usr[1]),
+                        y = Usr[3] + legendloc[2] * (Usr[4] - Usr[3]))
+    }
+    
+    # if type input is "l" then turn off points on top of lines in legend
+    legend.pch <- pch
+    if(type=="l"){
+      legend.pch <- rep(NA,length(pch))
+    }
+    legend(legendloc, legend=legendlabels[legendorder],
+           col=col[legendorder], lty=lty[legendorder],seg.len = 2,
+           lwd=lwd[legendorder], pch=legend.pch[legendorder], bty="n", ncol=legendncol,pt.cex=0.7,cex=legendcex,y.intersp = legendsp)
+  }
   
   pngfun <- function(file){
     
@@ -173,78 +198,20 @@ jbplot_ensemble<- function(kb,
     if(png) print <- TRUE
     if(png & is.null(plotdir))
       stop("to print PNG files, you must supply a directory as 'plotdir'")
-    
-  
-    
-    # subfunction to add legend
-    legendfun <- function(legendlabels,cumulative=FALSE) {
-      if(cumulative){
-        legendloc="topleft"
-      }
-      if(is.numeric(legendloc)) {
-        Usr <- par()$usr
-        legendloc <- list(x = Usr[1] + legendloc[1] * (Usr[2] - Usr[1]),
-                          y = Usr[3] + legendloc[2] * (Usr[4] - Usr[3]))
-      }
-      
-      # if type input is "l" then turn off points on top of lines in legend
-      legend.pch <- pch
-      if(type=="l"){
-        legend.pch <- rep(NA,length(pch))
-      }
-      legend(legendloc, legend=legendlabels[legendorder],
-             col=col[legendorder], lty=lty[legendorder],seg.len = 2,
-             lwd=lwd[legendorder], pch=legend.pch[legendorder], bty="n", ncol=legendncol,pt.cex=0.7,cex=legendcex,y.intersp = legendsp)
-    }
-    
-    # r4ss Colors
-    rc <- function(n,alpha=1){
-      # a subset of rich.colors by Arni Magnusson from the gregmisc package
-      # a.k.a. rich.colors.short, but put directly in this function
-      # to try to diagnose problem with transparency on one computer
-      x <- seq(0, 1, length = n)
-      r <- 1/(1 + exp(20 - 35 * x))
-      g <- pmin(pmax(0, -0.8 + 6 * x - 5 * x^2), 1)
-      b <- dnorm(x, 0.25, 0.15)/max(dnorm(x, 0.25, 0.15))
-      rgb.m <- matrix(c(r, g, b), ncol = 3)
-      rich.vector <- apply(rgb.m, 1, function(v) rgb(v[1], v[2], v[3], alpha=alpha))
-    }
-    
-    
-    
     #-------------------------------------------------------------
     # plot function
-    
+    #-------------------------------------------------------------
     # get stuff from summary output (minimized)
-    n             <- length(unique(kb$run))
-    startyrs      <- min(kb$year)
-    endyrs        <- max(kb$year)
-    years         <- unique(kb$year)
-    y = kb[,quant]   
-    run = kb$run
-    year = kb$year
-    
-    exp      <- aggregate(y~year+run,kb,mean)
-    lower    <- aggregate(y~year+run,kb,quantile,quantiles[1])
-    upper <- aggregate(y~year+run,kb,quantile,quantiles[2])
-    exp$Yr = exp$year
-    lower$Yr = lower$year
-    upper$Yr = upper$year
-    
+    y = kbs[,quant]   
+    Yr = kbs$year
+    exp      <- y[,1]
+    lower    <- y[,2]
+    upper <- y[,3]
     models <- 1:n    
     nlines <- length(models) 
     runs = unique(kb$run)[models]
     
-    
-    # setup colors, points, and line types
-    if(is.null(col) & nlines>3)  col <- rc(nlines+1)[-1]
-    if(is.null(col) & nlines<3)  col <- c("blue","green4")
-    if(is.null(col) & nlines==3) col <- c("blue","red","green4")
-    if(is.null(shadecol)){
-      # new approach thanks to Trevor Branch
-      shadecol <- adjustcolor(col, alpha.f=shadealpha)
-    }
-    
+   
     # if line stuff is shorter than number of lines, recycle as needed
     if(length(col) < nlines) col <- rep(col,nlines)[1:nlines]
     if(length(pch) < nlines) pch <- rep(pch,nlines)[1:nlines]
@@ -264,12 +231,10 @@ jbplot_ensemble<- function(kb,
       if(!add) par(par)
     }
     
-   
-    
-    if(is.null(xlim)) xlim = c(max(min(years)),max(years)) 
+   if(is.null(xlim)) xlim = c(max(min(years)),max(years)) 
     xmin = min(xlim)
-    ylim <- c(0,max(ifelse(uncertainty,max(upper[upper$Yr>=xmin,"y"])*ylimAdj, ylimAdj*max(exp[exp$Yr>=xmin,"y"])*1.05)))
-    if(quant=="Bdev") ylim <- c(-max(ifelse(uncertainty,max(c(0.2,upper[upper$Yr>=xmin,"y"],abs(lower[lower$Yr>=xmin,"y"])))*ylimAdj, ylimAdj*max(abs(exp[exp$Yr>=xmin,"y"]))*1.05)),max(0.2,ifelse(uncertainty,max(c(upper[upper$Yr>=xmin,"y"],abs(lower[lower$Yr>=xmin,"y"])))*ylimAdj, ylimAdj*max(abs(exp[exp$Yr>=xmin,"y"]))*1.05)))
+    ylim <- c(0,max(ifelse(uncertainty,max(upper[Yr>=xmin])*ylimAdj, ylimAdj*max(exp[Yr>=xmin])*1.05)))
+    if(quant=="Bdev") ylim <- c(-max(ifelse(uncertainty,max(c(0.2,upper[Yr>=xmin],abs(lower[Yr>=xmin])))*ylimAdj, ylimAdj*max(abs(exp[Yr>=xmin]))*1.05)),max(0.2,ifelse(uncertainty,max(c(upper[Yr>=xmin],abs(lower[Yr>=xmin])))*ylimAdj, ylimAdj*max(abs(exp[Yr>=xmin]))*1.05)))
     
       
     if(ylab.default){
@@ -283,28 +248,29 @@ jbplot_ensemble<- function(kb,
     
     if(uncertainty){
     for(iline in nlines:1){
-    yr <- exp[exp$run==runs[iline],]$year  
+    yr <- kbs[kbs$run==runs[iline],]$year  
     if(quant%in%c("B","stock","harvest","H","Bdev","BB0","Catch")){  
-       polygon(c(yr,rev(yr)),c(lower[lower$run == runs[iline],"y"],rev(upper[upper$run == runs[iline],"y"])),col=shadecol[iline],border=shadecol)
+       polygon(c(yr,rev(yr)),c(lower[kbs$run == runs[iline]],rev(upper[kbs$run == runs[iline]])),col=shadecol[iline],border=shadecol)
     } else {
       adj <- 0.2*iline/nlines - 0.1
-      arrows(x0=yr+adj, y0=lower[lower$run == runs[iline],"y"],
-      x1=yr+adj, y1=upper[upper$run == runs[iline],"y"],
+      arrows(x0=yr+adj, y0=lower[kbs$run == runs[iline]],
+      x1=yr+adj, y1=upper[kbs$run == runs[iline]],
       length=0.02, angle=90, code=3, col=col[iline])
     }}
     }
     
     for(iline in 1:nlines){
-      yr <- exp[exp$run==runs[iline],]$year  
+      yr <- kbs[kbs$run==runs[iline],]$year  
       if(quant%in%c("B","stock","harvest","H","Bdev","BB0","Catch")){
-        lines(yr,exp[exp$run == runs[iline],"y"],col=col[iline],pch=pch[iline],lty=lty[iline],lwd=lwd[iline],type="l")
+        lines(yr,exp[kbs$run == runs[iline]],col=col[iline],pch=pch[iline],lty=lty[iline],lwd=lwd[iline],type="l")
       } else {
-        points(yr,exp[exp$run == runs[iline],"y"],col=col[iline],pch=16,cex=0.8)
+        points(yr,exp[kbs$run == runs[iline]],col=col[iline],pch=16,cex=0.8)
       } 
    
     }  
     if(quant == "stock") abline(h=1,lty=2)
     if(quant == "harvest") abline(h=1,lty=2)
+    if(quant == "Bdev") abline(h=0,lty=2)
     
     if(legend){
       # add legend if requested

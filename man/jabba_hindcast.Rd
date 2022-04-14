@@ -19,7 +19,8 @@ jabba_hindcast(
   output.dir = getwd(),
   save.hc = FALSE,
   plotall = FALSE,
-  speedup = TRUE
+  speedup = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -54,6 +55,8 @@ Initial values}
 \item{plotall}{if TRUE makes jabba_plots() for each run}
 
 \item{speedup}{Reduces MCMC after setting runs 2+ inits to first "full" reference run}
+
+\item{verbose}{if FALSE run silent}
 }
 \value{
 hc containing estimates of key joint results from all hindcast run

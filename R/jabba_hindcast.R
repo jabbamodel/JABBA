@@ -18,6 +18,7 @@
 #' @param save.hc Save hindcast list output as .rdata
 #' @param plotall if TRUE makes jabba_plots() for each run    
 #' @param speedup Reduces MCMC after setting runs 2+ inits to first "full" reference run
+#' @param verbose if FALSE run silent
 #' @return hc containing estimates of key joint results from all hindcast run 
 #' @export
 jabba_hindcast = function(jbinput,
@@ -36,7 +37,8 @@ jabba_hindcast = function(jbinput,
                           output.dir = getwd(),
                           save.hc = FALSE,
                           plotall = FALSE,
-                          speedup = TRUE){
+                          speedup = TRUE,
+                          verbose=FALSE){
   # hindcast object define object  
   hc = list(scenario = jbinput$settings$scenario, yr=jbinput$data$yr,catch=jbinput$jagsdata$TC,peels=peels,timeseries = NULL,refpts=NULL,pfunc=NULL,diags=NULL,settings=NULL)
   hc$settings$cols = jbinput$settings$cols
@@ -77,7 +79,7 @@ jabba_hindcast = function(jbinput,
                       init.K = Kin,
                       init.r = rin,
                       init.q = qin,# vector
-                      peels = peels[i]) # retro peel option
+                      peels = peels[i],verbose=verbose) # retro peel option
     
     hc$timeseries$mu = rbind(hc$timeseries$mu,data.frame(factor=fithc$diags[1,1],level=fithc$diags[1,2],fithc$timeseries[,"mu",])) 
     hc$timeseries$lci = rbind(hc$timeseries$lci,data.frame(factor=fithc$diags[1,1],level=fithc$diags[1,2],fithc$timeseries[,"lci",])) 

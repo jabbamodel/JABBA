@@ -42,7 +42,7 @@ jbplot_ensemble(
   plotdir = NULL,
   filenameprefix = "",
   par = list(mar = c(5, 4, 1, 1) + 0.1),
-  verbose = TRUE,
+  verbose = FALSE,
   shadecol = NULL,
   shadealpha = 0.3,
   new = TRUE,

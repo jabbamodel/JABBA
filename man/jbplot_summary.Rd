@@ -16,12 +16,13 @@ jbplot_summary(
   add = FALSE,
   width = NULL,
   height = NULL,
-  Xlim = NULL,
+  xlim = NULL,
   cols = NULL,
   legend.loc = "topright",
   legend.cex = 0.8,
   legend.add = TRUE,
-  plot.cex = 0.8
+  plot.cex = 0.8,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -47,7 +48,7 @@ jbplot_summary(
 
 \item{height}{plot hight}
 
-\item{Xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
+\item{xlim}{allows to "zoom-in" requires speficiation xlim=c(first.yr,last.yr)}
 
 \item{cols}{option to add colour palette}
 
@@ -58,6 +59,8 @@ jbplot_summary(
 \item{legend.add}{show legend}
 
 \item{plot.cex}{cex setting in par()}
+
+\item{verbose}{if FALSE be silent}
 }
 \description{
 Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata

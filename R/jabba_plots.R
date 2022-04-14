@@ -1279,13 +1279,13 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param width plot width
 #' @param height plot hight
-#' @param Xlim  allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
+#' @param xlim  allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
 #' @param cols option to add colour palette 
 #' @param legend.loc location of legend
 #' @return Mohn's rho statistic for several quantaties
 #' @export
 jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
-                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright"){
+                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright"){
   
   cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
   if(add) single.plots=TRUE
@@ -1297,7 +1297,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
   years= hc$yr
   nyrs = length(years)
   if(is.null(cols)) cols = c(1,hc$settings$cols)
-  if(is.null(Xlim)){Xlim = range(years)}
+  if(is.null(xlim)){xlim = range(years)}
   FRP.rho = c("B","F", "Bmsy", "Fmsy", "BtoB0","MSY")  
   rho = data.frame(mat.or.vec(length(retros)-1,length(FRP.rho)))
   colnames(rho) = FRP.rho
@@ -1320,7 +1320,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
         ref = hc$timeseries$mu[runs%in%retros[1],j+2]
         ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
         yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],yuc[years>=Xlim[1] & years<=Xlim[2]])),ylab=ylabs[j],xlab="Year",xlim=Xlim)
+        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])),ylab=ylabs[j],xlab="Year",xlim=xlim)
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=2,lty=1)
@@ -1361,7 +1361,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
         ref = hc$timeseries$mu[runs%in%retros[1],j+2]
         ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
         yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],yuc[years>=Xlim[1] & years<=Xlim[2]])),ylab=ylabs[j],xlab="Year",xlim=Xlim)
+        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])),ylab=ylabs[j],xlab="Year",xlim=xlim)
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=2,lty=1)
@@ -1411,19 +1411,20 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
 #' @param add adds single plots to mfrow set up
 #' @param width plot width
 #' @param height plot hight
-#' @param Xlim allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
+#' @param xlim allows to "zoom-in" requires speficiation xlim=c(first.yr,last.yr)
 #' @param cols option to add colour palette 
 #' @param legend.loc location of legend
 #' @param legend.cex size of legend
 #' @param legend.add show legend
 #' @param plot.cex cex setting in par()
+#' @param verbose if FALSE be silent
 #' @export
-jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,Xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8){
+jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
   
   if(!is.null(jabbas$settings)) jabbas = list(jabbas)
   if(as.png) add=FALSE
   
-  cat(paste0("\n","><> jbplot_summary()"))
+  if(verbose) cat(paste0("\n","><> jbplot_summary()"))
   jbs = list(assessment=jabbas[[1]]$assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
   if(single.plots==F) type=c("B","F","BBmsy","FFmsy","BB0","SP")
   scenarios = NULL
@@ -1472,7 +1473,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
   nyrs = length(years)
   if(length(scenarios)>1){cols= c(cols)}else(cols=1)
   
-  if(is.null(Xlim)){Xlim = range(years)}
+  if(is.null(xlim)){xlim = range(years)}
   
   if(single.plots==TRUE){
     if(is.null(width)) width = 5
@@ -1490,7 +1491,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
         y = jbs$timeseries$mu[,j+3]
         years = jbs$timeseries$mu$year
-        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=Xlim[1] & years<=Xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=Xlim)
+        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=xlim[1] & years<=xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=xlim)
         if(plotCIs==TRUE){
           for(i in 1:length(scenarios)){
             yr = jbs$timeseries$uci[runs%in%scenarios[i],"year"]
@@ -1531,7 +1532,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
         years= jbs$timeseries$mu$year
         y = jbs$timeseries$mu[,j+3]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=Xlim[1] & years<=Xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=Xlim[1] & years<=Xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=Xlim)
+        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=xlim[1] & years<=xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=xlim)
         if(plotCIs==TRUE){
           for(i in 1:length(scenarios)){
             ylc = jbs$timeseries$lci[runs%in%scenarios[i],j+3]

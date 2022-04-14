@@ -28,7 +28,11 @@ jbpar(mfrow=c(3,2))
 jbplot_ensemble(prj1,add=)
 
 jbpar(mfrow=c(3,2))
-jbplot_ensemble(list(jabba1,jabba3))
+jbplot_ensemble(list(jabba1,jabba2,jabba3))
 
-jbplot_summary(list(jabba1,jabba3))
+jbplot_summary(list(jabba1,jabba3),cols =ss3col(3))
 
+jbpar(mfrow=c(3,2))
+jbplot_ensemble(prjtac)
+
+jabba = list(jabba1,jabba2)

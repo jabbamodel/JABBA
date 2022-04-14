@@ -13,7 +13,7 @@ jbplot_retro(
   single.plots = FALSE,
   width = NULL,
   height = NULL,
-  Xlim = NULL,
+  xlim = NULL,
   cols = NULL,
   legend.loc = "topright"
 )
@@ -35,7 +35,7 @@ jbplot_retro(
 
 \item{height}{plot hight}
 
-\item{Xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
+\item{xlim}{allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)}
 
 \item{cols}{option to add colour palette}
 
