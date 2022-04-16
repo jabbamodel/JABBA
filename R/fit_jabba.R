@@ -101,6 +101,8 @@ fit_jabba = function(jbinput,
     inits = function(){ list(K= init.K,r=init.r,q = init.q,psi=rbeta(1,ab[1],ab[2]), isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
   }
   
+  
+  
   out = output.dir
   if(file.exists(out)==FALSE) stop("\n","\n","><> output.dir does not exist <><","\n","\n")
   

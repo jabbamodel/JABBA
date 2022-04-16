@@ -137,7 +137,7 @@ jbplot_ensemble<- function(kb,
     ylab.default = FALSE
   }
   
-  
+  C
   
   refquants=c("stock","harvest","B","H","Bdev","Catch","BB0")
   
@@ -152,28 +152,7 @@ jbplot_ensemble<- function(kb,
   col = ss3col(n,1)
   shadecol <- ss3col(n,shadealpha)
   quants = subplots
-  
-  # subfunction to add legend
-  legendfun <- function(legendlabels,cumulative=FALSE) {
-    if(cumulative){
-      legendloc="topleft"
-    }
-    if(is.numeric(legendloc)) {
-      Usr <- par()$usr
-      legendloc <- list(x = Usr[1] + legendloc[1] * (Usr[2] - Usr[1]),
-                        y = Usr[3] + legendloc[2] * (Usr[4] - Usr[3]))
-    }
-    
-    # if type input is "l" then turn off points on top of lines in legend
-    legend.pch <- pch
-    if(type=="l"){
-      legend.pch <- rep(NA,length(pch))
-    }
-    legend(legendloc, legend=legendlabels[legendorder],
-           col=col[legendorder], lty=lty[legendorder],seg.len = 2,
-           lwd=lwd[legendorder], pch=legend.pch[legendorder], bty="n", ncol=legendncol,pt.cex=0.7,cex=legendcex,y.intersp = legendsp)
-  }
-  
+ 
   pngfun <- function(file){
     
     
@@ -218,9 +197,34 @@ jbplot_ensemble<- function(kb,
     if(length(lty) < nlines) lty <- rep(lty,nlines)[1:nlines]
     if(length(lwd) < nlines) lwd <- rep(lwd,nlines)[1:nlines]
     
+    
+    # subfunction to add legend
+    legendfun <- function(legendlabels,cumulative=FALSE) {
+      if(cumulative){
+        legendloc="topleft"
+      }
+      if(is.numeric(legendloc)) {
+        Usr <- par()$usr
+        legendloc <- list(x = Usr[1] + legendloc[1] * (Usr[2] - Usr[1]),
+                          y = Usr[3] + legendloc[2] * (Usr[4] - Usr[3]))
+      }
+      
+      # if type input is "l" then turn off points on top of lines in legend
+      legend.pch <- pch
+      if(type=="l"){
+        legend.pch <- rep(NA,length(pch))
+      }
+      legend(legendloc, legend=legendlabels[legendorder],
+             col=col[legendorder], lty=lty[legendorder],seg.len = 2,
+             lwd=lwd[legendorder], pch=legend.pch[legendorder], bty="n", ncol=legendncol,pt.cex=0.7,cex=legendcex,y.intersp = legendsp)
+    }
+    
+    
     if(!is.expression(legendlabels[1]) &&
        legendlabels[1]=="default") legendlabels <- runs
     if(legendorder[1]=="default") legendorder <- 1:(nlines)
+    
+    
     
     # open new window if requested
     if(plot & png==FALSE){
