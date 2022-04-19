@@ -6,18 +6,18 @@
 \usage{
 jbplot_ensemble(
   kb,
-  subplots = c("B", "H", "stock", "harvest", "Bdev", "Catch", "BB0")[1:6],
+  subplots = 1:6,
   joint = FALSE,
+  plotCIs = TRUE,
   quantiles = c(0.025, 0.975),
   kbout = FALSE,
   ylabs = NULL,
   plot = TRUE,
-  print = FALSE,
-  png = print,
+  as.png = FALSE,
   col = NULL,
   pch = NULL,
   lty = 1,
-  lwd = 2,
+  lwd = 1.5,
   tickEndYr = FALSE,
   xlim = NULL,
   ylimAdj = 1.05,
@@ -25,10 +25,9 @@ jbplot_ensemble(
   yaxs = "i",
   xylabs = TRUE,
   type = "l",
-  uncertainty = TRUE,
   legend = TRUE,
   legendlabels = "default",
-  legendloc = "topleft",
+  legend.loc = "topleft",
   legendorder = "default",
   legendncol = 1,
   legendcex = 0.7,
@@ -46,7 +45,8 @@ jbplot_ensemble(
   shadecol = NULL,
   shadealpha = 0.3,
   new = TRUE,
-  add = TRUE,
+  add = FALSE,
+  single.plots = add,
   run = NULL,
   fmax = 5
 )
@@ -54,18 +54,20 @@ jbplot_ensemble(
 \arguments{
 \item{kb}{objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj}
 
-\item{subplots}{option to c("stock","harvest","B","H","Bdev","Catch","BB0") 
+\item{subplots}{option choose from subplots 1:7 
 \itemize{
-  \item stock (B/Bmsy)  
-  \item harvest (F/Fmsy) 
-  \item B (Biomass) 
-  \item H (Harvest rate)
-  \item Bdev (Process Deviations)
-  \item Catch
-  \item BB0 (B/K) 
+  \item 1: stock (B/Bmsy)  
+  \item 2: harvest (F/Fmsy) 
+  \item 3: B (Biomass) 
+  \item 4: H (Harvest rate)
+  \item 5: Bdev (Process Deviations)
+  \item 6: Catch
+  \item 7: BB0 (B/K) 
 }}
 
 \item{joint}{if true it creates a joint ensemble from list of fit_jabba()}
+
+\item{plotCIs}{Credibilty Interval}
 
 \item{kbout}{if TRUE, produces the kb data.frame as output}
 
@@ -98,7 +100,7 @@ top of lines)}
 
 \item{legendlabels}{Optional vector of labels to include in legend.}
 
-\item{legendloc}{Location of legend. Either a string like "topleft" or a vector
+\item{legend.loc}{Location of legend. Either a string like "topleft" or a vector
 of two numeric values representing the fraction of the maximum in the x and y
 dimensions, respectively. See ?legend for more info on the string options.}
 
@@ -146,6 +148,24 @@ It will be separated from default name by an underscore.}
 }
 \description{
 Plots plots JABBA ensemble models + projections - joint or by run
+}
+\examples{
+data(iccat)
+bet = iccat$bet 
+# Fit Fox and Schaefer
+jb1 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Fox",model.type="Fox")
+jb2 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Schaefer",model.type="Schaefer")
+fit1 = fit_jabba(jb1,quickmcmc=TRUE,verbose=TRUE)
+fit2 = fit_jabba(jb2,quickmcmc=TRUE,verbose=TRUE)
+# Compare
+jbplot_ensemble(list(fit1,fit2))
+# Joint to 2-model ensemble
+jbplot_ensemble(list(fit1,fit2),joint=T)
+# Do 2-model ensemble forecast
+prj = fw_jabba(list(fit1,fit2),quant="Catch",type="abs",imp.values = seq(60,100,10)*1000)
+jbplot_ensemble(prj)
+# Zoom in
+jbplot_ensemble(prj,xlim=c(2000,2027))
 }
 \author{
 Mostly adopted from ss3diags::SSplotEnsemble

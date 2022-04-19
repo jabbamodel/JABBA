@@ -2,7 +2,7 @@
 % Please edit documentation in R/jabba_hindcast.R
 \name{jabba_hindcast}
 \alias{jabba_hindcast}
-\title{jabba hindcasting function}
+\title{DEPRECIATED}
 \usage{
 jabba_hindcast(
   jbinput,
@@ -62,5 +62,5 @@ Initial values}
 hc containing estimates of key joint results from all hindcast run
 }
 \description{
-Wrapper to coduct histcasts for retrospective analysis and cross-validation
+PLEASE USE hindcast_jabba() as the new wrapper
 }

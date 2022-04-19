@@ -203,3 +203,102 @@ ss3col <- function(n,alpha=1){
   }
   return(cols)
 }
+
+
+#' jbmase()
+#'
+#' Computes Mean Absolute Scaled Errors as a measure of prediction skill
+#' @param hc object list of hindcasts from hindcast_jabba() or jbhcxval()
+#' @param naive.min minimum MASE denominator (naive predictions) for MASE.adj (default = 0.1)
+#' @param index option to compute for specific indices (numeric & in order)
+#' @param verbose if FALSE run silent
+#' @return hc containing estimates of key joint results from all hindcast run 
+#' @export
+
+jbmase <- function(hc,naive.min=0.1,index=NULL,verbose=TRUE){
+  MASE = NULL
+  d. = do.call(rbind,lapply(hc,function(x){
+    x$diags}))
+  
+  xmin= min(d.$year)
+  all.indices = unique(d.$name)  
+  if(is.null(index)) index = 1:length(all.indices)
+  # subset 
+  d. = d.[d.$name%in%all.indices[index],]
+  peels = unique(d.$retro.peels)
+  styr = max(hc[[1]]$yr)-max(peels)
+  years = min(d.$year):max(d.$year)
+  yr = unique(d.$year)
+  endyrvec = rev(sort(years[length(years)-peels]))
+  
+  if(verbose)cat("\n","><> Only including indices that have years overlapping hind-cast horizan","\n")
+  # check in index
+  indices = unique(d.$name)
+  valid = NULL
+  for(i in 1:length(indices)){
+    if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
+      valid=c(valid,paste(indices[i]))}
+  }
+  if(verbose) cat("\n","><> Including indices:",valid,"\n")
+  n.indices = length(valid)  
+  for(i in 1:length(indices)){
+    if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
+      xv = d.[d.$name%in%indices[i],]
+      yr = unique(xv$year)
+      yr.eval <- sort(endyrvec)
+      yr.obs <- yr.eval%in%yr
+      pe.eval = which(yr.eval%in%yr)[-1]
+      if(length(which(yr.eval%in%yr))-length(pe.eval)<1){
+        pe.eval = pe.eval[-1]
+      } 
+      npe <- length(pe.eval)  # number of prediction errors
+      obs.eval <- rep(NA,length(yr.eval))
+      obs.eval[yr.eval%in%yr] = xv$obs[xv$retro.peels==min(xv$retro.peels)][yr%in%yr.eval]
+      if(is.na(obs.eval[1]))
+        nhc = length(endyrvec)-1
+      
+      py = xv$year[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
+      obs =xv$obs[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
+      
+      if(verbose) cat(paste("\n","Computing MASE with",ifelse(npe<(length(endyrvec)-1),"only","all"),
+                            npe,"of",length(endyrvec)-1," prediction residuals for Index",xv$name[1]),"\n")
+      if(verbose & npe<(length(endyrvec)-1))cat(paste("\n","Warning:  Unequal spacing of naive predictions residuals may influence the interpretation of MASE","\n","\n"))
+      
+      naive.eval=log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)==F])])-log(obs.eval[is.na(obs.eval)==F][-1])
+      nhc = length(endyrvec)-1
+      pred.resid = NULL
+      for(j in 1:(length(peels)-1)){
+        if(endyrvec[j] %in% xv$year){
+          
+          x <- min(py):max(yr.eval)
+          x <- x[1:(length(x)-peels[j])]
+          x = x[x%in%unique(xv$year)]
+          y <- xv[xv$retro.peels==peels[j+1] & xv$year%in%x,]$hat
+          pred.resid = c(pred.resid,log(y[length(x)])-log(obs[length(x)])) # add log() for v1.1
+        }}
+      
+      maepr =  mean(abs(pred.resid))
+      if(is.na(obs.eval[1])) obs.eval[1] =  rev(obs[obs%in%obs.eval==F])[1] 
+      scaler = mean(abs(naive.eval))
+      scaler.adj = mean(pmax(abs(naive.eval),naive.min))
+      
+      MASE.i = NULL
+      MASE.i = data.frame(Index=unique(xv$name)[1], MASE=maepr/scaler,MASE.adj=maepr/scaler.adj,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
+      
+    } else{
+      xv = d.[d.$name%in%indices[i],]
+      if(verbose) cat(paste0("\n","No observations in evaluation years to compute prediction residuals for Index ",xv $name[1]),"\n")
+      MASE.i = NULL
+      MASE.i = data.frame(Index=unique(xv$name)[1], MASE=NA,MASE.adj=NA,MAE.PR=NA,MAE.base=NA,n.eval=0)  
+    }
+    MASE = rbind(MASE,MASE.i)
+    
+  } # end of index loop
+  
+  
+  return(MASE)
+}
+
+
+
+

@@ -1,6 +1,6 @@
-#' jabba hindcasting function
+#' DEPRECIATED
 #'
-#' Wrapper to coduct histcasts for retrospective analysis and cross-validation
+#' PLEASE USE hindcast_jabba() as the new wrapper
 #' @param jbinput List of input variables as output by build_jabba()
 #' MCMC settings
 #' @param ni number of iterations
@@ -39,6 +39,9 @@ jabba_hindcast = function(jbinput,
                           plotall = FALSE,
                           speedup = TRUE,
                           verbose=FALSE){
+  
+  stop("This function is not in use any longer - please use hindcast_jabba() instead")
+  
   # hindcast object define object  
   hc = list(scenario = jbinput$settings$scenario, yr=jbinput$data$yr,catch=jbinput$jagsdata$TC,peels=peels,timeseries = NULL,refpts=NULL,pfunc=NULL,diags=NULL,settings=NULL)
   hc$settings$cols = jbinput$settings$cols

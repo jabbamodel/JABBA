@@ -1271,7 +1271,7 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' jbplot_retro() to plot retrospective pattern
 #'
 #' Plots retrospective pattern of B, F, BBmsy, FFmsy, BB0 and SP #'
-#' @param hc output from jabba_hindast()
+#' @param hc output list from hindast_jabba()
 #' @param type  single plot option c("B","F","BBmsy","FFmsy","BB0","SP")
 #' @param add  add to multi plot if TRUE
 #' @param output.dir directory to save plots
@@ -1282,23 +1282,41 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param xlim  allows to "zoom-in" requires speficiation Xlim=c(first.yr,last.yr)
 #' @param cols option to add colour palette 
 #' @param legend.loc location of legend
+#' @param verbose if FALSE be silent
 #' @return Mohn's rho statistic for several quantaties
 #' @export
-jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
-                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright"){
+jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
+                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE){
   
-  cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
+  hc.ls = hc 
+  
+  peels = as.numeric(do.call(c,lapply(hc.ls,function(x){x$diags$retro.peels[1]})))
+  Ref = hc.ls[[1]]
+  hc = list(scenario = Ref$scenario, yr=Ref$yr,catch=Ref$catch,peels=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,diags=NULL,settings=Ref$settings)
+  for(i in 1:length(peels)){
+    hc.ls[[i]]$pfunc$level = peels[i] 
+    hc.ls[[i]]$refpts$level = peels[i]
+    hc$timeseries$mu = rbind(hc$timeseries$mu,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"mu",])) 
+    hc$timeseries$lci = rbind(hc$timeseries$lci,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"lci",])) 
+    hc$timeseries$uci = rbind(hc$timeseries$uci,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"uci",])) 
+    hc$diags = rbind(hc$diags,hc.ls[[i]]$diags)
+    hc$refpts= rbind(hc$refpts,hc.ls[[i]]$refpts[1,])
+    hc$pfunc= rbind(hc$pfunc ,hc.ls[[i]]$pfunc)
+  }
+  
+  
+  if(verbose)cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
   if(add) single.plots=TRUE
-  if(single.plots==F) type=c("B","F","BBmsy","FFmsy","BB0","SP")
+  if(single.plots==F) type=c("B","F","BBmsy","FFmsy","procB","SP")
   
-  ylabs = c(paste("Biomass",hc$settings$catch.metric),ifelse(hc$settings$harvest=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(hc$settings$harvest=="Fmsy",expression(F/F[MSY]),expression(H/H[MSY])),expression(B/B[0]),paste("Surplus Production",hc$settings$catch.metric))
-  retros = unique(hc$timeseries$mu$level)
+  ylabs = c(paste("Biomass",hc$settings$catch.metric),"Fishing mortality F",expression(B/B[MSY]),expression(F/F[MSY]),expression(B/B[0]),"Process Deviations",paste("Surplus Production",hc$settings$catch.metric))
+  retros = unique(peels)
   runs= hc$timeseries$mu$level
   years= hc$yr
   nyrs = length(years)
-  if(is.null(cols)) cols = c(1,hc$settings$cols)
+  if(is.null(cols)) cols = c("black",ss3col(length(peels)-1))
   if(is.null(xlim)){xlim = range(years)}
-  FRP.rho = c("B","F", "Bmsy", "Fmsy", "BtoB0","MSY")  
+  FRP.rho = c("B","F", "Bmsy", "Fmsy", "procB","MSY")  
   rho = data.frame(mat.or.vec(length(retros)-1,length(FRP.rho)))
   colnames(rho) = FRP.rho
   if(single.plots==TRUE){
@@ -1312,35 +1330,41 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
       
       if(as.png==TRUE | add==FALSE) par(Par)
       
-      j = which(c("B","F","BBmsy","FFmsy","BB0","SP")%in%type[k])
+      j = which(c("B","F","BBmsy","FFmsy","BB0","procB","SP")%in%type[k])
       
       
-      if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
+      if(type[k]%in%c("B","F","BBmsy","FFmsy","procB")){
         y = hc$timeseries$mu[,j+2]
         ref = hc$timeseries$mu[runs%in%retros[1],j+2]
         ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
         yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])),ylab=ylabs[j],xlab="Year",xlim=xlim)
+        if(type[k]=="procB") ylim=c(-max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])
+                                    ,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
+        if(!type[k]=="procB") ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
+        
+        plot(years,years,type="n",ylim=ylim,ylab=ylabs[j],xlab="Year",xlim=xlim)
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
-          lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=2,lty=1)
+          lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           if(i>1){
-          rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
+            rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
           }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-      }  else {
+        if(type[k]%in%c("procB")) abline(h=0,lty=2)
+      } 
+      else {
         # Plot SP
         plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.12)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
         for(i in 1:length(retros)){
-          lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=2,lty=1)
+          lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
           if(i>1){
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
           }
         }}
-      if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
-      legend("top", paste0("Mohn's rho = ",round(mean(rho[i-1,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+      if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1.5,length(retros))))
+      legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
       
       if(as.png==TRUE) dev.off()
     } # End type loop
@@ -1353,39 +1377,44 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","BB0","SP"),
     par(Par)
     for(k in 1:length(type)){
       
-      j = which(c("B","F","BBmsy","FFmsy","BB0","SP")%in%type[k])
+      j = which(c("B","F","BBmsy","FFmsy","BB0","procB","SP")%in%type[k])
       
       
-      if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
+      if(type[k]%in%c("B","F","BBmsy","FFmsy","procB")){
         y = hc$timeseries$mu[,j+2]
         ref = hc$timeseries$mu[runs%in%retros[1],j+2]
         ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
         yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
-        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])),ylab=ylabs[j],xlab="Year",xlim=xlim)
+        if(type[k]=="procB") ylim=c(-max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])
+                                    ,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
+        if(!type[k]=="procB") ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
+        
+        plot(years,years,type="n",ylim=ylim,ylab=ylabs[j],xlab="Year",xlim=xlim)
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
-          lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=2,lty=1)
+          lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           if(i>1){
             rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
           }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
-        legend("top", paste0("Mohn's rho = ",round(mean(rho[,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
+        if(type[k]%in%c("procB")) abline(h=0,lty=2)
+        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1.5,length(retros))))
+        legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
         
-        }  else {
+      }  else {
         # Plot SP
         plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.15)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
         for(i in 1:length(retros)){
-          lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=2,lty=1)
+          lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
           if(i>1){
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
           }      
         }
-          legend("top", paste0("Mohn's rho = ",round(mean(rho[,k]),2)),bty="n",y.intersp=-0.2,cex=0.9)
-          
-          }
+        legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
+        
+      }
       
       
     }
@@ -1423,7 +1452,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
   
   if(!is.null(jabbas$settings)) jabbas = list(jabbas)
   if(as.png) add=FALSE
-  
+  if(is.null(cols)) cols= ss3col(length(jabbas))
   if(verbose) cat(paste0("\n","><> jbplot_summary()"))
   jbs = list(assessment=jabbas[[1]]$assessment,yr= NULL,catch=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,settings=NULL)
   if(single.plots==F) type=c("B","F","BBmsy","FFmsy","BB0","SP")
@@ -1446,8 +1475,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       jbs$catch = jabba$catch
       jbs$settings$cols = jabba$settings$cols
       jbs$settings$harvest = jabba$settings$harvest.label
-      jbs$settings$catch.metric = jabba$settings$catch.metric  
-      if(is.null(cols)) cols= jabba$settings$cols
+      jbs$settings$catch.metric = jabba$settings$catch.metric 
       
     }
     jabba$pfunc$level = scenarios[i]
@@ -1568,6 +1596,8 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
 #' Plots and summarizes results from one step head hindcast cross-validation using the output form jabba_hindcast 
 #'
 #' @param hc output object from jabba_hindcast
+#' @param naive.min minimum MASE denominator (naive predictions) for dj (default = 0.1)
+#' @param mase.adj if TRUE, show adjusted mase in brackets
 #' @param index option to plot specific indices (numeric & in order)
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
@@ -1585,43 +1615,39 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
 #' @param verbose if FALSE then silent
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE,verbose=TRUE,ymax=1){
+jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE,verbose=TRUE,ymax=1){
   if(as.png==TRUE) add= FALSE
-  MASE = NULL
-  if(is.null(cols)) cols = hc$settings$cols
-  d. = hc$diags
+  MASE = jbmase(hc,naive.min=naive.min,verbose=verbose)
+  if(is.null(cols)) cols = ss3col(length(hc)-1)
+  d. = do.call(rbind,lapply(hc,function(x){
+    x$diags}))
+  
+  
   all.indices = unique(d.$name)  
   if(is.null(index)) index = 1:length(all.indices)
   # subset 
   d. = d.[d.$name%in%all.indices[index],]
+  d. = d.[d.$name%in%MASE[is.na(MASE$MASE),]$Index==F,]
   
   peels = unique(d.$retro.peels)
-  styr = max(hc$yr)-max(peels)
+  styr = max(hc[[1]]$yr)-max(peels)
   years = min(d.$year):max(d.$year)
   yr = unique(d.$year)
   endyrvec = rev(sort(years[length(years)-peels]))
   
   if(is.null(minyr)){
-    xmin = min(endyrvec)-5} else {
+    xmin = min(hc[[1]]$yr)} else {
       xmin = min(minyr,min(endyrvec)-3)  
     }
-  if(verbose)cat("\n","><> Only including indices that have years overlapping hind-cast horizan","\n")
-  
-  
+  d.=d.[d.$year>=xmin,]
   
   # check in index
   indices = unique(d.$name)
-  valid = NULL
-  for(i in 1:length(indices)){
-    if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
-      valid=c(valid,paste(indices[i]))}
-  }
-  cat("\n","><> Including indices:",valid,"\n")
   
-  n.indices = length(valid)  
+  n.indices = length(indices)  
   if(single.plots==FALSE){  
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/hcxaval_",hc$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(file = paste0(output.dir,"/hcxaval_",hc[[1]]$assessment,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     if(add==F) par(Par)
   }  
@@ -1635,7 +1661,7 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
         if(as.png==TRUE){png(file = paste0(output.dir,"/hcxval_",hc$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
         if(add==F){
-        if(as.png==TRUE | indices[i]==valid[1]) par(Par)
+          if(as.png==TRUE | indices[i]==valid[1]) par(Par)
         }
       }
       xv = d.[d.$name%in%indices[i],]
@@ -1651,10 +1677,10 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
       obs.eval <- rep(NA,length(yr.eval))
       obs.eval[yr.eval%in%yr] = xv$obs[xv$retro.peels==min(xv$retro.peels)][yr%in%yr.eval]
       if(is.na(obs.eval[1]))
-      nhc = length(endyrvec)-1
+        nhc = length(endyrvec)-1
       
       #if(length(endyrvec[yr%in%endyrvec])>0 & length(which(yr.eval%in%yr))>1){ # ><>
-        
+      
       
       py = xv$year[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
       obs =xv$obs[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
@@ -1669,18 +1695,16 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
       
       #lines(py,obs,pch=21,lty=2,col="white")
       points(py,obs,pch=21,cex=1.6,bg="white")
-      lines(py,hat,col=1,lwd=2,lty=1,type="l",pch=16)
       
-      if(verbose) cat(paste("\n","Computing MASE with",ifelse(npe<(length(endyrvec)-1),"only","all"),
-                            npe,"of",length(endyrvec)-1," prediction residuals for Index",xv$name[1]),"\n")
-      if(verbose & npe<(length(endyrvec)-1))cat(paste("\n","Warning:  Unequal spacing of naive predictions residuals may influence the interpretation of MASE","\n"))
-      
+      naive.eval=log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)==F])])-log(obs.eval[is.na(obs.eval)==F][-1])
+      nhc = length(endyrvec)-1
+      points(yr.eval[-1][1:(nhc)][is.na(naive.eval)==F],obs.eval[-1][1:(nhc)][is.na(naive.eval)==F],pch=21,cex=1.6,bg=(rev(cols[1:(length(peels)-1)]))[is.na(naive.eval)==F])
       
       
       pred.resid = NULL
       for(j in 1:(length(peels)-1)){
         if(endyrvec[j] %in% xv$year){
-         
+          
           x <- min(py):max(yr.eval)
           x <- x[1:(length(x)-peels[j])]
           x = x[x%in%unique(xv$year)]
@@ -1696,32 +1720,23 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
                  bg=cols[j],col=1, type="p",cex=1)
           
         }}
-      naive.eval=log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)==F])])-log(obs.eval[is.na(obs.eval)==F][-1])
-      nhc = length(endyrvec)-1
-      points(yr.eval[-1][1:(nhc)][is.na(naive.eval)==F],obs.eval[-1][1:(nhc)][is.na(naive.eval)==F],pch=21,cex=1.6,bg=(rev(cols[1:(length(peels)-1)]))[is.na(naive.eval)==F])
+      lines(py,hat,col=1,lwd=2,lty=1,type="l",pch=16)
       
-      maepr =  mean(abs(pred.resid))
-      if(is.na(obs.eval[1])) obs.eval[1] =  rev(obs[obs%in%obs.eval==F])[1] 
-      scaler = mean(abs(naive.eval))
+      mase = MASE[MASE$Index== indices[i],]$MASE
+      maseadj = MASE[MASE$Index== indices[i],]$MASE.adj
+      lmase = paste0(unique(xv$name)[1], ": MASE = ",round(mase,2))
+      if(mase.adj==TRUE) lmase = paste0(lmase,"(",round(maseadj,2),")")
       
-      mase=maepr/scaler
-      MASE.i = NULL
-      MASE.i = data.frame(Index=unique(xv$name)[1], MASE=mase,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
-      if(label.add) legend("top",paste0(unique(xv$name)[1], ": MASE = ",round(mase,2)),bty="n",y.intersp=-0.2,cex=1.1)
-      #if(single.plots==TRUE | i==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1,length(retros))))
+      if(label.add) legend("top",lmase,bty="n",y.intersp=-0.2,cex=1.1)
       
       if(single.plots==TRUE & as.png==TRUE) dev.off()
       if(legend.add==T){
-      if(single.plots==TRUE | i==1){ legend(legend.loc,paste(c("Ref",endyrvec[-1])),col=c(1,cols),bty="n",cex=legend.cex,lwd=2)}
+        if(single.plots==TRUE | i==1){ legend(legend.loc,paste(c("Ref",paste0("-",max(hc[[1]]$yr)-peels[-1]+1))),col=c(1,cols),bty="n",cex=legend.cex,lwd=2)}
       }
       
-      } else{
+    } else{
       xv = d.[d.$name%in%indices[i],]
-      cat(paste0("\n","No observations in evaluation years to compute prediction residuals for Index ",xv $name[1]),"\n")
-      MASE.i = NULL
-      MASE.i = data.frame(Index=unique(xv$name)[1], MASE=NA,MAE.PR=NA,MAE.base=NA,n.eval=0)  
     }
-    MASE = rbind(MASE,MASE.i)
     
   } # end of index loop
   if(single.plots==FALSE){
@@ -1730,7 +1745,6 @@ jbplot_hcxval <- function(hc,index=NULL, output.dir=getwd(),as.png=FALSE,single.
   }
   if(single.plots==FALSE & as.png==TRUE) dev.off()
   
-  return(MASE)
-  }
-  
-# End of jbplot_hcxval
+  if(verbose) return(MASE)
+}
+#}}}

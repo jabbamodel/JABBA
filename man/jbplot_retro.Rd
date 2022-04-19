@@ -6,7 +6,7 @@
 \usage{
 jbplot_retro(
   hc,
-  type = c("B", "F", "BBmsy", "FFmsy", "BB0", "SP"),
+  type = c("B", "F", "BBmsy", "FFmsy", "procB", "SP"),
   add = F,
   output.dir = getwd(),
   as.png = FALSE,
@@ -15,11 +15,12 @@ jbplot_retro(
   height = NULL,
   xlim = NULL,
   cols = NULL,
-  legend.loc = "topright"
+  legend.loc = "topright",
+  verbose = TRUE
 )
 }
 \arguments{
-\item{hc}{output from jabba_hindast()}
+\item{hc}{output list from hindast_jabba()}
 
 \item{type}{single plot option c("B","F","BBmsy","FFmsy","BB0","SP")}
 
@@ -40,6 +41,8 @@ jbplot_retro(
 \item{cols}{option to add colour palette}
 
 \item{legend.loc}{location of legend}
+
+\item{verbose}{if FALSE be silent}
 }
 \value{
 Mohn's rho statistic for several quantaties

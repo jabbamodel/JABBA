@@ -7,6 +7,8 @@
 jbplot_hcxval(
   hc,
   index = NULL,
+  naive.min = 0.1,
+  mase.adj = FALSE,
   output.dir = getwd(),
   as.png = FALSE,
   single.plots = add,
@@ -27,6 +29,10 @@ jbplot_hcxval(
 \item{hc}{output object from jabba_hindcast}
 
 \item{index}{option to plot specific indices (numeric & in order)}
+
+\item{naive.min}{minimum MASE denominator (naive predictions) for dj (default = 0.1)}
+
+\item{mase.adj}{if TRUE, show adjusted mase in brackets}
 
 \item{output.dir}{directory to save plots}
 

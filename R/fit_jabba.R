@@ -26,15 +26,8 @@
 #' data(iccat)
 #' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
 #' bet1 = fit_jabba(jbinput,quickmcmc=TRUE,verbose=TRUE)
-#' jbplot_cpuefits(bet1)
-#' jbplot_ppdist(bet1)
-#' par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
-#' jbplot_trj(bet1,type="B",add=T)
-#' jbplot_trj(bet1,type="F",add=T)
-#' jbplot_trj(bet1,type="BBmsy",add=T)
-#' jbplot_trj(bet1,type="FFmsy",add=T)
-#' jbplot_spphase(bet1,add=T)
-#' jbplot_kobe(bet1,add=T)
+#' jbplot_summary(bet1)
+
 fit_jabba = function(jbinput,
                      # MCMC settings
                      ni = 30000, # Number of iterations
@@ -321,6 +314,7 @@ fit_jabba = function(jbinput,
   jabba$assessment  = assessment
   jabba$scenario = scenario
   jabba$settings = c(jbinput$jagsdata,jbinput$settings)
+  jabba$settings$mcmc = list(ni=ni,nt=nt,nb=nb,nc=nc,nsaved=nsaved)
   jabba$inputseries = list(cpue=cpue,se=se,catch=catch)
   jabba$pars=results
   jabba$estimates=Table
@@ -341,6 +335,15 @@ fit_jabba = function(jbinput,
   
   if(settings$CatchOnly==FALSE){
     jabba$diags = data.frame(factor=assessment,level=settings$scenario,name=jabba.res$name,year=jabba.res$year,season=1,obs=jabba.res$obs,hat=jabba.res$hat,hat.lci=jabba.res$hat.lci,hat.uci=jabba.res$hat.uci,residual=jabba.res$residual,retro.peels=jabba.res$retro.peels)
+    # add hindcast qualifier
+    if(jabba$diags$retro.peels[1]>0){
+      jabba$diags$hindcast =  ifelse(jabba$diags$year%in%(max(jabba$yr)-(1:(jabba$diags$retro.peels[1]))+1),TRUE,FALSE)
+    } else {
+      jabba$diags$hindcast=FALSE
+    }
+    
+    
+    
     jabba$residuals = array(Resids,dim=c(nrow(Resids),ncol(Resids)),dimnames = list(names(cpue)[-1],years))
     jabba$std.residuals = array(StResid,dim=c(nrow(StResid),ncol(StResid)),dimnames = list(names(cpue)[-1],years))
     

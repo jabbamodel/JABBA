@@ -1,5 +1,5 @@
 #{{{
-#' jabba_fw()
+#' fw_jabba()
 #
 #' External forward projections in JABBA 
 #'
@@ -9,15 +9,17 @@
 #'   \item Catch  
 #'   \item F 
 #' }    
-#' @param values vector Catch or F values provide as absolute or ratios   
 #' @param type choose the type of values provided  c("ratio","msy","abs")[1]
 #' \itemize{
 #'   \item ratio (relative to status quo Catch or F)   
 #'   \item msy (relative to Fmsy or MSY)
 #'   \item abs (input values are taken as absolute values)
 #' }    
+#' @param initial value or vector Catch or F values, default takes mean over recent 3 yrs   
+#' @param imp.values vector Catch or F scenarios provide as absolute or ratios   
 #' @param stochastic if FALSE, process error sigma.proc is set to zero 
 #' @param AR1 if TRUE, projection account auto correlation in the process devs 
+#' @param ndevs number years on the tail to set initial proc.error for forecasting  
 #' @param rho if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs
 #' @param sigma.proc option to specify the process error other than the posterior estimate
 #' @param run option to assign a scenario name other than specified in build_jabba()
@@ -26,33 +28,37 @@
 #' @export
 
 #{{{
-jabba_fw <- function(jabba,nyears = 10, imp.yr = 2,
-                     status.quo = NULL,
-                     values = seq(0.6,1.2,0.1),
-                     quant = c("Catch","F")[1],
-                     type = c("ratio","msy","abs")[1],
+fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
+                     quant = c("Catch","F")[2],
+                     type = c("ratio","msy","abs")[2],
+                     initial = NULL,
+                     imp.values = seq(0.8,1.2,0.1),
+                     nsq = 3,
                      stochastic = c(TRUE, FALSE)[1],
                      AR1 = c(TRUE, FALSE)[2],
+                     ndevs = 1,
                      sigma.proc = NULL,
                      rho = NULL,
                      run = NULL,
                      thin=1){
   
   #TODO add hcr options (e.g. ICES style)
+    
   if(!is.null(jabba$settings)){
     jabba=list(jabba)
     if(is.null(run)) run = jabba[[1]]$scenario
+  } else {
+    if(is.null(run)) run = "joint"
   }
   
   
   if(is.null(jabba[[1]]$kbtrj)) stop("Use option fit_jabba(...,save.trj=TRUE) to enable forecasting")
-  if(is.null(run)) run = "Joint"
   thinning = seq(1,length(jabba[[1]]$pars_posterior$K),thin)
   year= jabba[[1]]$yr
   yrend = max( year)
   n = length(year)
   pars = do.call(rbind,lapply(jabba,function(x){
-    y = x$pars_posterior[thinning,]
+    y = x$pars_posterior[thinning,-c(grep("q",names(x$pars_posterior)))]
     y
   }))
   
@@ -69,20 +75,25 @@ jabba_fw <- function(jabba,nyears = 10, imp.yr = 2,
   }))
   
   if(quant=="Catch"){
-    if(is.null(status.quo)){
-      status.quo= mean(do.call(c,lapply(jabba,function(x){
-        mean(x$catch[(n-2):n])})))
+    status.quo = mean(do.call(c,lapply(jabba,function(x){
+      mean(x$catch[(n-2):n])})))
+    
+    if(is.null(initial)){
+      initial= status.quo
     }}
   if(quant=="F"){
-    if(is.null(status.quo)){
-      status.quo= mean(do.call(c,lapply(jabba,function(x){
-        mean(x$timeseries[(n-2):n,1,2])})))
+    status.quo = mean(do.call(c,lapply(jabba,function(x){
+      mean(x$timeseries[(n-2):n,1,2])})))
+    
+    if(is.null(initial)){
+      initial= status.quo
     }}
   
-  
-  
   inits = data.frame(trj[trj$year==yrend,])
-  
+  if(ndevs>1){
+    devyr=yrend-((1:ndevs)-1)
+    inits$Bdev = aggregate(Bdev~iter,trj[trj$year%in%devyr,],mean)$Bdev
+  } 
   
   # Get quants
   k = pars[["K"]]
@@ -128,36 +139,44 @@ jabba_fw <- function(jabba,nyears = 10, imp.yr = 2,
   B[,1] = inits$B
   H[,1] = inits$H
   
+  # check length of initial values
+  if(is.null(imp.yr)) imp.yr = length(initial)+1 
+  if(length(initial)==1) initial = rep(initial,imp.yr-1)
+  if(!length(initial)==(imp.yr-1)) stop("Missmatch between initial value vector and imp.yr")
   
-  if(quant=="Catch"){
-    C[,2:(imp.yr+1)][] = status.quo
-  }
-  if(quant=="F"){
-    H[,2:(imp.yr+1)][] = status.quo
-  }
-  
+    if(quant=="Catch"){
+     for(i in 2:(length(initial)+1)) C[,i][] = initial[i-1] # will be overwritten
+    }
+    if(quant=="F"){
+      for(i in 2:(length(initial)+1)) H[,i][] = initial[i-1] # will be overwritten
+    }
+    
   
   # Create list of forecast values
+  if(imp.yr<=nyears){
   if(type=="ratio"){
-    vals = values*status.quo
-    runs = paste0(round(100*values,0),"%")
+    vals = imp.values*status.quo
+    runs = paste0(round(100*imp.values,0),"%")
   }
   if(type=="msy"){
     if(quant=="F"){
-      vals = c(status.quo,values*median(fmsy))
-      runs = c("Fsq",paste0(round(100*values,0),"%"))}
+      vals = c(status.quo,imp.values*median(fmsy))
+      runs = c("Fsq",paste0(round(100*imp.values,0),"%"))}
     
       if(quant=="Catch"){
-      vals = c(status.quo,values*median(msy))
-      runs = c("Csq",paste0(round(100*values,0),"%"))}
+      vals = c(status.quo,imp.values*median(msy))
+      runs = c("Csq",paste0(round(100*imp.values,0),"%"))}
   }
   if(type=="abs"){
-    vals =  values 
+    vals =  imp.values 
     if(quant=="F") runs = paste0("F",vals)
     if(quant=="Catch"){
       runs = paste0("C",vals)
       if(max(vals)>=100000) runs = paste0("C",round(vals/1000,1))
     }
+  }} else {
+    vals = 0
+    runs = "Forecast"
   } 
   kb = NULL
   
@@ -168,9 +187,10 @@ jabba_fw <- function(jabba,nyears = 10, imp.yr = 2,
   
   kobe = do.call(rbind,lapply(fw.ls,function(x){ 
     
+    if(imp.yr<=nyears){
     if(quant=="Catch")C[,(imp.yr+1):ncol(C)][] = x[[2]]
     if(quant=="F") H[,(imp.yr+1):ncol(C)][] = x[[2]]
-    
+    }
     kb = data.frame(year=pyears[1],run=x[[1]],type="fit",iter=1:iters,
                     stock=B[,1]/bmsy,harvest=H[,1]/fmsy,B=B[,1],H=H[,1],
                     Bdev=devs[,1],Catch=C[,1],BB0=P[,1])
@@ -188,14 +208,11 @@ jabba_fw <- function(jabba,nyears = 10, imp.yr = 2,
     }
     kb
   }))
-  rownames(kobe) = 1:nrow(kobe)
-  kb = rbind(trj,kobe)
-  
-  kb$run = factor(kb$run,levels=unique(kb$run)) 
-  
-  
-  
-  return(kb)
+ 
+  kbtrj = rbind(trj,kobe)
+  rownames(kbtrj) = 1:nrow(kbtrj) 
+  kbtrj$run = factor( kbtrj$run,levels=unique( kbtrj$run)) 
+  return(kbtrj)
   
 } 
 # }}} End of function

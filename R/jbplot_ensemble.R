@@ -4,17 +4,18 @@
 #' Plots plots JABBA ensemble models + projections - joint or by run  
 #' 
 #' @param kb objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj    
-#' @param subplots option to c("stock","harvest","B","H","Bdev","Catch","BB0") 
+#' @param subplots option choose from subplots 1:7 
 #' \itemize{
-#'   \item stock (B/Bmsy)  
-#'   \item harvest (F/Fmsy) 
-#'   \item B (Biomass) 
-#'   \item H (Harvest rate)
-#'   \item Bdev (Process Deviations)
-#'   \item Catch
-#'   \item BB0 (B/K) 
+#'   \item 1: stock (B/Bmsy)  
+#'   \item 2: harvest (F/Fmsy) 
+#'   \item 3: B (Biomass) 
+#'   \item 4: H (Harvest rate)
+#'   \item 5: Bdev (Process Deviations)
+#'   \item 6: Catch
+#'   \item 7: BB0 (B/K) 
 #' }    
 #' @param joint if true it creates a joint ensemble from list of fit_jabba()
+#' @param plotCIs Credibilty Interval
 #' @param kbout if TRUE, produces the kb data.frame as output 
 #' @param ylabs yaxis labels for quants
 #' final year of values to show for each model. By default it is set to the
@@ -32,7 +33,7 @@
 #' top of lines)
 #' @param legend Add a legend?
 #' @param legendlabels Optional vector of labels to include in legend.
-#' @param legendloc Location of legend. Either a string like "topleft" or a vector
+#' @param legend.loc Location of legend. Either a string like "topleft" or a vector
 #' of two numeric values representing the fraction of the maximum in the x and y
 #' dimensions, respectively. See ?legend for more info on the string options.
 #' @param legendorder Optional vector of model numbers that can be used to have
@@ -60,21 +61,39 @@
 #' @param run name for single models or joint ensembles
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
 #' @export
+#' @examples
+#' data(iccat)
+#' bet = iccat$bet 
+#' # Fit Fox and Schaefer
+#' jb1 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Fox",model.type="Fox")
+#' jb2 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Schaefer",model.type="Schaefer")
+#' fit1 = fit_jabba(jb1,quickmcmc=TRUE,verbose=TRUE)
+#' fit2 = fit_jabba(jb2,quickmcmc=TRUE,verbose=TRUE)
+#' # Compare
+#' jbplot_ensemble(list(fit1,fit2))
+#' # Joint to 2-model ensemble
+#' jbplot_ensemble(list(fit1,fit2),joint=T)
+#' # Do 2-model ensemble forecast
+#' prj = fw_jabba(list(fit1,fit2),quant="Catch",type="abs",imp.values = seq(60,100,10)*1000)
+#' jbplot_ensemble(prj)
+#' # Zoom in
+#' jbplot_ensemble(prj,xlim=c(2000,2027))
 jbplot_ensemble<- function(kb,
-                        subplots=c("B","H","stock","harvest","Bdev","Catch","BB0")[1:6],
+                        subplots=1:6,
                         joint=FALSE,
-                        quantiles = c(0.025,0.975),
-                        kbout = FALSE,
+                        plotCIs=TRUE,
+                       quantiles = c(0.025,0.975),
+                         kbout = FALSE,
                         ylabs = NULL,
-                        plot=TRUE,print=FALSE,png=print,
+                        plot=TRUE,as.png=FALSE,
                         col=NULL, 
-                        pch=NULL, lty=1, lwd=2,
+                        pch=NULL, lty=1, lwd=1.5,
                         tickEndYr=FALSE,
                         xlim=NULL, ylimAdj=1.05,
                         xaxs="i", yaxs="i",
                         xylabs=TRUE,
-                        type="l", uncertainty=TRUE, 
-                        legend=TRUE, legendlabels="default", legendloc="topleft",
+                        type="l", 
+                        legend=TRUE, legendlabels="default", legend.loc="topleft",
                         legendorder="default",legendncol=1,legendcex=0.7,legendsp=0.8,
                         pwidth=6.5,pheight=5.0,punits="in",res=300,ptsize=10,cex.main=1,
                         plotdir=NULL,
@@ -82,15 +101,18 @@ jbplot_ensemble<- function(kb,
                         par=list(mar=c(5,4,1,1)+.1),
                         verbose=FALSE,
                         shadecol = NULL, shadealpha=0.3,new=TRUE,
-                        add=TRUE,
+                        add=FALSE,
+                        single.plots = add,
                         run=NULL,
                         fmax=5.0
                         ){ # plot different fits to a single index of abundance
      
-    if(!is.null(kb$settings) & length(unique(kb$kbtrj$run)>1)){ 
-      kb = kb$kbtrj
-     }      
-     
+    
+ 
+  
+  if(!is.null(kb$settings)){ 
+    kb = kb$kbtrj
+  }      
       # if a list of fit_jabba() is provided
       if(class(kb)=="list"){   
       
@@ -121,11 +143,11 @@ jbplot_ensemble<- function(kb,
   
    if(!is.null(xlim)) kb =kb[kb$year<=xlim[2] & kb$year>=xlim[1],]
   
-   # Contraint on F/Fmsy
+   # Constraint on F/Fmsy
    kb$harvest[kb$type=="prj"] = pmin(kb[kb$type=="prj",]$harvest,fmax)
    kb$H[kb$type=="prj"]= pmin(fmax*median(kb[kb$type=="prj",]$H/kb[kb$type=="prj",]$harvest),kb[kb$type=="prj",]$H)
    
-  if(print==TRUE | png==TRUE){
+  if(as.png==TRUE){
     add=FALSE
   }
    if(!add) graphics.off()
@@ -137,9 +159,14 @@ jbplot_ensemble<- function(kb,
     ylab.default = FALSE
   }
   
-  C
+  
   
   refquants=c("stock","harvest","B","H","Bdev","Catch","BB0")
+  
+  # for defaul multiplot use always 6 subplots in order
+  if(!single.plots){
+  subplots = c(subplots,(1:7)[(1:7)%in%subplots==F])[1:6]  
+  }
   
   kbs = aggregate(cbind(stock,harvest,B,H,Bdev,Catch,BB0)~year+run,kb,
                    quantile, c(0.5,quantiles))
@@ -151,7 +178,7 @@ jbplot_ensemble<- function(kb,
   
   col = ss3col(n,1)
   shadecol <- ss3col(n,shadealpha)
-  quants = subplots
+  quants =  refquants[subplots]
  
   pngfun <- function(file){
     
@@ -165,18 +192,24 @@ jbplot_ensemble<- function(kb,
     par(par)
   }
   
+  print=FALSE
+  if(as.png) print <- TRUE
+  if(as.png & is.null(plotdir)) plotdir = getwd()
   
-  if(png) print <- TRUE
-  if(png & is.null(plotdir)) plotdir = getwd()
-  
-  
-  
+  if(!single.plots){
+  Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
+  if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = 7, height = 8,
+                       res = 200, units = "in")}
+  par(Par)
+  }
   
   plot_quants <- function(quant="Bdev"){  
-    
+   
+    if(single.plots){ 
     if(png) print <- TRUE
     if(png & is.null(plotdir))
       stop("to print PNG files, you must supply a directory as 'plotdir'")
+    }
     #-------------------------------------------------------------
     # plot function
     #-------------------------------------------------------------
@@ -201,12 +234,12 @@ jbplot_ensemble<- function(kb,
     # subfunction to add legend
     legendfun <- function(legendlabels,cumulative=FALSE) {
       if(cumulative){
-        legendloc="topleft"
+        legend.loc="topleft"
       }
-      if(is.numeric(legendloc)) {
+      if(is.numeric(legend.loc)) {
         Usr <- par()$usr
-        legendloc <- list(x = Usr[1] + legendloc[1] * (Usr[2] - Usr[1]),
-                          y = Usr[3] + legendloc[2] * (Usr[4] - Usr[3]))
+        legend.loc <- list(x = Usr[1] + legend.loc[1] * (Usr[2] - Usr[1]),
+                          y = Usr[3] + legend.loc[2] * (Usr[4] - Usr[3]))
       }
       
       # if type input is "l" then turn off points on top of lines in legend
@@ -214,7 +247,7 @@ jbplot_ensemble<- function(kb,
       if(type=="l"){
         legend.pch <- rep(NA,length(pch))
       }
-      legend(legendloc, legend=legendlabels[legendorder],
+      legend(legend.loc, legend=legendlabels[legendorder],
              col=col[legendorder], lty=lty[legendorder],seg.len = 2,
              lwd=lwd[legendorder], pch=legend.pch[legendorder], bty="n", ncol=legendncol,pt.cex=0.7,cex=legendcex,y.intersp = legendsp)
     }
@@ -227,30 +260,32 @@ jbplot_ensemble<- function(kb,
     
     
     # open new window if requested
-    if(plot & png==FALSE){
+    if(single.plots){
+    if(plot & as.png==FALSE){
       if(!add) par(par)
       
     } else {
       
       if(!add) par(par)
     }
+    }
     
    if(is.null(xlim)) xlim = c(max(min(years)),max(years)) 
     xmin = min(xlim)
-    ylim <- c(0,max(ifelse(uncertainty,max(upper[Yr>=xmin])*ylimAdj, ylimAdj*max(exp[Yr>=xmin])*1.05)))
-    if(quant=="Bdev") ylim <- c(-max(ifelse(uncertainty,max(c(0.2,upper[Yr>=xmin],abs(lower[Yr>=xmin])))*ylimAdj, ylimAdj*max(abs(exp[Yr>=xmin]))*1.05)),max(0.2,ifelse(uncertainty,max(c(upper[Yr>=xmin],abs(lower[Yr>=xmin])))*ylimAdj, ylimAdj*max(abs(exp[Yr>=xmin]))*1.05)))
+    ylim <- c(0,max(ifelse(plotCIs,max(upper[Yr>=xmin])*ylimAdj, ylimAdj*max(exp[Yr>=xmin])*1.05)))
+    if(quant=="Bdev") ylim <- c(-max(ifelse(plotCIs,max(c(0.2,upper[Yr>=xmin],abs(lower[Yr>=xmin])))*ylimAdj, ylimAdj*max(abs(exp[Yr>=xmin]))*1.05)),max(0.2,ifelse(plotCIs,max(c(upper[Yr>=xmin],abs(lower[Yr>=xmin])))*ylimAdj, ylimAdj*max(abs(exp[Yr>=xmin]))*1.05)))
     
       
     if(ylab.default){
     ylab = ylabs[which(refquants%in%quant)]} else {
-    ylab = ylabs[which(subplots%in%quant)]  
+    ylab = ylabs[which(quants%in%quant)]  
     }
     
     
     plot(0, type = "n", xlim = xlim, yaxs = yaxs, 
          ylim = ylim, xlab = ifelse(xylabs,"Year",""), ylab = ifelse(xylabs,ylab,""), axes = FALSE,cex.lab=0.9)
     
-    if(uncertainty){
+    if(plotCIs){
     for(iline in nlines:1){
     yr <- kbs[kbs$run==runs[iline],]$year  
     if(quant%in%c("B","stock","harvest","H","Bdev","BB0","Catch")){  
@@ -276,12 +311,13 @@ jbplot_ensemble<- function(kb,
     if(quant == "harvest") abline(h=1,lty=2)
     if(quant == "Bdev") abline(h=0,lty=2)
     
+    if(single.plots | quants[s]==quants[1]){
     if(legend){
       # add legend if requested
       
       legendfun(legendlabels)
     }
-    
+    }
     #axis(1, at=c(min(xmin,min(yr)):max(endyrvec)))
     axis(1,cex.axis=0.8)
     
@@ -295,8 +331,8 @@ jbplot_ensemble<- function(kb,
   if(plot){ 
     # subplots
     for(s in 1:length(subplots)){
-    if(print){
-    quant=subplots[s]
+    if(print & single.plots){
+    quant=quants[s]
     par(par)
     pngfun(paste0("ModelComp_",quant,".png",sep=""))
     plot_quants(quant)
@@ -305,24 +341,12 @@ jbplot_ensemble<- function(kb,
     }
     # subplots
     for(s in 1:length(subplots)){
-      if(verbose) cat(paste0("\n","Plot Comparison of ",subplots[s],"\n"))
-    if(subplots[s]!="Index"){  
-    if(!add)par(par)
-    quant=subplots[s]
-    plot_quants(quant)   
-    }else{  
-       nfleets=length(unique(summaryoutput$indices$Fleet))
+      if(verbose) cat(paste0("\n","Plot Comparison of ",quants[s],"\n"))
       
-        for(fi in 1:nfleets){
-        legend=F
-        if(fi%in%legendindex) legend=TRUE
-        indexfleets = unique(summaryoutput$indices$Fleet)[fi] 
-        if(!add)par(par)
-        plot_index(indexfleets)   
-        legend = legend.temp 
-      } # End of Fleet Loop
+    if(!add & single.plots)par(par)
+    quant=quants[s]
+    plot_quants(quant)   
     }
-    }  
     if(kbout) return(kb)
   } # endplot
 
