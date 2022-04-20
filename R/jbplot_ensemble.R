@@ -206,8 +206,8 @@ jbplot_ensemble<- function(kb,
   plot_quants <- function(quant="Bdev"){  
    
     if(single.plots){ 
-    if(png) print <- TRUE
-    if(png & is.null(plotdir))
+    if(as.png) print <- TRUE
+    if(as.png & is.null(plotdir))
       stop("to print PNG files, you must supply a directory as 'plotdir'")
     }
     #-------------------------------------------------------------
