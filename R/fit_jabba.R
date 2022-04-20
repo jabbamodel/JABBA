@@ -19,6 +19,7 @@
 #' @param save.all add complete posteriors to fitted object 
 #' @param output.dir path to save plot. default is getwd()
 #' @param quickmcmc option to run short mcmc
+#' @param seed default 123, set random by e.g. sample.int(999,1) 
 #' @param verbose option show cat comments and progress
 #' @return A result list containing estimates of model input, settings and results
 #' @export
@@ -46,6 +47,7 @@ fit_jabba = function(jbinput,
                      save.csvs = FALSE,
                      output.dir = getwd(),
                      quickmcmc = FALSE,
+                     seed = 123,
                      verbose=TRUE
 ){
   
@@ -56,6 +58,8 @@ fit_jabba = function(jbinput,
   } else {
     progress.bar="text"
   }
+  
+  set.seed(seed)
   
   if(jbinput$settings$projection==TRUE) save.trj=TRUE
   
@@ -76,6 +80,8 @@ fit_jabba = function(jbinput,
   
   # a, b pars for beta prior
   ab = get_beta(max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05),CV=0.05/max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05))
+  
+  qbound = jbinput$jagsdata$q_bounds
   
   # Initial starting values (new Eq)
   if(init.values==FALSE){

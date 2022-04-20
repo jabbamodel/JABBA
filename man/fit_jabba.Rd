@@ -21,6 +21,7 @@ fit_jabba(
   save.csvs = FALSE,
   output.dir = getwd(),
   quickmcmc = FALSE,
+  seed = 123,
   verbose = TRUE
 )
 }
@@ -58,6 +59,8 @@ Initial values}
 \item{output.dir}{path to save plot. default is getwd()}
 
 \item{quickmcmc}{option to run short mcmc}
+
+\item{seed}{default 123, set random by e.g. sample.int(999,1)}
 
 \item{verbose}{option show cat comments and progress}
 }

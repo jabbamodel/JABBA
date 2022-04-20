@@ -18,9 +18,10 @@ jbplot_hcxval(
   minyr = NULL,
   cols = NULL,
   legend.loc = "topright",
-  legend.cex = 0.8,
+  legend.cex = 0.7,
   legend.add = TRUE,
   label.add = TRUE,
+  label.cex = 0.9,
   verbose = TRUE,
   ymax = 1
 )
@@ -57,6 +58,8 @@ jbplot_hcxval(
 \item{legend.add}{show legend}
 
 \item{label.add}{show index name and MASE}
+
+\item{label.cex}{label siz}
 
 \item{verbose}{if FALSE then silent}
 

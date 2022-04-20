@@ -5,9 +5,9 @@
 #' @param mfrow determines plot frame set up
 #' @param plot.cex cex graphic option
 #' @export
-jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.35,0.15,0,.15),labs=TRUE){
-  if(labs)  mai=c(0.5,0.5,0.15,.15)
-  par(list(mfrow=mfrow,mai = mai, mgp =c(1.5,0.5,0),omi = c(0.2,0.2,0.2,0) + 0.1,mar=c(2.5,2.5, 0.7, 0.7), tck = -0.02,cex=0.8))
+jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.5,0.5,0.15,.15),omi = c(0.2,0.2,0.2,0),mar=c(2.5,2.5, 0.7, 0.7),labs=TRUE){
+  if(!labs)  mai=c(0.35,0.15,0,.15)
+  par(list(mfrow=mfrow,mai = mai, mgp =c(1.5,0.5,0),omi = omi + 0.1,mar=mar, tck = -0.02,cex=plot.cex))
 }
 
 #' jbplot_indices
@@ -1348,6 +1348,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           if(i>1){
             rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
+            if(type[k]=="procB") rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
           }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
@@ -1395,7 +1396,8 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           if(i>1){
             rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
-          }
+            if(type[k]=="procB") rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
+             }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
         if(type[k]%in%c("procB")) abline(h=0,lty=2)
@@ -1410,6 +1412,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
           if(i>1){
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
+            
           }      
         }
         legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
@@ -1611,11 +1614,12 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
 #' @param legend.cex size of legend
 #' @param legend.add show legend
 #' @param label.add show index name and MASE
+#' @param label.cex label siz
 #' @param ymax upper ylim scaler
 #' @param verbose if FALSE then silent
 #' @return hcxval statistics by index: MASE, MAE.PR predition residuals,MAE.base for random walk, n.eval obs evaluated 
 #' @export
-jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,label.add=TRUE,verbose=TRUE,ymax=1){
+jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.7,legend.add=TRUE,label.add=TRUE,label.cex=0.9,verbose=TRUE,ymax=1){
   if(as.png==TRUE) add= FALSE
   MASE = jbmase(hc,naive.min=naive.min,verbose=verbose)
   if(is.null(cols)) cols = ss3col(length(hc)-1)
@@ -1727,7 +1731,7 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
       lmase = paste0(unique(xv$name)[1], ": MASE = ",round(mase,2))
       if(mase.adj==TRUE) lmase = paste0(lmase,"(",round(maseadj,2),")")
       
-      if(label.add) legend("top",lmase,bty="n",y.intersp=-0.2,cex=1.1)
+      if(label.add) legend("top",lmase,bty="n",y.intersp=-0.2,cex=label.cex)
       
       if(single.plots==TRUE & as.png==TRUE) dev.off()
       if(legend.add==T){
