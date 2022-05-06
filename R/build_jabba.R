@@ -10,6 +10,10 @@
 #' @param add.catch.CV = c(TRUE,FALSE) option estimate catch with error
 #' @param catch.cv  catch error on log-scale (default = 0.1)
 #' @param catch.error can be random or directional under reporting "under"
+#' @param auxiliary additional time series c(Z,Effort,B/B0,B/Bmsy,F/Fmsy),requires data.frame(year, value), optional data.frame(year, value,cv) 
+#' @param auxiliary.type c("effort","z","bk","bbmsy","ffmsy") 
+#' @param auxiliary.lag  lag option in years (default 1) for effort, z and ffmsy  
+#' @param z.cv adjusts precision between input Z rate and modelled Hmsy+H 
 #' @param Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
 #' PRIORS
 #' @param r.dist = c("lnorm","range"), # prior distribution for the intrinsic rate population increas 
@@ -26,7 +30,8 @@
 #' @param sets.q = 1:(ncol(cpue)-1), # assigns catchability q to different CPUE indices. Default is each index a seperate q
 #' @param sigma.est = TRUE, # Estimate additional observation variance
 #' @param sets.var = 1:(ncol(cpue)-1), # estimate individual additional variace
-#' @param fixed.obsE = c(0.01), # Minimum fixed observation erro
+#' @param fixed.obsE  # Minimum fixed observation error
+#' @param auxiliary.obsE # Fixed observation error for auxiliary data   
 #' @param sigma.proc =  TRUE, # TRUE: Estimate observation error, else set to value
 #' @param proc.dev.all = TRUE, # TRUE: All year, year = starting year
 #' @param projection = FALSE, # Switch on by Projection = TRUE
@@ -38,10 +43,8 @@
 #' @param sigmaobs_bound = 1, # Adds an upper bound to the observation variance
 #' @param sigmaproc_bound = 0.2, # Adds an upper bound to the process variance
 #' @param q_bounds= c(10^-30,1000), # Defines lower and upper bounds for q
-#' @param K_bounds= c(0.01,10^10), # Defines lower and upper bounds for q
-#' @param KOBE.plot = TRUE, # Produces JABBA Kobe plot
-#' @param KOBE.type = c("ICCAT","IOTC")[2], # ICCAT uses 3 colors; IOTC 4 (incl. orange)
-#' @param Biplot= FALSE, # Produces a "post-modern" biplot with buffer and target zones (Quinn & Collie 2005)
+#' @param K_bounds= c(0.01,10^10), # Defines lower and upper bounds for K
+#' @param qA_bounds Defines lower and upper bounds for q of auxiliary data type effort 
 #' @param harvest.label = c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy
 #' @param catch.metric  "(t)" # Define catch input metric e.g. (tons) "000 t" 
 #' @param verbose option show cat comments
@@ -58,6 +61,8 @@ build_jabba <- function(
   add.catch.CV = TRUE, # to match original assessment
   catch.cv = 0.1, # CV for catch error
   catch.error = c("random","under")[1], # 
+  auxiliary = NULL,
+  auxiliary.type = c("effort","z","bk","bbmsy","ffmsy")[1],
   Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
   r.dist = c("lnorm","range"), # prior distribution for the intrinsic rate population increas 
   r.prior = c(0.2,0.5), # prior(mu, lod.sd) for intrinsic rate of population increase   
@@ -70,8 +75,11 @@ build_jabba <- function(
   shape.CV = 0.3, # CV of the shape m parameters, if estimated with Pella-Tomlinson (Model 4)
   sets.q = 1:(ncol(cpue)-1), # assigns catchability q to different CPUE indices. Default is each index a seperate q
   sigma.est = TRUE, # Estimate additional observation variance
-  sets.var = 1:(ncol(cpue)-1), # estimate individual additional variace
-  fixed.obsE = ifelse(is.null(se),0.1,0.001), # Minimum fixed observation erro
+  sets.var = 1:(ncol(cpue)-1), # estimate individual additional variance
+  fixed.obsE = ifelse(is.null(se),0.1,0.001), # Minimum fixed observation error
+  auxiliary.obsE  = ifelse(is.null(auxiliary) | ncol(auxiliary)==2,0.3,0.001),
+  auxiliary.lag = 1,  # lags between measure of effort, Z or ffmsy in years
+  z.cv = 0.1,  # adjusts precission between input Z rate and modelled Hmsy+H 
   sigma.proc =  TRUE, # TRUE: Estimate observation error, else set to value
   proc.dev.all = TRUE, # TRUE: All year, year = starting year
   igamma = c(4,0.01), # informative mean 0.05, CV 0.4 from original paper
@@ -85,11 +93,9 @@ build_jabba <- function(
   sigmaobs_bound = 1, # Adds an upper bound to the observation variance
   sigmaproc_bound = 0.2, # Adds an upper bound to the process variance
   q_bounds= c(10^-30,1000), # Defines lower and upper bounds for q
-  K_bounds= c(0.01,10^10), # Defines lower and upper bounds for q
+  K_bounds= c(0.01,10^10), # Defines lower and upper bounds for K
+  qA_bounds = c(10^-30,1000), # Defines lower and upper bounds for q of auxiliary data type "effort"
   # Settings
-  KOBE.plot = TRUE, # Produces JABBA Kobe plot
-  KOBE.type = c("ICCAT","IOTC")[2], # ICCAT uses 3 colors; IOTC 4 (incl. orange)
-  Biplot= FALSE, # Produces a "post-modern" biplot with buffer and target zones (Quinn & Collie 2005)
   harvest.label = c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy
   catch.metric = "(t)", # Define catch input metric e.g. (tons) "000 t" etc
   verbose=TRUE
@@ -135,10 +141,13 @@ build_jabba <- function(
     CatchOnly = FALSE
     
   }
+  
+
+  
+  
   if(nrow(catch)!=nrow(cpue)) stop("\n","\n","><> cpue and catch differ in number of year <><","\n","\n")
   catches = names(catch)[2:ncol(catch)]
   n.catches = length(catches)
-  if(nrow(catch)!=nrow(cpue)) stop("\n","\n","><> cpue and catch differ in number of year <><","\n","\n")
   styr.catch = min(catch[,1])
   styr.C = styr.catch-styr+1
   conv.catch = as.numeric(rbind(matrix(rep(NA,(styr.C-1)*n.catches),styr.C-1,n.catches),as.matrix(catch[,-1])))
@@ -193,6 +202,35 @@ build_jabba <- function(
     conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(se[,-1])))
     se2 = matrix(ifelse(is.na(conv.se),0.3^2,conv.se)^2,n.years,n.indices)+fixed.obsE^2#/2
   }
+  
+  # Adding auxiliary data
+  
+  if(is.null(auxiliary)){
+    Auxiliary = FALSE
+  } else {
+    Auxiliary =TRUE
+    if(nrow(catch)!=nrow(auxiliary)) stop("\n","\n","><> auxiliary data and catch differ in number of year <><","\n","\n")
+   
+    styr.aux = min(auxiliary[,1])
+    styr.A = styr.aux-styr+1
+    # Convert input data to matrices for JAGS input
+    if(ncol(auxiliary)==3){
+      auxiliary$se2 = auxiliary[,3]^2+auxiliary.obsE^2 
+      auxiliary = auxiliary[,-3] 
+      auxiliary$se2= ifelse(is.na(auxiliary[,2]),(auxiliary.obsE+0.001)^2,auxiliary$se2)
+    
+    } 
+    
+    if(ncol(auxiliary)==2){
+      auxiliary$se2 = auxiliary.obsE^2
+      auxiliary$se2= ifelse(is.na(auxiliary[,2]),(auxiliary.obsE+0.001)^2,auxiliary$se2)
+    } 
+    
+    conv.aux = as.numeric(rbind(matrix(rep(NA,(styr.A-1)*2),styr.A-1,2),as.matrix(auxiliary[,2:3])))
+    AUXI=matrix(conv.aux,nrow=n.years,ncol=2)
+    if(verbose)
+      message("\n","><> Fit Auxiliary data of type: ", auxiliary.type ,"<><","\n","\n")
+  } 
   
   
   # Add depletion prior
@@ -392,6 +430,7 @@ build_jabba <- function(
                      obs.pen = rep(0,nvar),P_bound=P_bound,q_bounds=q_bounds,sigmaobs_bound=sigmaobs_bound,sigmaproc_bound=sigmaproc_bound,K_bounds=K_bounds,mu.m=m,b.yr=b.yr, b.pr = b.pr)
   
   
+  
   # PARAMETERS TO MONITOR
   params <- c("K","r", "q", "psi","sigma2", "tau2","m","Hmsy","SBmsy", "MSY", "BtoBmsy","HtoHmsy","CPUE","Ihat","Proc.Dev","P","SB","H","prP","prBtoBmsy","prHtoHmsy","TOE")
   
@@ -408,6 +447,14 @@ build_jabba <- function(
     
   }
   
+  if(Auxiliary){
+    surplus.dat$A = (AUXI[,1])
+    surplus.dat$A.SE2 = (AUXI[,2])
+    surplus.dat$qA_bounds =qA_bounds 
+    surplus.dat$A.lag = auxiliary.lag 
+    params = c(params,c("Ahat","qA","AUXI"))
+    if(auxiliary.type=="z") surplus.dat$z.cv = z.cv 
+  }
   
   
   #--------------------------
@@ -421,6 +468,7 @@ build_jabba <- function(
   jbinput$data$catch = catch
   jbinput$data$cpue = cpue
   jbinput$data$se = se
+  jbinput$data$auxiliary = auxiliary
   jbinput$jagsdata = surplus.dat
   jbinput$settings$params = params
   jbinput$settings$BmsyK = BmsyK 
@@ -436,6 +484,9 @@ build_jabba <- function(
   jbinput$settings$catch.error = catch.error
   jbinput$settings$CatchOnly = CatchOnly
   jbinput$settings$proc.dev.all = proc.dev.all
+  jbinput$settings$Auxiliary = Auxiliary
+  jbinput$settings$auxiliary.type = auxiliary.type
+  jbinput$settings$auxiliary.lag = auxiliary.lag
   jbinput$settings$projection = projection
   jbinput$settings$TAC.implementation = imp.yr
   jbinput$settings$catch.metric = catch.metric
@@ -452,3 +503,5 @@ build_jabba <- function(
   return(jbinput)
   
 } # end of build_jabba()
+
+

@@ -112,9 +112,12 @@ fit_jabba = function(jbinput,
   if(is.null(peels)) peels = 0
   if(peels > 0){
     jbd$I[(length(years)-peels+1) : length(years),]  = NA
+    jbd$A[(length(years)-peels+1) : length(years),]  = NA
     
   }
-  jbinput$jagsdata$I = jbd$I # update
+  jbinput$jagsdata$I = jbd$I 
+  jbinput$jagsdata$A = jbd$A 
+  # update
   # jabba model building conditions
   params = jbinput$settings$params
   
@@ -130,6 +133,7 @@ fit_jabba = function(jbinput,
   settings= c(jbinput$data,jbinput$jagsdata,jbinput$settings)
   catch = settings$catch
   cpue= settings$cpue
+  auxiliary = settings$auxiliary
   se = settings$se
   n.years = settings$N
   years = settings$yr
@@ -238,19 +242,32 @@ fit_jabba = function(jbinput,
   #------------------
   DIC =round(mod$BUGSoutput$DIC,1)
   
-  if(settings$CatchOnly==FALSE){
+  if(settings$CatchOnly==FALSE | settings$Auxiliary==TRUE ){
+    
     # get residuals
     Resids = NULL
+    StResid = NULL
+    
+    if(settings$CatchOnly==FALSE){
     for(i in 1:n.indices){
       Resids =rbind(Resids,log(CPUE[,i])-log(apply(posteriors$CPUE[,,i],2,quantile,c(0.5))))
     }
     
     # Standardized Residuals
-    StResid = NULL
     for(i in 1:n.indices){
       StResid =rbind(StResid,log(CPUE[,i]/apply(posteriors$CPUE[,,i],2,quantile,c(0.5)))/
                        apply(posteriors$TOE[,,i],2,quantile,c(0.5))+0.5*apply(posteriors$TOE[,,i],2,quantile,c(0.5)))
     }
+    }
+    if(settings$Auxiliary==TRUE){
+      
+      Resids =rbind(Resids,log(settings$A)-log(apply(posteriors$Ahat,2,quantile,c(0.5))))  
+       
+      StResid =rbind(StResid,log(settings$A/apply(posteriors$Ahat,2,quantile,c(0.5)))/
+                       sqrt(settings$A.SE2)+0.5* sqrt(settings$A.SE2))
+       
+    }
+    
     
     Nobs =length(as.numeric(Resids)[is.na(as.numeric(Resids))==FALSE])
     DF = Nobs-npar
@@ -285,6 +302,30 @@ fit_jabba = function(jbinput,
     }
   }
   
+  if(settings$Auxiliary==TRUE){
+      
+      Yr = years
+      Yr = min(Yr):max(Yr)
+      yr = Yr-min(years)+1
+      
+      exp.i = apply(posteriors$AUXI,2,quantile,c(0.5))[is.na(auxiliary[,2])==F]
+      expLCI.i = apply(posteriors$AUXI,2,quantile,c(0.025))[is.na(auxiliary[,2])==F]
+      expUCI.i = apply(posteriors$AUXI,2,quantile,c(0.975))[is.na(auxiliary[,2])==F]
+      
+      obs.i = auxiliary[is.na(auxiliary[,2])==F,2]
+      sigma.obs.i = sqrt(auxiliary[,3][is.na(auxiliary[,2])==F])
+      
+      yr.i = Yr[is.na(auxiliary[,2])==F]
+      Aname = which(c("effort","z","bk","bbmsy","ffmsy")%in%jbinput$settings$auxiliary.type)
+      Aname = c("Effort","Z","BB0","BBmsy","FFmsy")[Aname]
+      jabba.res = rbind(jabba.res,data.frame(scenario=settings$scenario,name=Aname,year=yr.i,obs=obs.i,obs.err=sigma.obs.i,hat=exp.i,hat.lci=expLCI.i,hat.uci=expUCI.i,residual=log(obs.i)-log(exp.i),retro.peels=peels))
+
+  }
+  
+  
+  
+
+  if(!jbinput$settings$Auxiliary){
   #----------------------------------
   # Predicted CPUE
   #----------------------------------
@@ -300,6 +341,32 @@ fit_jabba = function(jbinput,
   for(i in 1:n.indices){
     cpue.ppd[,,i] = cbind(t(apply(posteriors$CPUE[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$CPUE[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
   }
+}
+  
+  
+  
+  if(jbinput$settings$Auxiliary){
+    #----------------------------------
+    # Predicted CPUE
+    #----------------------------------
+    cpue.hat = array(data=NA,dim=c(N,5,n.indices+1),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
+    for(i in 1:n.indices){
+      cpue.hat[,,i] = cbind(t(apply(posteriors$Ihat[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$Ihat[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
+    }
+    cpue.hat[,,n.indices+1] = cbind(t(apply(posteriors$Ahat,2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$Ahat),2,sd),sqrt(auxiliary[,3]))
+    
+    #------------------------------------
+    # Posterior Predictive Distribution
+    #------------------------------------
+    
+    cpue.ppd = array(data=NA,dim=c(N,5,n.indices+1),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
+    for(i in 1:n.indices){
+      cpue.ppd[,,i] = cbind(t(apply(posteriors$CPUE[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$CPUE[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
+    }
+    cpue.ppd[,,n.indices+1] = cbind(t(apply(posteriors$AUXI,2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$AUXI),2,sd),sqrt(auxiliary[,3]))
+    
+  }
+  
   
   
   #-----------------------------------
@@ -340,7 +407,7 @@ fit_jabba = function(jbinput,
                             fmsy=c(median(posteriors$Hmsy),sd(log(posteriors$Hmsy))),msy=c(median(posteriors$SBmsy*posteriors$Hmsy),sd(log(posteriors$SBmsy*posteriors$Hmsy))))
   jabba$pfunc = data.frame(factor=assessment,level=scenario,SB_i=round(Bit,3),SP=round(SP,3),Hmsy=round(Hmsy.sp,4),r=round(Hmsy.sp*(m.sp-1)/(1-1/m.sp),4),m=round(m.sp,3),MSY=round(as.numeric(MSY.sp[2]),3),SB0=round(SB0.sp,3),Cmsy=round(Cmsy,3))
   
-  if(settings$CatchOnly==FALSE){
+  if(settings$CatchOnly==FALSE | settings$Auxiliary==TRUE){
     jabba$diags = data.frame(factor=assessment,level=settings$scenario,name=jabba.res$name,year=jabba.res$year,season=1,obs=jabba.res$obs,hat=jabba.res$hat,hat.lci=jabba.res$hat.lci,hat.uci=jabba.res$hat.uci,residual=jabba.res$residual,retro.peels=jabba.res$retro.peels)
     # add hindcast qualifier
     if(jabba$diags$retro.peels[1]>0){
@@ -348,15 +415,17 @@ fit_jabba = function(jbinput,
     } else {
       jabba$diags$hindcast=FALSE
     }
-    
-    
-    
-    jabba$residuals = array(Resids,dim=c(nrow(Resids),ncol(Resids)),dimnames = list(names(cpue)[-1],years))
-    jabba$std.residuals = array(StResid,dim=c(nrow(StResid),ncol(StResid)),dimnames = list(names(cpue)[-1],years))
-    
-    
   } else {
     jabba$diags = "Not Available for Catch-Only option"
+    
+  } 
+    
+  if(settings$CatchOnly==FALSE | settings$Auxiliary==TRUE){
+    
+    jabba$residuals = array(Resids,dim=c(nrow(Resids),ncol(Resids)),dimnames = list(unique(jabba.res$name),years))
+    jabba$std.residuals = array(StResid,dim=c(nrow(StResid),ncol(StResid)),dimnames = list(unique(jabba.res$name),years))
+    
+ } else {
     jabba$residuals = "Not Available for Catch-Only option"
   }
   jabba$stats = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))

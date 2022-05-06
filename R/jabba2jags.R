@@ -226,6 +226,85 @@ jabba2jags = function(jbinput, dir){
     }
 
     ", append=TRUE)
+  # Add Auxiliary observation likelihood
+  if(jbinput$settings$Auxiliary==TRUE){
+    if(jbinput$settings$auxiliary.type=="effort"){
+     cat("
+      
+      qA ~ dunif(qA_bounds[1],qA_bounds[2])
+      
+      for(t in 1:A.lag){
+      Amean[t] <- log(qA)+log(H[1])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1)) 
+      Ahat[t]  <- exp(Amean[t])
+      }
+      
+      for(t in (A.lag+1):N){
+      Amean[t] <- log(qA)+log(H[t-A.lag])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1)) 
+      Ahat[t]  <- exp(Amean[t])
+      }
+      ",append=TRUE)
+    } else if(jbinput$settings$auxiliary.type=="z"){
+    cat("
+      qA ~ dlnorm(0,pow(z.cv,-2))  
+      qAdummy ~ dunif(qA_bounds[1],qA_bounds[2])
+    
+      for(t in 1:A.lag){ # Initial
+      Z[t] <- Hmsy+H[1]
+      Amean[t] <- log(qA)+log(Z[t])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      Ahat[t]  <- exp(Amean[t])
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))   
+      }
+      for(t in (A.lag+1):N){
+      Z[t] <- Hmsy+H[t-A.lag]
+      Amean[t] <- log(qA)+log(Z[t])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      Ahat[t]  <- exp(Amean[t])
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))   
+      }
+    ",append=TRUE)
+    } else if(jbinput$settings$auxiliary.type=="ffmsy"){
+      cat("
+      qA <- 1 
+      qAdummy ~ dunif(qA_bounds[1],qA_bounds[2])
+      for(t in 1:N){
+      Amean[t] <- log(qA*HtoHmsy[t])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      Ahat[t]  <- exp(Amean[t])
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1)) 
+      }
+        
+    ",append=TRUE)
+    } else if(jbinput$settings$auxiliary.type=="bbmsy"){
+      cat("
+      qA <- 1 
+      qAdummy ~ dunif(qA_bounds[1],qA_bounds[2])
+      for(t in 1:N){
+      Amean[t] <- log(qA*BtoBmsy[t])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      Ahat[t]  <- exp(Amean[t])
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1)) 
+      }
+        
+    ",append=TRUE)
+    } else if(jbinput$settings$auxiliary.type=="bk"){
+      cat("
+      qA <- 1 
+      qAdummy ~ dunif(qA_bounds[1],qA_bounds[2])
+      for(t in 1:N){
+      Amean[t] <- log(qA*P[t])
+      A[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1))
+      Ahat[t]  <- exp(Amean[t])
+      AUXI[t] ~ dlnorm(Amean[t],pow(A.SE2[t],-1)) 
+      }
+        
+    ",append=TRUE)
+    } 
+  }
   
   # PROJECTION
   if(jbinput$settings$projection==TRUE){

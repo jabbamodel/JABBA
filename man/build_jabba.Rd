@@ -14,6 +14,8 @@ build_jabba(
   add.catch.CV = TRUE,
   catch.cv = 0.1,
   catch.error = c("random", "under")[1],
+  auxiliary = NULL,
+  auxiliary.type = c("effort", "z", "bk", "bbmsy", "ffmsy")[1],
   Plim = 0,
   r.dist = c("lnorm", "range"),
   r.prior = c(0.2, 0.5),
@@ -28,6 +30,9 @@ build_jabba(
   sigma.est = TRUE,
   sets.var = 1:(ncol(cpue) - 1),
   fixed.obsE = ifelse(is.null(se), 0.1, 0.001),
+  auxiliary.obsE = ifelse(is.null(auxiliary) | ncol(auxiliary) == 2, 0.3, 0.001),
+  auxiliary.lag = 1,
+  z.cv = 0.1,
   sigma.proc = TRUE,
   proc.dev.all = TRUE,
   igamma = c(4, 0.01),
@@ -41,9 +46,7 @@ build_jabba(
   sigmaproc_bound = 0.2,
   q_bounds = c(10^-30, 1000),
   K_bounds = c(0.01, 10^10),
-  KOBE.plot = TRUE,
-  KOBE.type = c("ICCAT", "IOTC")[2],
-  Biplot = FALSE,
+  qA_bounds = c(10^-30, 1000),
   harvest.label = c("Hmsy", "Fmsy")[2],
   catch.metric = "(t)",
   verbose = TRUE
@@ -67,6 +70,10 @@ build_jabba(
 \item{catch.cv}{catch error on log-scale (default = 0.1)}
 
 \item{catch.error}{can be random or directional under reporting "under"}
+
+\item{auxiliary}{additional time series c(Z,Effort,B/B0,B/Bmsy,F/Fmsy),requires data.frame(year, value), optional data.frame(year, value,cv)}
+
+\item{auxiliary.type}{c("effort","z","bk","bbmsy","ffmsy")}
 
 \item{Plim}{= 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
 PRIORS}
@@ -96,7 +103,13 @@ VARIANCE options}
 
 \item{sets.var}{= 1:(ncol(cpue)-1), # estimate individual additional variace}
 
-\item{fixed.obsE}{= c(0.01), # Minimum fixed observation erro}
+\item{fixed.obsE}{# Minimum fixed observation error}
+
+\item{auxiliary.obsE}{# Fixed observation error for auxiliary data}
+
+\item{auxiliary.lag}{lag option in years (default 1) for effort, z and ffmsy}
+
+\item{z.cv}{adjusts precision between input Z rate and modelled Hmsy+H}
 
 \item{sigma.proc}{=  TRUE, # TRUE: Estimate observation error, else set to value}
 
@@ -120,9 +133,7 @@ VARIANCE options}
 
 \item{sigmaproc_bound}{= 0.2, # Adds an upper bound to the process variance}
 
-\item{KOBE.plot}{= TRUE, # Produces JABBA Kobe plot}
-
-\item{KOBE.type}{= c("ICCAT","IOTC")[2], # ICCAT uses 3 colors; IOTC 4 (incl. orange)}
+\item{qA_bounds}{Defines lower and upper bounds for q of auxiliary data type effort}
 
 \item{harvest.label}{= c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy}
 
@@ -132,9 +143,7 @@ VARIANCE options}
 
 \item{q_bounds=}{c(10^-30,1000), # Defines lower and upper bounds for q}
 
-\item{K_bounds=}{c(0.01,10^10), # Defines lower and upper bounds for q}
-
-\item{Biplot=}{FALSE, # Produces a "post-modern" biplot with buffer and target zones (Quinn & Collie 2005)}
+\item{K_bounds=}{c(0.01,10^10), # Defines lower and upper bounds for K}
 }
 \value{
 List to be used as data input to JABBA JAGS model.

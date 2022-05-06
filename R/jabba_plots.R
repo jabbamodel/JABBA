@@ -299,18 +299,36 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' @export
 jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
   if(as.png==TRUE) add=FALSE
-  if(jabba$settings$CatchOnly==FALSE){
+  if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
     cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
-    if(is.null(index)) index = 1:jabba$settings$nI
+    
+    if(jabba$settings$Auxiliary){
+      if(jabba$settings$CatchOnly){
+        jabba$settings$nI = jabba$settings$nI
+        jabba$settings$I = as.matrix(jabba$settings$A)
+        jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
+        jabba$cpue.ppd[,,1] =  jabba$cpue.ppd[,,2]
+        jabba$cpue.hat[,,1] =  jabba$cpue.hat[,,2]
+        
+      } else {
+        jabba$settings$nI = jabba$settings$nI+1
+        jabba$settings$I = cbind(jabba$settings$I,as.matrix(jabba$settings$A))
+        jabba$settings$SE2 = cbind(jabba$settings$SE2,as.matrix(jabba$settings$A.SE2))
+      }
+    }
+      if(is.null(index)) index = 1:jabba$settings$nI
+    
+    
     N = jabba$settings$N
     years= jabba$yr
     indices = unique(jabba$diags$name)[index]
     CPUE = jabba$settings$I
+  
     n.indices = length(indices)
     series = 1:n.indices
-    check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
-    cpue.yrs = years[check.yrs>0]
+    #check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
+    #cpue.yrs = years[check.yrs>0]
     
     if(single.plots==TRUE){
     if(is.null(width)) width = 5
@@ -330,28 +348,28 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
       fit =  t(jabba$cpue.ppd[,c(2,1,3),index[i]])
       fit.hat = t(jabba$cpue.hat[,c(2,1,3),index[i]])
       mufit = mean(fit[2,])
-      fit = fit/mufit
-      fit.hat = fit.hat/mufit
+      fit = fit#/mufit
+      fit.hat = fit.hat#/mufit
 
       cpue.i = CPUE[is.na(CPUE[,index[i]])==F,index[i]]
       yr.i = Yr[is.na(CPUE[,index[i]])==F]
       se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
 
-      ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)/mufit))
+      ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)))
 
       cord.x <- c(Yr,rev(Yr))
       cord.y <- c(fit[1,yr],rev(fit[3,yr]))
       cord.yhat <- c(fit.hat[1,yr],rev(fit.hat[3,yr]))
       # Plot Observed vs predicted CPUE
-      plot(years,CPUE[,index[i]],ylab="Normalized Index",xlab="Year",ylim=ylim,xlim=range(jabba$yr),type='n',xaxt="n",yaxt="n")
+      plot(years,CPUE[,index[i]],ylab="Index",xlab="Year",ylim=ylim,xlim=range(jabba$yr),type='n',xaxt="n",yaxt="n")
       axis(1,labels=TRUE,cex=0.8)
       axis(2,labels=TRUE,cex=0.8)
       polygon(cord.x,cord.y,col=grey(0.5,0.5),border=0,lty=2)
       polygon(cord.x,cord.yhat,col=grey(0.3,0.5),border=grey(0.3,0.5),lty=2)
 
       lines(Yr,fit[2,yr],lwd=2,col=1)
-      if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-        points(yr.i,cpue.i/mufit,pch=21,xaxt="n",yaxt="n",bg="white")}
+      #if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
+        points(yr.i,cpue.i,pch=21,xaxt="n",yaxt="n",bg="white")#}
       legend('top',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.9)
       #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
       #mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
@@ -374,14 +392,14 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
       fit =  t(jabba$cpue.ppd[,c(2,1,3),index[i]])
       fit.hat = t(jabba$cpue.hat[,c(2,1,3),index[i]])
       mufit = mean(fit[2,])
-      fit = fit/mufit
-      fit.hat = fit.hat/mufit
+      fit = fit#/mufit
+      fit.hat = fit.hat#/mufit
       
       cpue.i = CPUE[is.na(CPUE[,index[i]])==F,index[i]]
       yr.i = Yr[is.na(CPUE[,index[i]])==F]
       se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
       
-      ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)/mufit), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)/mufit))
+      ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)))
       
       cord.x <- c(Yr,rev(Yr))
       cord.y <- c(fit[1,yr],rev(fit[3,yr]))
@@ -394,13 +412,13 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
       polygon(cord.x,cord.yhat,col=grey(0.3,0.5),border=grey(0.3,0.5),lty=2)
 
       lines(Yr,fit[2,yr],lwd=2,col=1)
-      if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-        points(yr.i,cpue.i/mufit,pch=21,xaxt="n",yaxt="n",bg="white")}
+      #if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
+        points(yr.i,cpue.i,pch=21,xaxt="n",yaxt="n",bg="white")#}
 
       legend('top',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.9)
     }
       mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
-      mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
+      mtext(paste("Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
       if(as.png==TRUE){dev.off()}
     }
     } else {
@@ -423,10 +441,24 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @export
 
 jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
-  if(jabba$settings$CatchOnly==FALSE){
-    cat(paste0("\n","><> jbplot_logfits()  <><","\n"))
-    if(as.png==TRUE) add= FALSE
+  if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
+    cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
+    
+    if(jabba$settings$Auxiliary){
+      
+      if(jabba$settings$CatchOnly){
+        jabba$settings$I = as.matrix(jabba$settings$A)
+        jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
+        jabba$cpue.ppd[,,1] =  jabba$cpue.ppd[,,2]
+        jabba$cpue.hat[,,1] =  jabba$cpue.hat[,,2]
+      } else {
+        jabba$settings$nI = jabba$settings$nI+1 
+        jabba$settings$I = cbind(jabba$settings$I,as.matrix(jabba$settings$A))
+        jabba$settings$SE2 = cbind(jabba$settings$SE2,as.matrix(jabba$settings$A.SE2))
+      }
+    }
     if(is.null(index)) index = 1:jabba$settings$nI
+    
     N = jabba$settings$N
     years= jabba$yr
     indices = unique(jabba$diags$name)[index]
@@ -465,8 +497,8 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
       axis(2,labels=TRUE,cex=0.8)
 
       lines(Yr,log(fit[2,yr]),lwd=2,col=4)
-      if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-        points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")}
+      #if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
+        points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")#}
       legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
       #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
       #mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
@@ -499,8 +531,8 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
           axis(2,labels=TRUE,cex=0.8)
 
           lines(Yr,log(fit[2,yr]),lwd=2,col=4)
-          if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-            points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")}
+          #if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
+            points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")#}
           legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
         }
         mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
@@ -643,7 +675,7 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' @export
 jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
   if(as.png==TRUE) add=FALSE
-  if(jabba$settings$CatchOnly==FALSE){
+  if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
     cat(paste0("\n","><> jbplot_runstest()   <><","\n"))
 
     all.indices = unique(jabba$diags$name)
