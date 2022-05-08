@@ -10,10 +10,10 @@
 #' @param add.catch.CV = c(TRUE,FALSE) option estimate catch with error
 #' @param catch.cv  catch error on log-scale (default = 0.1)
 #' @param catch.error can be random or directional under reporting "under"
-#' @param auxiliary additional time series c(Z,Effort,B/B0,B/Bmsy,F/Fmsy),requires data.frame(year, value), optional data.frame(year, value,cv) 
+#' @param auxiliary additional time series of either c(Z,Effort,B/B0,B/Bmsy,F/Fmsy)
+#' @param auxiliary,se optional input standard errors on auxilary data 
 #' @param auxiliary.type c("effort","z","bk","bbmsy","ffmsy") 
 #' @param auxiliary.lag  lag option in years (default 1) for effort, z and ffmsy  
-#' @param z.cv adjusts precision between input Z rate and modelled Hmsy+H 
 #' @param Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
 #' PRIORS
 #' @param r.dist = c("lnorm","range"), # prior distribution for the intrinsic rate population increas 
@@ -32,7 +32,9 @@
 #' @param sets.var = 1:(ncol(cpue)-1), # estimate individual additional variace
 #' @param fixed.obsE  # Minimum fixed observation error
 #' @param auxiliary.obsE # Fixed observation error for auxiliary data   
-#' @param sigma.proc =  TRUE, # TRUE: Estimate observation error, else set to value
+#' @param auxiliary.sigma # TRUE/FALSE 
+#' @param qA.cv precision on lognormal prior for e.g. qA*Z (not applicable to effort) 
+#' @param sigma.proc =  TRUE, # TRUE: Estimate process error, else set to value
 #' @param proc.dev.all = TRUE, # TRUE: All year, year = starting year
 #' @param projection = FALSE, # Switch on by Projection = TRUE
 #' @param TACs = NULL
@@ -55,14 +57,15 @@ build_jabba <- function(
   catch = NULL,
   cpue = NULL,
   se =  NULL,
-  assessment = "bet_example",
+  auxiliary = NULL,
+  auxiliary.se = NULL, 
+  auxiliary.type = c("z","effort","bk","bbmsy","ffmsy")[1],
+  assessment = "jabba",
   scenario = "jabba",
   model.type = c("Schaefer","Fox","Pella","Pella_m"),
   add.catch.CV = TRUE, # to match original assessment
   catch.cv = 0.1, # CV for catch error
   catch.error = c("random","under")[1], # 
-  auxiliary = NULL,
-  auxiliary.type = c("effort","z","bk","bbmsy","ffmsy")[1],
   Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
   r.dist = c("lnorm","range"), # prior distribution for the intrinsic rate population increas 
   r.prior = c(0.2,0.5), # prior(mu, lod.sd) for intrinsic rate of population increase   
@@ -77,9 +80,11 @@ build_jabba <- function(
   sigma.est = TRUE, # Estimate additional observation variance
   sets.var = 1:(ncol(cpue)-1), # estimate individual additional variance
   fixed.obsE = ifelse(is.null(se),0.1,0.001), # Minimum fixed observation error
-  auxiliary.obsE  = ifelse(is.null(auxiliary) | ncol(auxiliary)==2,0.3,0.001),
+  auxiliary.obsE  = ifelse(is.null(auxiliary.se),0.1,0.001),
+  auxiliary.sigma = TRUE,
   auxiliary.lag = 1,  # lags between measure of effort, Z or ffmsy in years
-  z.cv = 0.1,  # adjusts precission between input Z rate and modelled Hmsy+H 
+  qA.cv = 0.1,  # adjusts precision qA for Z, F, ffmsy or bbmsy  
+  sets.varA = 1:(ncol(auxiliary)-1), # estimate individual additional variance
   sigma.proc =  TRUE, # TRUE: Estimate observation error, else set to value
   proc.dev.all = TRUE, # TRUE: All year, year = starting year
   igamma = c(4,0.01), # informative mean 0.05, CV 0.4 from original paper
@@ -142,7 +147,7 @@ build_jabba <- function(
     
   }
   
-
+ 
   
   
   if(nrow(catch)!=nrow(cpue)) stop("\n","\n","><> cpue and catch differ in number of year <><","\n","\n")
@@ -193,7 +198,7 @@ build_jabba <- function(
   if(is.null(se)){SE.I=FALSE} else {SE.I=TRUE}
   if(SE.I==FALSE){
     if(verbose)
-      message("\n","><> SE.I=FALSE: Creatinng SE dummy matrix <><","\n","\n")
+      message("\n","><> SE.I=FALSE: Creating cpue.se dummy matrix <><","\n","\n")
     se = cpue
     conv.se = as.numeric(rbind(matrix(rep(NA,(styr.I-1)*n.indices),styr.I-1,n.indices),as.matrix(cpue[,-1])))
     se2 = matrix(ifelse(fixed.obsE>0,fixed.obsE^2,10^-10),n.years,n.indices)#/2
@@ -210,24 +215,25 @@ build_jabba <- function(
   } else {
     Auxiliary =TRUE
     if(nrow(catch)!=nrow(auxiliary)) stop("\n","\n","><> auxiliary data and catch differ in number of year <><","\n","\n")
-   
     styr.aux = min(auxiliary[,1])
     styr.A = styr.aux-styr+1
-    # Convert input data to matrices for JAGS input
-    if(ncol(auxiliary)==3){
-      auxiliary$se2 = auxiliary[,3]^2+auxiliary.obsE^2 
-      auxiliary = auxiliary[,-3] 
-      auxiliary$se2= ifelse(is.na(auxiliary[,2]),(auxiliary.obsE+0.001)^2,auxiliary$se2)
+    nA= ncol(auxiliary)-1 
+    SE.A = TRUE
+    if(is.null(auxiliary.se)) SE.A = FALSE
+    if(SE.A==FALSE){
+      if(verbose)
+        message("\n","><> SE.A=FALSE: Creating auxiliary.se dummy matrix <><","\n","\n")
+      A.se = auxiliary
+      convA.se = as.numeric(rbind(matrix(rep(NA,(styr.A-1)*nA),styr.A-1,nA),as.matrix(auxiliary[,-1])))
+      A.se2 = matrix(ifelse(auxiliary.obsE>0,auxiliary.obsE^2,10^-10),n.years,nA)#/2
+    } else{
+      if(ncol(auxiliary)!=ncol(auxiliary.se) | nrow(auxiliary)!=nrow(auxiliary.se)) stop("\n","\n","><> SE and CPUE matrix must match <><","\n","\n")
+      convA.se = as.numeric(rbind(matrix(rep(NA,(styr.A-1)*nA),styr.A-1,nA),as.matrix(auxiliary.se[,-1])))
+      A.se2 = matrix(ifelse(is.na(convA.se),0.3^2,convA.se)^2,n.years,nA)+auxiliary.obsE^2#/2
+    }
     
-    } 
-    
-    if(ncol(auxiliary)==2){
-      auxiliary$se2 = auxiliary.obsE^2
-      auxiliary$se2= ifelse(is.na(auxiliary[,2]),(auxiliary.obsE+0.001)^2,auxiliary$se2)
-    } 
-    
-    conv.aux = as.numeric(rbind(matrix(rep(NA,(styr.A-1)*2),styr.A-1,2),as.matrix(auxiliary[,2:3])))
-    AUXI=matrix(conv.aux,nrow=n.years,ncol=2)
+    conv.aux = as.numeric(rbind(matrix(rep(NA,(styr.A-1)*nA),styr.A-1,nA),as.matrix(auxiliary[,-1])))
+    AUXI=matrix(conv.aux,nrow=n.years,ncol=nA)
     if(verbose)
       message("\n","><> Fit Auxiliary data of type: ", auxiliary.type ,"<><","\n","\n")
   } 
@@ -448,12 +454,17 @@ build_jabba <- function(
   }
   
   if(Auxiliary){
-    surplus.dat$A = (AUXI[,1])
-    surplus.dat$A.SE2 = (AUXI[,2])
+    surplus.dat$A = AUXI
+    surplus.dat$A.SE2 = A.se2
     surplus.dat$qA_bounds =qA_bounds 
-    surplus.dat$A.lag = auxiliary.lag 
-    params = c(params,c("Ahat","qA","AUXI"))
-    if(auxiliary.type=="z") surplus.dat$z.cv = z.cv 
+    surplus.dat$A.lag = auxiliary.lag
+    surplus.dat$nA = nA
+    surplus.dat$sets.varA = sets.varA 
+    surplus.dat$nAvar = length(sets.varA) 
+    
+    
+    params = c(params,c("Ahat","qA","AUXI","TAE","eta2"))
+    if(auxiliary.type%in%c("z","f","ffmsy","bbmsy","bk")) surplus.dat$qA.cv = qA.cv 
   }
   
   
@@ -469,6 +480,7 @@ build_jabba <- function(
   jbinput$data$cpue = cpue
   jbinput$data$se = se
   jbinput$data$auxiliary = auxiliary
+  jbinput$data$auxiliary.se = auxiliary.se
   jbinput$jagsdata = surplus.dat
   jbinput$settings$params = params
   jbinput$settings$BmsyK = BmsyK 
@@ -487,6 +499,7 @@ build_jabba <- function(
   jbinput$settings$Auxiliary = Auxiliary
   jbinput$settings$auxiliary.type = auxiliary.type
   jbinput$settings$auxiliary.lag = auxiliary.lag
+  jbinput$settings$auxiliary.sigma = auxiliary.sigma 
   jbinput$settings$projection = projection
   jbinput$settings$TAC.implementation = imp.yr
   jbinput$settings$catch.metric = catch.metric

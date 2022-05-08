@@ -305,14 +305,14 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
     
     if(jabba$settings$Auxiliary){
       if(jabba$settings$CatchOnly){
-        jabba$settings$nI = jabba$settings$nI
+        jabba$settings$nI = jabba$settings$nA
         jabba$settings$I = as.matrix(jabba$settings$A)
         jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
-        jabba$cpue.ppd[,,1] =  jabba$cpue.ppd[,,2]
-        jabba$cpue.hat[,,1] =  jabba$cpue.hat[,,2]
+        jabba$cpue.ppd[,,-1] =  jabba$cpue.ppd
+        jabba$cpue.hat[,,-1] =  jabba$cpue.hat
         
       } else {
-        jabba$settings$nI = jabba$settings$nI+1
+        jabba$settings$nI = jabba$settings$nI+jabba$settings$nA
         jabba$settings$I = cbind(jabba$settings$I,as.matrix(jabba$settings$A))
         jabba$settings$SE2 = cbind(jabba$settings$SE2,as.matrix(jabba$settings$A.SE2))
       }
@@ -445,14 +445,15 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
     cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
     if(jabba$settings$Auxiliary){
-      
       if(jabba$settings$CatchOnly){
+        jabba$settings$nI = jabba$settings$nA
         jabba$settings$I = as.matrix(jabba$settings$A)
         jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
-        jabba$cpue.ppd[,,1] =  jabba$cpue.ppd[,,2]
-        jabba$cpue.hat[,,1] =  jabba$cpue.hat[,,2]
+        jabba$cpue.ppd[,,-1] =  jabba$cpue.ppd
+        jabba$cpue.hat[,,-1] =  jabba$cpue.hat
+        
       } else {
-        jabba$settings$nI = jabba$settings$nI+1 
+        jabba$settings$nI = jabba$settings$nI+jabba$settings$nA
         jabba$settings$I = cbind(jabba$settings$I,as.matrix(jabba$settings$A))
         jabba$settings$SE2 = cbind(jabba$settings$SE2,as.matrix(jabba$settings$A.SE2))
       }
@@ -560,8 +561,21 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
 #' @export
 jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,cols=NULL){
 
-  if(jabba$settings$CatchOnly==FALSE){
-    cat(paste0("\n","><> jbplot_residuals() - JABBA residual plot  <><","\n"))
+  if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
+    cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
+    
+    if(jabba$settings$Auxiliary){
+      if(jabba$settings$CatchOnly){
+        jabba$settings$nI = jabba$settings$nA
+        jabba$settings$I = as.matrix(jabba$settings$A)
+        jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
+      } else {
+        jabba$settings$nI = jabba$settings$nI+jabba$settings$nA
+        jabba$settings$I = cbind(jabba$settings$I,as.matrix(jabba$settings$A))
+        jabba$settings$SE2 = cbind(jabba$settings$SE2,as.matrix(jabba$settings$A.SE2))
+      }
+    }
+  
     if(is.null(cols)) cols = jabba$settings$cols 
     years = jabba$yr
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))

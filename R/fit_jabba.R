@@ -155,6 +155,7 @@ fit_jabba = function(jbinput,
   
   # run some mcmc convergence tests
   par.dat= data.frame(posteriors[params[c(1:7)]])
+  
   geweke = coda::geweke.diag(data.frame(par.dat))
   pvalues <- 2*pnorm(-abs(geweke$z))
   pvalues
@@ -241,6 +242,7 @@ fit_jabba = function(jbinput,
   # Goodness-of-Fit
   #------------------
   DIC =round(mod$BUGSoutput$DIC,1)
+  if(settings$Auxiliary) nA = ncol(AUXI)
   
   if(settings$CatchOnly==FALSE | settings$Auxiliary==TRUE ){
     
@@ -251,23 +253,20 @@ fit_jabba = function(jbinput,
     if(settings$CatchOnly==FALSE){
     for(i in 1:n.indices){
       Resids =rbind(Resids,log(CPUE[,i])-log(apply(posteriors$CPUE[,,i],2,quantile,c(0.5))))
-    }
     
-    # Standardized Residuals
-    for(i in 1:n.indices){
       StResid =rbind(StResid,log(CPUE[,i]/apply(posteriors$CPUE[,,i],2,quantile,c(0.5)))/
                        apply(posteriors$TOE[,,i],2,quantile,c(0.5))+0.5*apply(posteriors$TOE[,,i],2,quantile,c(0.5)))
     }
     }
     if(settings$Auxiliary==TRUE){
-      
-      Resids =rbind(Resids,log(settings$A)-log(apply(posteriors$Ahat,2,quantile,c(0.5))))  
+      for(i in 1:nA){
+        Resids =rbind(Resids,log(AUXI[,i])-log(apply(posteriors$Ahat[,,i],2,quantile,c(0.5))))
+        StResid =rbind(StResid,log(AUXI[,i]/apply(posteriors$Ahat[,,i],2,quantile,c(0.5)))/
+                         apply(posteriors$TAE[,,i],2,quantile,c(0.5))+0.5*apply(posteriors$TAE[,,i],2,quantile,c(0.5)))
+        
+       }
+    }  
        
-      StResid =rbind(StResid,log(settings$A/apply(posteriors$Ahat,2,quantile,c(0.5)))/
-                       sqrt(settings$A.SE2)+0.5* sqrt(settings$A.SE2))
-       
-    }
-    
     
     Nobs =length(as.numeric(Resids)[is.na(as.numeric(Resids))==FALSE])
     DF = Nobs-npar
@@ -284,15 +283,16 @@ fit_jabba = function(jbinput,
   # Save Obs,Fit,Residuals
   jabba.res = NULL
   if(settings$CatchOnly==FALSE){
-    for(i in 1:n.indices){
       
       Yr = years
       Yr = min(Yr):max(Yr)
       yr = Yr-min(years)+1
-      
+    
+    for(i in 1:n.indices){
       exp.i = apply(posteriors$CPUE[,,i],2,quantile,c(0.5))[is.na(cpue[,i+1])==F]
-      expLCI.i = apply(posteriors$CPUE[,,i],2,quantile,c(0.025))[is.na(cpue[,i+1])==F]
-      expUCI.i = apply(posteriors$CPUE[,,i],2,quantile,c(0.975))[is.na(cpue[,i+1])==F]
+      se.i = apply(posteriors$CPUE[,,i],2,sd)[is.na(cpue[,i+1])==F]
+      expLCI.i = apply(posteriors$Ihat[,,i],2,quantile,c(0.025))[is.na(cpue[,i+1])==F]
+      expUCI.i = apply(posteriors$Ihat[,,i],2,quantile,c(0.975))[is.na(cpue[,i+1])==F]
       
       obs.i = cpue[is.na(cpue[,i+1])==F,i+1]
       sigma.obs.i = (apply(posteriors$TOE[,,i],2,quantile,c(0.5)))[is.na(cpue[,i+1])==F]
@@ -308,21 +308,21 @@ fit_jabba = function(jbinput,
       Yr = min(Yr):max(Yr)
       yr = Yr-min(years)+1
       
-      exp.i = apply(posteriors$AUXI,2,quantile,c(0.5))[is.na(auxiliary[,2])==F]
-      expLCI.i = apply(posteriors$AUXI,2,quantile,c(0.025))[is.na(auxiliary[,2])==F]
-      expUCI.i = apply(posteriors$AUXI,2,quantile,c(0.975))[is.na(auxiliary[,2])==F]
+      for(i in 1:nA){
       
-      obs.i = auxiliary[is.na(auxiliary[,2])==F,2]
-      sigma.obs.i = sqrt(auxiliary[,3][is.na(auxiliary[,2])==F])
+      exp.i = apply(posteriors$Ahat[,,i],2,quantile,c(0.5))[is.na(auxiliary[,i+1])==F]
+      se.i = apply(posteriors$Ahat[,,i],2,sd)[is.na(auxiliary[,i+1])==F]
+      expLCI.i = apply(posteriors$Ahat[,,i],2,quantile,c(0.025))[is.na(auxiliary[,i+1])==F]
+      expUCI.i = apply(posteriors$Ahat[,,i],2,quantile,c(0.975))[is.na(auxiliary[,i+1])==F]
       
-      yr.i = Yr[is.na(auxiliary[,2])==F]
-      Aname = which(c("effort","z","bk","bbmsy","ffmsy")%in%jbinput$settings$auxiliary.type)
-      Aname = c("Effort","Z","BB0","BBmsy","FFmsy")[Aname]
-      jabba.res = rbind(jabba.res,data.frame(scenario=settings$scenario,name=Aname,year=yr.i,obs=obs.i,obs.err=sigma.obs.i,hat=exp.i,hat.lci=expLCI.i,hat.uci=expUCI.i,residual=log(obs.i)-log(exp.i),retro.peels=peels))
+      obs.i = auxiliary[is.na(auxiliary[,i+1])==F,i+1]
+      sigma.obs.i = (apply(posteriors$TAE[,,i],2,quantile,c(0.5)))[is.na(auxiliary[,i+1])==F]
+      
+      yr.i = Yr[is.na(auxiliary[,i+1])==F]
+      jabba.res = rbind(jabba.res,data.frame(scenario=settings$scenario,name=names(auxiliary)[i+1],year=yr.i,obs=obs.i,obs.err=sigma.obs.i,hat=exp.i,hat.lci=expLCI.i,hat.uci=expUCI.i,residual=log(obs.i)-log(exp.i),retro.peels=peels))
 
   }
-  
-  
+  }
   
 
   if(!jbinput$settings$Auxiliary){
@@ -345,26 +345,28 @@ fit_jabba = function(jbinput,
   
   
   
-  if(jbinput$settings$Auxiliary){
+    if(jbinput$settings$Auxiliary){
     #----------------------------------
     # Predicted CPUE
     #----------------------------------
-    cpue.hat = array(data=NA,dim=c(N,5,n.indices+1),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
+    cpue.hat = array(data=NA,dim=c(N,5,n.indices+nA),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
     for(i in 1:n.indices){
       cpue.hat[,,i] = cbind(t(apply(posteriors$Ihat[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$Ihat[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
     }
-    cpue.hat[,,n.indices+1] = cbind(t(apply(posteriors$Ahat,2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$Ahat),2,sd),sqrt(auxiliary[,3]))
-    
+    for(i in 1:nA){
+    cpue.hat[,,n.indices+i] = cbind(t(apply(posteriors$Ahat[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$Ahat[,,i]),2,sd),(apply(posteriors$TAE[,,i],2,quantile,c(0.5))))
+    }
     #------------------------------------
     # Posterior Predictive Distribution
     #------------------------------------
     
-    cpue.ppd = array(data=NA,dim=c(N,5,n.indices+1),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
+    cpue.ppd = array(data=NA,dim=c(N,5,n.indices+nA),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
     for(i in 1:n.indices){
       cpue.ppd[,,i] = cbind(t(apply(posteriors$CPUE[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$CPUE[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
     }
-    cpue.ppd[,,n.indices+1] = cbind(t(apply(posteriors$AUXI,2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$AUXI),2,sd),sqrt(auxiliary[,3]))
-    
+    for(i in 1:nA){
+      cpue.ppd[,,n.indices+i] = cbind(t(apply(posteriors$AUXI[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$AUXI[,,i]),2,sd),(apply(posteriors$TAE[,,i],2,quantile,c(0.5))))
+    }
   }
   
   
@@ -373,7 +375,11 @@ fit_jabba = function(jbinput,
   # Note posteriors of key parameters
   #-----------------------------------
   sel.par = c(1,2,7,4,3,5)
+  if(!settings$Auxiliary){
   out=data.frame(posteriors[params[sel.par]])
+  } else {
+    out=data.frame(posteriors[c(params[sel.par],"qA")])
+  }
   outman = man.dat[,1:4]
   colnames(outman) = c("Fmsy","Bmsy","MSY","BmsyK")
   if(verbose)
@@ -431,7 +437,6 @@ fit_jabba = function(jbinput,
   jabba$stats = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
   jabba$pars_posterior = out
   jabba$refpts_posterior = outman
-  
   
   jabba$kobe = data.frame(factor=assessment,level=scenario,yr=years[N],stock=posteriors$BtoBmsy[,N],harvest=posteriors$HtoHmsy[,N],bk=posteriors$P[,N])
   

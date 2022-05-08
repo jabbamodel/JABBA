@@ -300,5 +300,32 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,verbose=TRUE){
 }
 
 
-
+#' zage()
+#'
+#' Computes the Z[t] rate z = 1-exp(-Z) from catch-at-age data
+#' @param ca data.frame input with column names year, age, data
+#' @param ages for which the z slope is taken
+#' @return data.frame with data = z
+#' @export
+zage =  function(ca,ages = "missing"){
+  out=NULL
+  CN = catch.n
+  years=unique(CN$year)
+  age = unique(CN$age)
+  
+  if(missing(ages)){
+    Amin = age[which(aggregate(data~age,CN,mean)$data==max(aggregate(data~age,CN,mean)$data))] 
+    Amax = max(CN$age)-1
+    ages= Amin:Amax
+  }
+  for(t in 1:length(years)){
+    Ct= CN[CN$year==years[t]&CN$age%in%ages,]
+    Z = -coef(lm(log(data)~age,Ct))[[2]]
+    zt = Ct[1,]
+    zt$data = 1-exp(-Z)
+    zt$age = "all"
+    out = rbind(out,zt)
+  }
+  return(out)
+}
 
