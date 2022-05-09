@@ -140,6 +140,7 @@ fit_jabba = function(jbinput,
   assessment = settings$assessment
   scenario = settings$scenario
   CPUE = settings$I
+  if(settings$Auxiliary) AUXI = settings$A
   n.indices = settings$nI
   
   # if run with library(rjags)
