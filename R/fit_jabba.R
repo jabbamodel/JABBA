@@ -112,7 +112,10 @@ fit_jabba = function(jbinput,
   if(is.null(peels)) peels = 0
   if(peels > 0){
     jbd$I[(length(years)-peels+1) : length(years),]  = NA
+    
+    if(jbinput$settings$Auxiliary){
     jbd$A[(length(years)-peels+1) : length(years),]  = NA
+    }
     
   }
   jbinput$jagsdata$I = jbd$I 

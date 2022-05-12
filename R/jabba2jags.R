@@ -251,12 +251,10 @@ jabba2jags = function(jbinput, dir){
       ",append=TRUE) }
       else{ cat("
       # Observation variance
-           for(i in 1:nvar){
-           # Fake
-           ieta2[i]~ dgamma(4,0.01)
-           }
-
-           for(i in 1:nA)
+          
+         
+          
+      for(i in 1:nA)
       {
       for(t in 1:N)
       {
@@ -331,24 +329,38 @@ jabba2jags = function(jbinput, dir){
       cat("
       for(i in 1:nA){ 
       for(t in 1:A.lag){
-      Amean[t,i] <- log(qA[i])+log(Ax[1])
+      
+      Amean[t,i] <- log(qA[i])+log(mean(Ax[1:t]))
+      #Amean[t,i] <- log(qA[i])+log(mean(Ax[1]))
+      
       A[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i])
       AUXI[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i]) 
       Ahat[t,i]  <- exp(Amean[t,i])}}
       
-  
-    ",append=TRUE)}
-    # Generic
-     cat("
       for(i in 1:nA){
       for(t in (A.lag+1):N){
-      Amean[t,i] <- log(qA[i])+log(Ax[t-A.lag])
+      Amean[t,i] <- log(qA[i])+log(mean(Ax[(t-A.lag):(t-1)]))
+      #Amean[t,i] <- log(qA[i])+log(mean(Ax[(t-A.lag)]))
+      
+      A[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i])
+      AUXI[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i]) 
+      Ahat[t,i]  <- exp(Amean[t,i])
+      }}
+  
+    ",append=TRUE)}
+    # No Lag
+    if(jbinput$settings$auxiliary.lag==0){
+     cat("
+      for(i in 1:nA){
+      for(t in 1:N){
+      Amean[t,i] <- log(qA[i])+log(mean(Ax[t]))
       A[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i])
       AUXI[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i]) 
       Ahat[t,i]  <- exp(Amean[t,i])
       }}
       
       ",append=TRUE)
+    }
   } # End of auxiliary
   
   # PROJECTION

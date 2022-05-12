@@ -459,11 +459,12 @@ build_jabba <- function(
     surplus.dat$qA_bounds =qA_bounds 
     surplus.dat$A.lag = auxiliary.lag
     surplus.dat$nA = nA
+    params = c(params,c("Ahat","qA","AUXI","TAE"))
+    if(auxiliary.sigma){
     surplus.dat$sets.varA = sets.varA 
     surplus.dat$nAvar = length(sets.varA) 
-    
-    
-    params = c(params,c("Ahat","qA","AUXI","TAE","eta2"))
+    params = c(params,c("eta2"))
+    }
     if(auxiliary.type%in%c("z","f","ffmsy","bbmsy","bk")) surplus.dat$qA.cv = qA.cv 
   }
   
