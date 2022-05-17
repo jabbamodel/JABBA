@@ -15,6 +15,7 @@ fit_jabba(
   init.r = NULL,
   init.q = NULL,
   peels = NULL,
+  do.ppc = TRUE,
   save.trj = TRUE,
   save.all = FALSE,
   save.jabba = FALSE,
@@ -47,6 +48,8 @@ Initial values}
 \item{init.q}{= NULL,# vector}
 
 \item{peels}{= NULL, # retro peel option}
+
+\item{do.ppc}{conducts and saves posterior predictive checks}
 
 \item{save.trj}{adds posteriors of stock, harvest and bk trajectories}
 

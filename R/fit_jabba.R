@@ -13,6 +13,7 @@
 #' @param init.r = NULL,
 #' @param init.q = NULL,# vector
 #' @param peels = NULL, # retro peel option
+#' @param do.ppc conducts and saves posterior predictive checks
 #' @param save.trj adds posteriors of stock, harvest and bk trajectories
 #' @param save.csvs option to write csv outputs
 #' @param save.jabba saves jabba fit as rdata object
@@ -41,6 +42,7 @@ fit_jabba = function(jbinput,
                      init.r = NULL,
                      init.q = NULL,# vector
                      peels = NULL, # retro peel option
+                     do.ppc = TRUE,
                      save.trj = TRUE,
                      save.all = FALSE,
                      save.jabba = FALSE,
@@ -145,6 +147,7 @@ fit_jabba = function(jbinput,
   CPUE = settings$I
   if(settings$Auxiliary) AUXI = settings$A
   n.indices = settings$nI
+  
   
   # if run with library(rjags)
   posteriors = mod$BUGSoutput$sims.list
@@ -285,7 +288,7 @@ fit_jabba = function(jbinput,
   }
   
   # Save Obs,Fit,Residuals
-  jabba.res = NULL
+  jabba.res = PPC = NULL
   if(settings$CatchOnly==FALSE){
       
       Yr = years
@@ -297,13 +300,26 @@ fit_jabba = function(jbinput,
       se.i = apply(posteriors$CPUE[,,i],2,sd)[is.na(cpue[,i+1])==F]
       expLCI.i = apply(posteriors$Ihat[,,i],2,quantile,c(0.025))[is.na(cpue[,i+1])==F]
       expUCI.i = apply(posteriors$Ihat[,,i],2,quantile,c(0.975))[is.na(cpue[,i+1])==F]
-      
       obs.i = cpue[is.na(cpue[,i+1])==F,i+1]
       sigma.obs.i = (apply(posteriors$TOE[,,i],2,quantile,c(0.5)))[is.na(cpue[,i+1])==F]
-      
       yr.i = Yr[is.na(cpue[,i+1])==F]
       jabba.res = rbind(jabba.res,data.frame(scenario=settings$scenario,name=names(cpue)[i+1],year=yr.i,obs=obs.i,obs.err=sigma.obs.i,hat=exp.i,hat.lci=expLCI.i,hat.uci=expUCI.i,residual=log(obs.i)-log(exp.i),retro.peels=peels))
-    }
+    
+      if(do.ppc){ # Posterior Predictive Check
+        nmc = nrow(posteriors$K)
+        mcmcfit = posteriors$Ihat[,is.na(cpue[,i+1])==F,i]
+        mcmcppd = posteriors$CPUE[,is.na(cpue[,i+1])==F,i]
+
+        observed = obs.i  
+        observed = array(rep(observed,each=nmc),c(nmc,length(observed)))
+        sigobs =  posteriors$TOE[,is.na(cpue[,i+1])==F,i]
+        PPC = rbind(PPC,data.frame(name=names(cpue)[i+1],Dx=apply((log(observed)-log(mcmcfit))^2/sigobs,1,sum),   
+                                   Dy = apply((log(mcmcppd)-log(mcmcfit))^2/sigobs,1,sum)))
+      }
+      
+      
+      
+      }
   }
   
   if(settings$Auxiliary==TRUE){
@@ -325,6 +341,18 @@ fit_jabba = function(jbinput,
       yr.i = Yr[is.na(auxiliary[,i+1])==F]
       jabba.res = rbind(jabba.res,data.frame(scenario=settings$scenario,name=names(auxiliary)[i+1],year=yr.i,obs=obs.i,obs.err=sigma.obs.i,hat=exp.i,hat.lci=expLCI.i,hat.uci=expUCI.i,residual=log(obs.i)-log(exp.i),retro.peels=peels))
 
+      if(do.ppc){ # Posterior Predictive Check
+        nmc = nrow(posteriors$K)
+        mcmcfit = posteriors$Ahat[,is.na(auxiliary[,i+1])==F,i]
+        mcmcppd = posteriors$AUXI[,is.na(auxiliary[,i+1])==F,i]
+        
+        observed = obs.i  
+        observed = array(rep(observed,each=nmc),c(nmc,length(observed)))
+        sigobs =  posteriors$TAE[,is.na(auxiliary[,i+1])==F,i]
+        PPC = rbind(PPC,data.frame(name=names(auxiliary)[i+1],Dx=apply((log(observed)-log(mcmcfit))^2/sigobs,1,sum),   
+                                   Dy = apply((log(mcmcppd)-log(mcmcfit))^2/sigobs,1,sum)))
+      }
+      
   }
   }
   
@@ -412,6 +440,8 @@ fit_jabba = function(jbinput,
                                                                 }
   jabba$cpue.hat=cpue.hat
   jabba$cpue.ppd=cpue.ppd
+  jabba$PPC = NULL
+  if(do.ppc) jabba$PPC = PPC 
   jabba$timeseries=Stock_trj
   jabba$refpts = data.frame(factor=assessment,level=settings$scenario,quant = c("hat","logse"), k=c(median(posteriors$K),sd(log(posteriors$K))),bmsy=c(median(posteriors$SBmsy),sd(log(posteriors$SBmsy))),
                             fmsy=c(median(posteriors$Hmsy),sd(log(posteriors$Hmsy))),msy=c(median(posteriors$SBmsy*posteriors$Hmsy),sd(log(posteriors$SBmsy*posteriors$Hmsy))))

@@ -1,7 +1,7 @@
 
 #' jbpar()
 #'
-#' Set the par() to options suitable for JARA multi plots   
+#' Set the par() to options suitable for jabba multi plots   
 #' @param mfrow determines plot frame set up
 #' @param plot.cex cex graphic option
 #' @export
@@ -1798,3 +1798,125 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
   if(verbose) return(MASE)
 }
 #}}}
+
+#' jrplot_PPC
+#'
+#' Plots Posterior Predictive Checks for Chisq Goodness-of-Fit (Omnibus Discrepancy) 
+#' @param jabba output list from fit_jabba
+#' @param joint.ppc FALSE/TRUE, if TRUE a joint Posterior Predictive Check (indices combined) is plotted
+#' @param thin.plot  TRUE/FALSE thinning option for plotting
+#' @param output.dir directory to save plots
+#' @param as.png save as png file of TRUE
+#' @param single.plots if TRUE plot invidual fits else make multiplot
+#' @param width plot width
+#' @param height plot hight
+#' @param ylab option to change y-axis label
+#' @param xlab option to change x-axis label
+#' @param plot.cex graphic option
+#' @param indices names of indices to plot (default = "all")
+#' @param index.label show index name in plot
+#' @param add if TRUE par is not called to enable manual multiplots
+#' @param verbose commentary 
+#' @return Bayesin p values and n observation per index
+#' @export
+jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(),as.png=FALSE,single.plots=add,width=NULL,height=NULL,ylab=expression(paste("Predicted D(",chi^2,")")),xlab=expression(paste("Realized D(",chi^2,")")),plot.cex=0.8,index=NULL,index.label=TRUE,add=FALSE,verbose=TRUE){
+  
+  if(verbose) cat(paste0("\n","><> jrplot_PPC() - Posterior Predictive Checks <><","\n"))
+  if(is.null(jabba$PPC)) stop("To enable PPCs please use option fit_jabba(jabbainput,do.ppc=TRUE)") 
+  PPC = jabba$PPC
+  Bp = NULL # Bayesian p-value
+  name.check = jabba$diags$name
+  if(joint.ppc){
+    PPC$name ="Combined"
+    indices = "Combined"
+    n.indices = 1
+    
+  } else {
+    all.indices = unique(jabba$diags$name)
+    if(is.null(index)) index = 1:length(all.indices)
+    indices = unique(jabba$diags$name)[index]
+    n.indices = length(indices)
+
+    
+    for(i in 1:n.indices){
+      ppc = PPC[PPC$name%in%indices[i],2:3]
+      Bp = rbind(Bp,data.frame(Index=indices[i],Bayesian.p=sum(ppc$Dy>ppc$Dx)/length(ppc$Dx),nobs=nrow(jabba$diags[jabba$diags$name==indices[i],]))) 
+    }}
+  ppc = PPC[PPC$name%in%indices,2:3]
+  Bp = rbind(Bp,data.frame(Index="Combined",Bayesian.p=sum(ppc$Dy>ppc$Dx)/length(ppc$Dx),nobs=nrow(jabba$diags[name.check%in%indices,]))) 
+  
+  
+  if(single.plots==TRUE){
+    if(is.null(width)) width = 5
+    if(is.null(height)) height = 5
+    for(i in 1:n.indices){
+      Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=plot.cex)
+      if(as.png==TRUE){png(file = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+                           res = 200, units = "in")}
+      if(add==FALSE){
+        if(as.png==TRUE | i==1) par(Par)
+      }  
+      # set observed vs predicted CPUE
+      ppc = PPC[PPC$name%in%indices[i],2:3]
+      nmc = nrow(ppc)
+      if(thin.plot){
+        thinning = seq(1,nmc,floor(nmc/1000*0.5))
+        ppct = ppc[thinning,]
+      } else {
+        ppct=ppc
+      }
+      
+      # Plot Observed vs predicted CPUE
+      plot(ppct[,1],ppct[,2],ylab="",xlab="",ylim=c(0,max(ppc)*1.05),xlim=c(0,max(ppc)*1.05),type='n',xaxt="n",yaxt="n")
+      axis(1,labels=TRUE,cex=0.8)
+      axis(2,labels=TRUE,cex=0.8)
+      points(ppct,pch=21,col=grey(0.4,0.7),bg=grey(0.7,0.5),cex=0.9)
+      abline(0,1,lwd=1.5)
+      if(index.label==TRUE)legend('top',paste(indices[i],": p =",round(Bp$Bayesian.p[i],3)),bty="n",y.intersp = -0.2,cex=0.9)
+      mtext(xlab, side=1, outer=TRUE, at=0.5,line=0.5,cex=1)
+      mtext(ylab, side=2, outer=TRUE, at=0.5,line=0.3,cex=1)
+      if(as.png==TRUE) dev.off()
+    }
+  } else {
+    
+    if(is.null(width)) width = 7
+    if(is.null(height)) height = ifelse(n.indices==1,7,ifelse(n.indices==2,4.,3.5))*round(n.indices/2+0.01,0)
+    Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=plot.cex)
+    if(as.png==TRUE){png(file = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+                         res = 200, units = "in")}
+    par(Par)
+    
+    for(i in 1:n.indices){
+      # set observed vs predicted CPUE
+      # set observed vs predicted CPUE
+      ppc = PPC[PPC$name%in%indices[i],2:3]
+      nmc = nrow(ppc)
+      if(thin.plot){
+        thinning = seq(1,nmc,ceiling(nmc/1000*0.2))
+        ppct = ppc[thinning,]
+      } else {
+        ppct=ppc
+      }
+      
+      # Plot Observed vs predicted CPUE
+      plot(ppct[,1],ppct[,2],ylab="",xlab="",ylim=c(0,max(ppc)*1.05),xlim=c(0,max(ppc)*1.05),type='n',xaxt="n",yaxt="n")
+      axis(1,labels=TRUE,cex=0.8)
+      axis(2,labels=TRUE,cex=0.8)
+      points(ppct,pch=21,col=grey(0.4,0.7),bg=grey(0.7,0.5),cex=0.9)
+      abline(0,1,lwd=1.5)
+      if(index.label==TRUE)legend('top',paste(indices[i],": p =",round(Bp$Bayesian.p[i],3)),bty="n",y.intersp = -0.2,cex=0.9)
+      
+      
+    }
+    if(add==FALSE | i==1){
+      mtext(xlab, side=1, outer=TRUE, at=0.5,line=0.75,cex=1)
+      mtext(ylab, side=2, outer=TRUE, at=0.5,line=1,cex=1)
+    }
+    if(as.png==TRUE){dev.off()}
+  }
+  if(verbose) cat("\n","Posterior Predictive Checks with Bayesian p values","\n")
+  return(Bp)
+} # End of CPUE plot function
+
+
+

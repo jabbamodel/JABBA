@@ -20,5 +20,5 @@ jbpar(
 \item{plot.cex}{cex graphic option}
 }
 \description{
-Set the par() to options suitable for JARA multi plots
+Set the par() to options suitable for jabba multi plots
 }
