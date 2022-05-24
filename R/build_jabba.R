@@ -457,7 +457,7 @@ build_jabba <- function(
     surplus.dat$A = AUXI
     surplus.dat$A.SE2 = A.se2
     surplus.dat$qA_bounds =qA_bounds 
-    if(auxiliary.lag>0)surplus.dat$A.lag = auxiliary.lag
+    if(auxiliary.lag>0) surplus.dat$A.lag = auxiliary.lag
     surplus.dat$nA = nA
     params = c(params,c("Ahat","qA","AUXI","TAE"))
     if(auxiliary.sigma){

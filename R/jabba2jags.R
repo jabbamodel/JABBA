@@ -191,8 +191,10 @@ jabba2jags = function(jbinput, dir){
     BtoBmsy[t] <- SB[t]/SBmsy
     }
 
+    ",append=TRUE)
 
-
+  if(jbinput$settings$CatchOnly==FALSE){
+    cat("
     # Observation equation in related to EB
 
     for(i in 1:nI)
@@ -204,10 +206,30 @@ jabba2jags = function(jbinput, dir){
     CPUE[t,i] ~ dlnorm(Imean[t,i],(ivar.obs[t,i]))   ####q[[i]]*P[t]*SB0*EBtoSB[t,i]
     Ihat[t,i]  <- exp(Imean[t,i])
 
-}}
+    }}
 
+  ",append=TRUE)}
+  
+    if(jbinput$settings$CatchOnly==TRUE){
+      cat("
+    # Observation equation in related to EB
+    one <- sets.q
+    for(i in 1:nI)
+    {
+    for (t in 1:N)
+    {
+    Imean[t,i] <- log(pow(P[1],-1)*P[t]);
+    I[t,i] ~ dlnorm(Imean[t,i],(ivar.obs[t,i]));
+    CPUE[t,i] ~ dlnorm(Imean[t,i],(ivar.obs[t,i]))   ####q[[i]]*P[t]*SB0*EBtoSB[t,i]
+    Ihat[t,i]  <- exp(Imean[t,i])
 
+    }}
 
+  ",append=TRUE)} 
+    
+  cat("
+      
+    
    
     # Enforce soft penalty on K if < K_bounds >
     K.pen ~ dnorm(penK,1000) # enforce penalty
@@ -281,7 +303,8 @@ jabba2jags = function(jbinput, dir){
       qA[i] ~ dlnorm(0,pow(qA.cv,-2))T(qA_bounds[1],qA_bounds[2])
       }  
       for(t in 1:N){
-      Ax[t] <- -log(1-H[t])-log(1-Hmsy)
+      #Ax[t] <- -log(max(1-H[t],0.01))-log(1-max(1-Hmsy,0.01))
+      Ax[t] <- max(1-(1-Hmsy)*(1-H[t]),0.001)
       }
       ",append=TRUE)}
     
@@ -330,8 +353,8 @@ jabba2jags = function(jbinput, dir){
       for(i in 1:nA){ 
       for(t in 1:A.lag){
       
-      Amean[t,i] <- log(qA[i])+log(mean(Ax[1:t]))
-      #Amean[t,i] <- log(qA[i])+log(mean(Ax[1]))
+      #Amean[t,i] <- log(qA[i])+log(mean(Ax[1:t]))
+      Amean[t,i] <- log(qA[i])+log(mean(Ax[1]))
       
       A[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i])
       AUXI[t,i] ~ dlnorm(Amean[t,i],ivarA.obs[t,i]) 

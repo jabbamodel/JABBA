@@ -50,11 +50,18 @@ fit_jabba = function(jbinput,
                      output.dir = getwd(),
                      quickmcmc = FALSE,
                      seed = 123,
+                     jagsdir = NULL,
                      verbose=TRUE
 ){
   
-  tmpath <- tempfile()
-  dir.create(tmpath)
+  if(is.null(jagsdir)){
+    tmpath <- tempfile()
+    dir.create(tmpath)} else {
+      tmpath <- jagsdir
+      }
+    
+  
+  
   if(!verbose) {
     progress.bar="none"
   } else {

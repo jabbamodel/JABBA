@@ -308,8 +308,9 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
         jabba$settings$nI = jabba$settings$nA
         jabba$settings$I = as.matrix(jabba$settings$A)
         jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
-        jabba$cpue.ppd[,,-1] =  jabba$cpue.ppd
-        jabba$cpue.hat[,,-1] =  jabba$cpue.hat
+        di = dim(jabba$cpue.ppd)[3]
+        jabba$cpue.ppd[,,1:(di-1)] =  jabba$cpue.ppd[,,2:(di)] 
+        jabba$cpue.hat[,,1:(di-1)] =  jabba$cpue.hat[,,2:(di)] 
         
       } else {
         jabba$settings$nI = jabba$settings$nI+jabba$settings$nA
@@ -449,8 +450,10 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
         jabba$settings$nI = jabba$settings$nA
         jabba$settings$I = as.matrix(jabba$settings$A)
         jabba$settings$SE2 = as.matrix(jabba$settings$A.SE2)
-        jabba$cpue.ppd[,,-1] =  jabba$cpue.ppd
-        jabba$cpue.hat[,,-1] =  jabba$cpue.hat
+        di = dim(jabba$cpue.ppd)[3]
+        jabba$cpue.ppd[,,1:(di-1)] =  jabba$cpue.ppd[,,2:(di)] 
+        jabba$cpue.hat[,,1:(di-1)] =  jabba$cpue.hat[,,2:(di)] 
+        
         
       } else {
         jabba$settings$nI = jabba$settings$nI+jabba$settings$nA

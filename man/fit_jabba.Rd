@@ -23,6 +23,7 @@ fit_jabba(
   output.dir = getwd(),
   quickmcmc = FALSE,
   seed = 123,
+  jagsdir = NULL,
   verbose = TRUE
 )
 }
