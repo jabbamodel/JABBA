@@ -15,5 +15,5 @@ zage(ca, ages = "missing")
 data.frame with data = z
 }
 \description{
-Computes the Z[t] rate z = 1-exp(-Z) from catch-at-age data
+Computes the Z[t] from catch-at-age data
 }

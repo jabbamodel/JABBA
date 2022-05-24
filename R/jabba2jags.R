@@ -281,7 +281,7 @@ jabba2jags = function(jbinput, dir){
       qA[i] ~ dlnorm(0,pow(qA.cv,-2))T(qA_bounds[1],qA_bounds[2])
       }  
       for(t in 1:N){
-      Ax[t] <- H[t]+Hmsy
+      Ax[t] <- -log(1-H[t])-log(1-Hmsy)
       }
       ",append=TRUE)}
     
@@ -291,7 +291,7 @@ jabba2jags = function(jbinput, dir){
       qA[i] ~ dlnorm(0,pow(qA.cv,-2))T(qA_bounds[1],qA_bounds[2])
       }  
       for(t in 1:N){
-      Ax[t] <- H[t]
+      Ax[t] <- -log(1-H[t])
       }
       ",append=TRUE)}
      
