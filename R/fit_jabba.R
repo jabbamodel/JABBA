@@ -388,7 +388,7 @@ fit_jabba = function(jbinput,
     #----------------------------------
     # Predicted CPUE
     #----------------------------------
-    cpue.hat = array(data=NA,dim=c(N,5,n.indices+nA),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
+    cpue.hat = array(data=NA,dim=c(N,5,n.indices+nA),list(years,c("mu","lci","uci","se","obserror"),c(names(cpue)[-1],names(auxiliary)[-1])))
     for(i in 1:n.indices){
       cpue.hat[,,i] = cbind(t(apply(posteriors$Ihat[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$Ihat[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
     }
@@ -399,7 +399,7 @@ fit_jabba = function(jbinput,
     # Posterior Predictive Distribution
     #------------------------------------
     
-    cpue.ppd = array(data=NA,dim=c(N,5,n.indices+nA),list(years,c("mu","lci","uci","se","obserror"),names(cpue[,-1])))
+    cpue.ppd = array(data=NA,dim=c(N,5,n.indices+nA),list(years,c("mu","lci","uci","se","obserror"),c(names(cpue)[-1],names(auxiliary)[-1])))
     for(i in 1:n.indices){
       cpue.ppd[,,i] = cbind(t(apply(posteriors$CPUE[,,i],2,quantile,c(0.5,0.025,0.975))),apply(log(posteriors$CPUE[,,i]),2,sd),(apply(posteriors$TOE[,,i],2,quantile,c(0.5))))
     }
