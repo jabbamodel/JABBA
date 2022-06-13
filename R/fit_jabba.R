@@ -561,7 +561,7 @@ fit_jabba = function(jbinput,
   
   if(save.csvs==TRUE){
     # Save results
-    write.csv(Stock_trj[,2,],paste0(output.dir,"/Stock_trj_",settings$assessment,"_",settings$scenario,".csv"))
+    write.csv(Stock_trj[,1,],paste0(output.dir,"/Stock_trj_",settings$assessment,"_",settings$scenario,".csv"))
     # Save model estimates and convergence p-values
     write.csv(data.frame(results),paste0(output.dir,"/Estimates_",settings$assessment,"_",settings$scenario,".csv"))
     write.csv(Table,paste0(output.dir,"/Results_",settings$assessment,"_",settings$scenario,".csv"))
