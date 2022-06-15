@@ -21,9 +21,21 @@ data(iccat)
 # get BET data
 bet = iccat$bet
 # Compile JABBA JAGS model and input object
-jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment=assessment,scenario = "Test",model.type = "Fox",sigma.est = FALSE,fixed.obsE = 0.01,igamma = c(0.001,0.001))
+jbinput1 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,
+                      assessment=assessment,scenario = "Run1",
+                      model.type = "Fox",
+                      r.prior = c(0.2,0.5),
+                      sigma.est = FALSE, # estimate additional observation error
+                      fixed.obsE = 0.01, # mimum observation error
+                      igamma = c(0.001,0.001), # uninformative inv-gamma for process error
+                      psi.prior = c(1,0.2), # Initial depletion B/K
+                      verbose=F)
+# Check input
+jbplot_indices(jbinput1)
+
+
 # Fit JABBA (here mostly default value - careful)
-bet1 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir,quickmcmc = TRUE) # quick run
+bet1 = fit_jabba(jbinput1,quickmcmc = TRUE) # quick run
 
 head(bet1$kobe)
 
@@ -37,32 +49,55 @@ jbplot_cpuefits(bet1)
 jbplot_runstest(bet1)
 jbplot_logfits(bet1)
 jbplot_procdev(bet1)
+jbplot_PPC(bet1) # Posterior Predictive Checks - Not great should 0.2-0.8
+
+# Status
+jbplot_summary(bet1)
+# combine plots
+jbpar(mfrow=c(2,2))
+jbplot_summary(bet1,add=T,type = c("BBmsy", "FFmsy"))
+jbplot_spphase(bet1,add=T)
+jbplot_kobe(bet1,add=T)
 
 jbpar(mfrow=c(3,2),plot.cex = 0.8)
-jbplot_trj(bet1,add=T)
-jbplot_spphase(bet1,add=T)
+jbplot_ensemble(bet1)
 
 # Try to improve runs test diagnostics by changing the variance settings
-jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,scenario = "Ref",model.type = "Fox",sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001),psi.prior = c(1,0.1))
-bet2 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+# Increase minimum obs error from 0.01 to 0.1 and remove SEs from CPUE model
+jbinput2 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,
+                      scenario = "Run2",model.type = "Fox",sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001),
+                      psi.prior = c(1,0.2), # Initial depletion B/K
+                      verbose = F)
+
+
+bet2 = fit_jabba(jbinput2,quickmcmc = T)
 # Check residual diags
 jbplot_cpuefits(bet2)
 jbplot_runstest(bet2)
 jbplot_logfits(bet2)
+jbplot_PPC(bet2)
 # Improved
-refinput = jbinput # Note as reference input 
+refinput = jbinput2 # Note as reference input 
 
-# status summary
-par(mfrow=c(3,2),mar = c(3.5, 3.5, 0.5, 0.1))
-jbplot_trj(bet2,type="B",add=T)
-jbplot_trj(bet2,type="F",add=T)
-jbplot_trj(bet2,type="BBmsy",add=T)
-jbplot_trj(bet2,type="FFmsy",add=T)
-jbplot_spphase(bet2,add=T)
-jbplot_kobe(bet2,add=T)
+# Compare
+jbplot_summary(list(Run1=bet1,Run2=bet2))
+jbplot_ensemble(list(Run1=bet1,Run2=bet2))
 
-# Write all as png
-jabba_plots(jabba=bet2,output.dir = output.dir)
+# Check parameters and convergence (p <0.05 is not fully converged)
+bet2$pars 
+# Make a long MCMC run with 3 chains
+bet.full = fit_jabba(jbinput2,nc=3)
+
+# MCMC convergence
+bet.full$pars 
+jbplot_mcmc(bet.full)
+
+# get quantaties
+bet.full$estimates
+# FLR data.frame trajectories
+bet.full$flqs
+# fits
+bet.full$diags
 
 
 #------------------------------------------------------
@@ -70,98 +105,136 @@ jabba_plots(jabba=bet2,output.dir = output.dir)
 #-------------------------------------------------------
 
 # Compile JABBA JAGS model and input object
-jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,scenario = "Est.Shape",model.type = "Pella_m",BmsyK=0.37,sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001),psi.prior = c(1,0.1))
-bet3 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+jbinput3 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,
+              scenario = "Est.Shape",model.type = "Pella_m", # Estimate shape
+              BmsyK=0.4, # mean 40%B0
+              shape.CV = 0.3, #CV
+              sigma.est = TRUE,
+              fixed.obsE = 0.1,
+              igamma = c(0.001,0.001),
+              psi.prior = c(1,0.1))
 
-jbplot_ppdist(bet3) # check shape prior & posterior dist
+bet3 = fit_jabba(jbinput3,quickmcmc=F)
+
+jbplot_ppdist(bet3) # check shape prior & posterior dist - not much information
 # Compare
-par(mfrow=c(2,2))
-jbplot_trj(bet2,type="BBmsy",add=T)
-jbplot_trj(bet3,type="BBmsy",add=T)
-jbplot_kobe(bet2,add=T)
-jbplot_kobe(bet3,add=T)
+jbplot_summary(list(bet2,bet3))
+jbplot_ensemble(list(bet2,bet3))
+
+# also run model as Schaefer
+jbinput4 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,
+                       scenario = "Schaefer",model.type = "Schaefer", # Estimate shape
+                       sigma.est = TRUE,
+                       fixed.obsE = 0.1,
+                       igamma = c(0.001,0.001),
+                       psi.prior = c(1,0.1))
+
+bet4 = fit_jabba(jbinput4,quickmcmc=T)
+
+# Compare 
+jbpar(mfrow=c(3,2),plot.cex=0.7)
+jbplot_ensemble(list(bet1,bet2,bet3,bet4))
+jbpar(mfrow=c(3,2),plot.cex=0.6)
+jbplot_summary(list(bet1,bet2,bet3,bet4),add=T)
+
+#----------------------------------------------------
+# Do some forecasting
+#----------------------------------------------------
+
+# F-based forecasting
+# Relative Fmsy
+# Single Forecast for Base-Case model - to fix needs to work with 1 imp year 
+fw1 = fw_jabba(bet2,nyears=10,imp.yr=1,imp.values = seq(0.8,1.2,0.1),quant="F",type="msy",stochastic = T)
+#jbpar(mfrow=c(3,2))
+jbpar(mfrow=c(3,2),plot.cex = 0.7)
+jbplot_ensemble(fw1)
+# Zoom-in
+jbplot_ensemble(fw1,xlim=c(2010,2027))
+
+# Forecast with AR1 process error
+fw1.ar1 = fw_jabba(bet2,nyears=10,imp.yr=1,quant="F",type="msy",AR1=TRUE,stochastic = T)
+# now compare
+jbpar(mfrow=c(3,2),plot.cex = 0.6)
+for(i in 1:3){
+  jbplot_ensemble(fw1,subplots = c(1,2,5)[i],add=T,xlim=c(2010,2028),legend=ifelse(i==1,T,F))
+  jbplot_ensemble(fw1.ar1,subplots = c(1,2,5)[i],add=T,xlim=c(2010,2028),legend=ifelse(i==1,T,F))
+}
+mtext(c("Default","AR1"),outer=T,at=c(0.27,0.77))
+
+# IOTC-Style: Relative current catch (default mean 3 yrs)
+# 10 years, 2 intermediate years, deterministic
+fw.io = fw_jabba(bet2,nyears=10,imp.yr=2,imp.values = seq(0.6,1.2,0.1),quant="Catch",type="ratio",nsq=3,stochastic = F)
+jbplot_ensemble(fw.io)
+jbpar(mfrow=c(2,2))
+jbplot_ensemble(fw.io,add=T,subplots = 1,legend.loc = "topright")
+jbplot_ensemble(fw.io,add=T,subplots = 2,legend=F)
+jbplot_ensemble(fw.io,add=T,subplots = 5,legend=F)
+jbplot_ensemble(fw.io,add=T,subplots = 6,legend=F)
+
+# ICCAT Style
+Ccur = mean(tail(jbinput$data$catch[,2],2))
+TACs = c(75500,seq(60000,78000,2000))
+fw.iccat= fw_jabba(bet2,nyears=10,imp.yr=2,initial = Ccur,imp.values = TACs,quant="Catch",type="abs",nsq=3,stochastic = F,AR1=T)
+
+jbpar(mfrow=c(2,2))
+jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(1,2,5,6),add=T)
+jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(1,2,5,6),plotCIs = F)
+
+# Do Ensemble modelling
+jbplot_ensemble(list(bet2,bet3,bet4))
+
+# Joint all runs
+ens = jbplot_ensemble(list(bet2,bet3,bet4),kbout=T,joint=T)
+
+# Do ensemble forecast
+
+fw.ens= fw_jabba(list(bet2,bet3,bet4),nyears=10,imp.yr=2,initial = Ccur,imp.values = TACs,quant="Catch",type="abs",nsq=3,stochastic = F,AR1=T,thin=3)
+jbpar(mfrow=c(3,2),plot.cex = 0.6)
+for(i in 1:6) jbplot_ensemble(fw.ens,add=T,subplots = i,legend = ifelse(i==2,T,F))
 
 
+#----------------------------------------------------------------
+# Conduct Retrospective Analysis and Hind-Cast Cross-Validation
+#----------------------------------------------------------------
+
+# Do hindcast cross-validation
+hc1 = hindcast_jabba(jbinput2,bet2,peels=1:5)
+
+# Show Retrospective Pattern
+mohns= jbplot_retro(hc1)
+
+mohns
+mohns[row.names(mohns)=="rho.mu",]
+
+
+# Make alternative forecasts
+hc2 = jbhcxval(hc1,AR1=T) # make forecasts with AR1
+
+jbpar(mfrow=c(1,2))
+for(i in 1:1){
+  jbplot_hcxval(hc1,index=c(2)[i],add=T,minyr = 2000,legend.add = F)
+  jbplot_hcxval(hc2,index=c(2)[i],add=T,minyr = 2000,legend.add = F)
+}
+mtext(c("Default","AR1"),outer=T,at=c(0.27,0.77))
+
+jbmase(hc2)
 
 #------------------------------------------------------
 # Catch-Only with biomass prior in 2010 as type B/Bmsy
 #------------------------------------------------------
 # Compile JABBA JAGS model and input object for Catch Only
 # Add biomass prior based on B/Bmsy guestimate
-jbinput = build_jabba(catch=bet$catch,model.type = "Fox",assessment=assessment,scenario =  "CatchOnly" ,b.prior=c(0.7,0.2,2010,"bbmsy"),psi.prior = c(1,0.1))
+jbinpu5 = build_jabba(catch=bet$catch,model.type = "Fox",
+                      assessment=assessment,scenario =  "CatchOnly" ,
+                      b.prior=c(0.7,0.2,2010,"bbmsy"),
+                      psi.prior = c(1,0.1))
 # Fit JABBA
-bet4 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+bet5 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
 
 # Check depletion prior vs posterior
-jbplot_bprior(bet4)
+jbplot_bprior(bet5)
 # Compare
-par(mfrow=c(3,2))
-jbplot_trj(bet2,type="BBmsy",add=T)
-jbplot_trj(bet2,type="FFmsy",add=T)
-jbplot_trj(bet3,type="BBmsy",add=T)
-jbplot_trj(bet3,type="FFmsy",add=T)
-jbplot_trj(bet4,type="BBmsy",add=T)
-jbplot_trj(bet4,type="FFmsy",add=T)
-
-
-#-------------------------------------------
-# Make summary plot comparing the three scenarios
-#-------------------------------------------
-Scenarios = (c("Ref","Est_shape","CatchOnly")) # Scenarios to be loaded as Rdata objects
-#  Check plot with CIs
-jbplot_summary(assessment=assessment,scenarios = Scenarios,mod.path = output.dir,cols=terrain.colors(3))
-# and without CIs
-jbplot_summary(assessment=assessment,scenarios = Scenarios,plotCIs=FALSE)
-# Check Base only
-jbplot_summary(assessment=assessment,scenarios = Scenarios[1],prefix="SmryBase",as.png = F)
-# Save comparison 
-jbplot_summary(assessment=assessment,scenarios = Scenarios,prefix="Comp3runs",save.summary = T,as.png = T,output.dir = output.dir)
-
-
-#----------------------------------------------------------------
-# Conduct Retrospective Analysis and Hind-Cast Cross-Validation
-#----------------------------------------------------------------
-# Organize folders by creating a "retro" subfolder
-retro.dir = file.path(output.dir,"retro")
-dir.create(retro.dir,showWarnings = F)
-
-# Run hindcasts for reference model (set plotall = TRUE if you want to save plots from all runs)
-hc = jabba_hindcast(refinput,save.hc=T,plotall=T,output.dir = retro.dir,peels = 0:7)
-
-# Retro Analysis Summary plot
-jbplot_retro(hc,as.png = F,single.plots = F,output.dir = retro.dir)
-# Save plot and note Mohn's rho statistic
-mohnsrho = jbplot_retro(hc,as.png = T,single.plots = F,output.dir = retro.dir)
-# Zoom-in
-mohnsrho = jbplot_retro(hc,as.png = F,single.plots = F,output.dir = retro.dir,Xlim=c(2000,2014))
-# eval mohnsrho
-mohnsrho
-
-# Do Hindcast Cross-Validation (hcxval) 
-# show multiplot
-jbplot_hcxval(hc,single.plots = F,as.png = F,output.dir=retro.dir,col=rainbow(8))
-# Zoom-in
-jbplot_hcxval(hc,single.plots = F,as.png = F,output.dir=retro.dir,minyr=2000)
-# save as png and note summary stats 
-mase = jbplot_hcxval(hc,single.plots = F,as.png = TRUE,output.dir=retro.dir)
-#check stats
-mase
-
-#---------------------------
-# Run REF with projections
-#---------------------------
-jbinput = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,scenario = "Ref",
-                      model.type = "Fox",sigma.est = TRUE,fixed.obsE = 0.1,igamma = c(0.001,0.001),psi.prior = c(1,0.1),
-                      projection=TRUE,TACs=seq(45000,90000,5000))
-
-
-betprj = fit_jabba(jbinput,output.dir=output.dir,save.csvs = T)
-# plot with CIs (80% for projections)
-jbplot_prj(betprj,type="BBmsy")
-jbplot_prj(betprj,type="BB0")
-
-# or without CIs (80% for projections) 
-jbplot_prj(betprj,type="FFmsy", CIs=FALSE)
+jbplot_summary(list(bet2,bet5))
 
 
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
@@ -177,7 +250,7 @@ dir.create(output.dir,showWarnings = F)
 setwd(output.dir)
 
 # Compile JABBA JAGS model and input object
-jbinput = build_jabba(catch=swos$catch,cpue=swos$cpue,se=swos$se,assessment=assessment,scenario = scenario,
+jbswos = build_jabba(catch=swos$catch,cpue=swos$cpue,se=swos$se,assessment=assessment,scenario = scenario,
                       model.type = "Pella",
                       BmsyK = 0.4,
                       r.prior=c(0.42,0.37),
@@ -186,30 +259,29 @@ jbinput = build_jabba(catch=swos$catch,cpue=swos$cpue,se=swos$se,assessment=asse
                       fixed.obsE = 0.2,
                       add.catch.CV = FALSE,
                       proc.dev.all = FALSE, 
-                      igamma=c(4,0.01),
-                      P_bound = c(0.02,1.1))
-                      
+                      igamma=c(4,0.01), # default process error (moderately informative)
+                      P_bound = c(0.02,1.1),verbose=FALSE)
+
+jbplot_indices(jbswos)
+
 # fit JABBA
-swos = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+fit.swos = fit_jabba(jbswos,save.jabba=TRUE,output.dir=output.dir)
 
-# Plot all
-jabba_plots(jabba=swos,output.dir = output.dir)
+jbplot_cpuefits(fit.swos)
+jbplot_logfits(fit.swos)
+jbplot_residuals(fit.swos)
+jbplot_runstest(fit.swos)
+jbplot_ppdist(fit.swos)
 
-# Organize folders by creating a "retro" subfolder
-retro.dir = file.path(output.dir,"retro")
-dir.create(retro.dir,showWarnings = F)
+jbpar(mfrow=c(1,2),plot.cex = 0.7)
+jbplot_spphase(fit.swos,add=T)
+jbplot_kobe(fit.swos,add=T)
 
-# Run hindcasts
-hc = jabba_hindcast(jbinput,save.hc=T,plotall=F,output.dir = retro.dir,peels = 0:7)
+# Project
+# ICCAT Style
+Ccur = 10056
+TACs = seq(10000,18000,1000)
+fw.swos= fw_jabba(fit.swos,nyears=10,imp.yr=4,initial = Ccur,imp.values = TACs,quant="Catch",type="abs",nsq=3,stochastic = T,AR1=F)
+jbpar(mfrow=c(2,2),plot.cex = 0.7)
+jbplot_ensemble(fw.swos,legendcex = 0.4,xlim=c(2015,2025),subplots = c(1:4),add=T)
 
-# Retro Analysis Summary plot
-jbplot_retro(hc,as.png = F,single.plots = F,output.dir = retro.dir)
-# Zoom-in
-mohnsrho = jbplot_retro(hc,as.png = F,single.plots = F,output.dir = retro.dir,Xlim=c(1990,2015))
-
-# Save plot and note Mohn's rho statistic
-mohnsrho = jbplot_retro(hc,as.png = T,single.plots = F,output.dir = retro.dir)
-# eval mohnsrho
-mohnsrho
-
-mohnsrho["rho.mu",]
