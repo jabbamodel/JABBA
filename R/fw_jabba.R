@@ -134,15 +134,15 @@ fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
     if(rho==0) devs[,i] = rnorm(iters,0,sigma)
     
   }
-  
+
   P[,1] = inits$BB0
   B[,1] = inits$B
   H[,1] = inits$H
   
   # check length of initial values
   if(is.null(imp.yr)) imp.yr = length(initial)+1 
-  if(length(initial)==1) initial = rep(initial,imp.yr-1)
-  if(!length(initial)==(imp.yr-1)) stop("Missmatch between initial value vector and imp.yr")
+  if(length(initial)==1) initial = rep(initial,imp.yr)
+  if(!length(initial)==(imp.yr)) stop("Missmatch between initial value vector and imp.yr")
   
     if(quant=="Catch"){
      for(i in 2:(length(initial)+1)) C[,i][] = initial[i-1] # will be overwritten
