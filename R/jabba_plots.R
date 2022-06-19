@@ -294,10 +294,11 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' @param add if TRUE is surpresses par() within the plotting function
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
+#' @param plotCIs plots error bars on CPUE observations
 #' @param width plot width
 #' @param height plot hight
 #' @export
-jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
+jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE){
   if(as.png==TRUE) add=FALSE
   if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
     cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
@@ -369,8 +370,17 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
       polygon(cord.x,cord.yhat,col=grey(0.3,0.5),border=grey(0.3,0.5),lty=2)
 
       lines(Yr,fit[2,yr],lwd=2,col=1)
-      #if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-        points(yr.i,cpue.i,pch=21,xaxt="n",yaxt="n",bg="white")#}
+      if(plotCIs){
+        upper <- qlnorm(.975,meanlog=log(cpue.i),sdlog=se.i)
+        lower <- qlnorm(.025,meanlog=log(cpue.i),sdlog=se.i)
+        arrows(x0=yr.i, y0=lower,
+               x1=yr.i, y1=upper,
+               length=0.02, angle=90, code=3, col=1)
+      } 
+      
+      
+      
+      points(yr.i,cpue.i,pch=21,xaxt="n",yaxt="n",bg="white")#}
       legend('top',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.9)
       #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
       #mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
@@ -400,6 +410,8 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
       yr.i = Yr[is.na(CPUE[,index[i]])==F]
       se.i = sqrt(jabba$settings$SE2[is.na(CPUE[,index[i]])==F,index[i]])
       
+      
+      
       ylim = c(min(fit*0.9,exp(log(cpue.i)-1.96*se.i)), max(fit*1.05,exp(log(cpue.i)+1.96*se.i)))
       
       cord.x <- c(Yr,rev(Yr))
@@ -414,7 +426,15 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 
       lines(Yr,fit[2,yr],lwd=2,col=1)
       #if(jabba$settings$SE.I  ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,cpue.i/mufit,ui=exp(log(cpue.i)+1.96*se.i)/mufit,li=exp(log(cpue.i)-1.96*se.i)/mufit,add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-        points(yr.i,cpue.i,pch=21,xaxt="n",yaxt="n",bg="white")#}
+      if(plotCIs){
+        upper <- qlnorm(.975,meanlog=log(cpue.i),sdlog=se.i)
+        lower <- qlnorm(.025,meanlog=log(cpue.i),sdlog=se.i)
+         arrows(x0=yr.i, y0=lower,
+               x1=yr.i, y1=upper,
+               length=0.02, angle=90, code=3, col=1)
+        } 
+      
+       points(yr.i,cpue.i,pch=21,xaxt="n",yaxt="n",bg="white")#}
 
       legend('top',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.9)
     }
@@ -437,11 +457,12 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @param add if TRUE is surpresses par() within the plotting function
 #' @param as.png save as png file of TRUE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
+#' @param plotCIs plots error bars on CPUE observations
 #' @param width plot width
 #' @param height plot hight
 #' @export
 
-jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
+jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE){
   if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
     cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
@@ -501,8 +522,16 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
       axis(2,labels=TRUE,cex=0.8)
 
       lines(Yr,log(fit[2,yr]),lwd=2,col=4)
-      #if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
-        points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")#}
+      
+      if(plotCIs){
+        upper <- qnorm(.975,mean=log(cpue.i/mufit),sd=se.i)
+        lower <- qnorm(.025,mean=log(cpue.i/mufit),sd=se.i)
+        arrows(x0=yr.i, y0=lower,
+               x1=yr.i, y1=upper,
+               length=0.02, angle=90, code=3, col=1)
+      } 
+      
+      points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")#}
       legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
       #mtext(paste("Year"), side=1, outer=TRUE, at=0.5,line=1,cex=1)
       #mtext(paste("Normalized Index"), side=2, outer=TRUE, at=0.5,line=1,cex=1)
@@ -535,7 +564,15 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
           axis(2,labels=TRUE,cex=0.8)
 
           lines(Yr,log(fit[2,yr]),lwd=2,col=4)
-          #if(jabba$settings$SE.I ==TRUE | max(jabba$settings$SE2)>0.01){ gplots::plotCI(yr.i,log(cpue.i/mufit),ui=log(exp(log(cpue.i)+1.96*se.i)/mufit),li=log(exp(log(cpue.i)-1.96*se.i)/mufit),add=T,gap=0,pch=21,xaxt="n",yaxt="n",pt.bg = "white")}else{
+          
+          if(plotCIs){
+            upper <- qnorm(.975,mean=log(cpue.i/mufit),sd=se.i)
+            lower <- qnorm(.025,mean=log(cpue.i/mufit),sd=se.i)
+            arrows(x0=yr.i, y0=lower,
+                   x1=yr.i, y1=upper,
+                   length=0.02, angle=90, code=3, col=1)
+          } 
+          
             points(yr.i,log(cpue.i/mufit),pch=21,xaxt="n",yaxt="n",bg="white")#}
           legend('topright',paste(indices[i]),bty="n",y.intersp = -0.2,cex=0.8)
         }

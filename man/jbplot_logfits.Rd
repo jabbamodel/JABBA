@@ -12,7 +12,8 @@ jbplot_logfits(
   as.png = FALSE,
   single.plots = add,
   width = NULL,
-  height = NULL
+  height = NULL,
+  plotCIs = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ jbplot_logfits(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{plotCIs}{plots error bars on CPUE observations}
 }
 \description{
 Plot of fitted CPUE indices on log-scale (r4ss-style)

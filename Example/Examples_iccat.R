@@ -259,7 +259,7 @@ dir.create(output.dir,showWarnings = F)
 setwd(output.dir)
 
 # Compile JABBA JAGS model and input object
-jbswos = build_jabba(catch=swos$catch,cpue=swos$cpue,se=swos$se,assessment=assessment,scenario = scenario,
+jbswos = build_jabba(catch=swos$catch,cpue=normIndex(swos$cpue),se=swos$se,assessment=assessment,scenario = scenario,
                       model.type = "Pella",
                       BmsyK = 0.4,
                       r.prior=c(0.42,0.37),

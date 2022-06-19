@@ -162,7 +162,7 @@ runs_sig3 <- function(x,type=NULL) {
 #' @return normalized cpue
 #' @export
 normIndex <- function(cpue){
-  cpue[,-1] = t(t(cpue[,-1])/apply(cpue[,-1],2,mean,na.rm=TRUE))
+  cpue[,-1] = t(t(as.matrix(cpue[,-1]))/apply(as.matrix(cpue[,-1]),2,mean,na.rm=TRUE))
   return(cpue)
 }
 
