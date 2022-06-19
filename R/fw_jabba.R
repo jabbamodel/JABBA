@@ -141,8 +141,8 @@ fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
   
   # check length of initial values
   if(is.null(imp.yr)) imp.yr = length(initial)+1 
-  if(length(initial)==1) initial = rep(initial,imp.yr)
-  if(!length(initial)==(imp.yr)) stop("Missmatch between initial value vector and imp.yr")
+  if(length(initial)==1) initial = rep(initial,(max(1,imp.yr-1)))
+  if(!length(initial)==(max(1,imp.yr-1))) stop("Missmatch between initial value vector and imp.yr")
   
     if(quant=="Catch"){
      for(i in 2:(length(initial)+1)) C[,i][] = initial[i-1] # will be overwritten

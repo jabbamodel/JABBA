@@ -8,7 +8,7 @@ additional hindcast options with external foreward projections}
 jbhcxval(
   hindcasts,
   stochastic = c(TRUE, FALSE)[1],
-  AR1 = c(TRUE, FALSE)[2],
+  AR1 = c(TRUE, FALSE)[1],
   sigma.proc = NULL,
   rho = NULL,
   ndevs = 1,

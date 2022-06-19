@@ -1,6 +1,7 @@
 
 # Installation
 # install.packages(devtools)
+# UPDATE Latest Version
 # devtools:: install_github("jabbamodel/JABBA")
 
 library(JABBA)
@@ -143,27 +144,27 @@ jbplot_summary(list(bet1,bet2,bet3,bet4),add=T)
 
 # F-based forecasting
 # Relative Fmsy
-# Single Forecast for Base-Case model - to fix needs to work with 1 imp year 
+# Single Forecast for Base-Case model - now works with imp.yr=1 
 fw1 = fw_jabba(bet2,nyears=10,imp.yr=1,imp.values = seq(0.8,1.2,0.1),quant="F",type="msy",stochastic = T)
 #jbpar(mfrow=c(3,2))
 jbpar(mfrow=c(3,2),plot.cex = 0.7)
 jbplot_ensemble(fw1)
 # Zoom-in
 jbplot_ensemble(fw1,xlim=c(2010,2027))
-
+abline(v=2018) # Check
 # Forecast with AR1 process error
 fw1.ar1 = fw_jabba(bet2,nyears=10,imp.yr=1,quant="F",type="msy",AR1=TRUE,stochastic = T)
 # now compare
 jbpar(mfrow=c(3,2),plot.cex = 0.6)
 for(i in 1:3){
   jbplot_ensemble(fw1,subplots = c(1,2,5)[i],add=T,xlim=c(2010,2028),legend=ifelse(i==1,T,F))
-  jbplot_ensemble(fw1.ar1,subplots = c(1,2,5)[i],add=T,xlim=c(2010,2028),legend=ifelse(i==1,T,F))
-}
+   jbplot_ensemble(fw1.ar1,subplots = c(1,2,5)[i],add=T,xlim=c(2010,2028),legend=ifelse(i==1,T,F))
+   }
 mtext(c("Default","AR1"),outer=T,at=c(0.27,0.77))
 
 # IOTC-Style: Relative current catch (default mean 3 yrs)
 # 10 years, 2 intermediate years, deterministic
-fw.io = fw_jabba(bet2,nyears=10,imp.yr=2,imp.values = seq(0.6,1.2,0.1),quant="Catch",type="ratio",nsq=3,stochastic = F)
+fw.io = fw_jabba(bet2,nyears=10,imp.yr=3,imp.values = seq(0.6,1.2,0.1),quant="Catch",type="ratio",nsq=3,stochastic = F)
 jbplot_ensemble(fw.io)
 jbpar(mfrow=c(2,2))
 jbplot_ensemble(fw.io,add=T,subplots = 1,legend.loc = "topright")
@@ -172,13 +173,18 @@ jbplot_ensemble(fw.io,add=T,subplots = 5,legend=F)
 jbplot_ensemble(fw.io,add=T,subplots = 6,legend=F)
 
 # ICCAT Style
-Ccur = mean(tail(jbinput$data$catch[,2],2))
+Ccur = mean(tail(jbinput2$data$catch[,2],2))
 TACs = c(75500,seq(60000,78000,2000))
-fw.iccat= fw_jabba(bet2,nyears=10,imp.yr=2,initial = Ccur,imp.values = TACs,quant="Catch",type="abs",nsq=3,stochastic = F,AR1=T)
+fw.iccat= fw_jabba(bet2,nyears=10,imp.yr=3,initial = c(Ccur,76000),imp.values = TACs,quant="Catch",type="abs",nsq=3,stochastic = F,AR1=T)
 
 jbpar(mfrow=c(2,2))
 jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(1,2,5,6),add=T)
 jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(1,2,5,6),plotCIs = F)
+
+# Check if correct
+jbpar()
+jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(6),plotCIs = F,add=T)
+abline(v=c(2017,2018,2019,2020)) # 2020 = imp.yr
 
 # Do Ensemble modelling
 jbplot_ensemble(list(bet2,bet3,bet4))
@@ -200,13 +206,13 @@ for(i in 1:6) jbplot_ensemble(fw.ens,add=T,subplots = i,legend = ifelse(i==2,T,F
 # Do hindcast cross-validation
 hc1 = hindcast_jabba(jbinput2,bet2,peels=1:5)
 
-# Show Retrospective Pattern
+ # Show Retrospective Pattern
 mohns= jbplot_retro(hc1)
 
 mohns
 mohns[row.names(mohns)=="rho.mu",]
 
-
+hindcasts = hc1
 # Make alternative forecasts
 hc2 = jbhcxval(hc1,AR1=T) # make forecasts with AR1
 
@@ -224,17 +230,20 @@ jbmase(hc2)
 #------------------------------------------------------
 # Compile JABBA JAGS model and input object for Catch Only
 # Add biomass prior based on B/Bmsy guestimate
-jbinpu5 = build_jabba(catch=bet$catch,model.type = "Fox",
+jbinput5 = build_jabba(catch=bet$catch,model.type = "Fox",
                       assessment=assessment,scenario =  "CatchOnly" ,
-                      b.prior=c(0.7,0.2,2010,"bbmsy"),
+                      b.prior=c(0.5,0.2,2010,"bbmsy"),
                       psi.prior = c(1,0.1))
+
+
 # Fit JABBA
-bet5 = fit_jabba(jbinput,save.jabba=TRUE,output.dir=output.dir)
+bet5 = fit_jabba(jbinput5,save.jabba=TRUE,output.dir=output.dir)
 
 # Check depletion prior vs posterior
 jbplot_bprior(bet5)
 # Compare
 jbplot_summary(list(bet2,bet5))
+
 
 
 #><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
