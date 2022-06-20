@@ -13,7 +13,8 @@ jbplot_cpuefits(
   single.plots = add,
   width = NULL,
   height = NULL,
-  plotCIs = TRUE
+  plotCIs = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -31,9 +32,11 @@ jbplot_cpuefits(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
 
 \item{plotCIs}{plots error bars on CPUE observations}
+
+\item{verbose}{silent option}
 }
 \description{
 Plots observed and fitted cpue indices with expexted CIs (dark grey) and posterior predictive distribution (light grey)

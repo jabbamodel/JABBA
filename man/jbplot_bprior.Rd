@@ -10,7 +10,8 @@ jbplot_bprior(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 3.5
+  height = 3.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ jbplot_bprior(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
+
+\item{verbose}{silent option}
 }
 \description{
 prior is specified as b/k or b/bmsy in build_jabba()

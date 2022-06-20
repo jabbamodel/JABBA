@@ -7,18 +7,22 @@
 jbplot_runstest(
   jabba,
   index = NULL,
+  mixing = "less",
   output.dir = getwd(),
   add = FALSE,
   as.png = FALSE,
   single.plots = add,
   width = NULL,
-  height = NULL
+  height = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{jabba}{output list from fit_jabba}
 
 \item{index}{option to plot specific indices (numeric & in order)}
+
+\item{mixing}{c("less","greater","two.sided"). Default "less" is checking for positive autocorrelation only}
 
 \item{output.dir}{directory to save plots}
 
@@ -31,7 +35,18 @@ jbplot_runstest(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{verbose}{silent option}
 }
 \description{
 Residual diagnostics with runs test p-value and 3xsigma limits
+}
+\examples{
+data(iccat)
+bet= iccat$bet
+jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
+fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+jbrunstest(fit)
+jbrunstest(fit,index=2)
+jbplot_runstest(fit,verbose=FALSE)
 }

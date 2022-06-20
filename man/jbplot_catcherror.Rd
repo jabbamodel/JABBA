@@ -10,7 +10,8 @@ jbplot_catcherror(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 3.5
+  height = 3.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ jbplot_catcherror(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
+
+\item{verbose}{silent option}
 }
 \description{
 jbplot_catcherror() only works if add.catch.cv = TRUE in build_jabba

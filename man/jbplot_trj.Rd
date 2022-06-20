@@ -12,7 +12,8 @@ jbplot_trj(
   add = FALSE,
   mfrow = c(1, 1),
   width = 5,
-  height = 3.5
+  height = 3.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -30,7 +31,9 @@ jbplot_trj(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
+
+\item{verbose}{silent option}
 }
 \description{
 plots choice of trajectories of Biomass, F, B/Bmsy, F/Fmsy or B/B0

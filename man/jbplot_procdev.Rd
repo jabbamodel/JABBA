@@ -10,7 +10,8 @@ jbplot_procdev(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 3.5
+  height = 3.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ jbplot_procdev(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
+
+\item{verbose}{silent option}
 }
 \description{
 shows the difference of the expected biomass and its stochastic realization

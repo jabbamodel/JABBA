@@ -20,7 +20,7 @@ jbplot_indices(
 )
 }
 \arguments{
-\item{jabbainput}{output list from build_jabba()}
+\item{jabbainput}{list from build_jabba()}
 
 \item{output.dir}{directory to save plots}
 

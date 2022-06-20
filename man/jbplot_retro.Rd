@@ -7,6 +7,7 @@
 jbplot_retro(
   hc,
   type = c("B", "F", "BBmsy", "FFmsy", "procB", "SP"),
+  forecast = FALSE,
   add = F,
   output.dir = getwd(),
   as.png = FALSE,
@@ -23,6 +24,8 @@ jbplot_retro(
 \item{hc}{output list from hindast_jabba()}
 
 \item{type}{single plot option c("B","F","BBmsy","FFmsy","BB0","SP")}
+
+\item{forecast}{includes retrospective forecasting if TRUE}
 
 \item{add}{add to multi plot if TRUE}
 
@@ -49,4 +52,13 @@ Mohn's rho statistic for several quantaties
 }
 \description{
 Plots retrospective pattern of B, F, BBmsy, FFmsy, BB0 and SP #'
+}
+\examples{
+data(iccat)
+bet= iccat$bet
+jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
+fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
+jbplot_retro(hc)
+jbplot_retro(hc,forecast=TRUE) # with retro forecasting
 }

@@ -10,7 +10,9 @@ jbplot_ppdist(
   as.png = FALSE,
   mfrow = c(round((ncol(jabba$pars_posterior))/3 + 0.33, 0), 3),
   width = 8,
-  height = 2.5 * round(ncol(jabba$pars_posterior)/3, 0)
+  height = 2.5 * round(ncol(jabba$pars_posterior)/3, 0),
+  verbose = TRUE,
+  addPP = TRUE
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ jbplot_ppdist(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{verbose}{silent option}
+
+\item{addPP}{show PPMR and PPVR}
 
 \item{add}{if true don't call par() to allow construction of multiplots}
 }

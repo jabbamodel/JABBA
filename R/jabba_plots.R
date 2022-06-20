@@ -13,7 +13,7 @@ jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.5,0.5,0.15,.15),omi 
 #' jbplot_indices
 #'
 #' Plots indices with assumed mimumum observation errors  
-#' @param jabbainput output list from build_jabba()
+#' @param jabbainput list from build_jabba() 
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
 #' @param width plot width
@@ -30,7 +30,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
   
   years =   jabbainput$data$yr  
   abundance =jabbainput$settings$model.type
-  dat = jabbainput$data$cpue
+  dat = normIndex(jabbainput$data$cpue)
   se = as.matrix(sqrt(jabbainput$jagsdata$SE2)[1:length(years),])
   y = as.matrix(log(jabbainput$jagsdata$I)[1:length(years),])
   nI = ncol(y) 
@@ -72,9 +72,10 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
+#' @param verbose silent option
 #' @export
-jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5){
-  cat(paste0("\n","><> jbplot_catch()  <><","\n"))
+jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,verbose=TRUE){
+  if(verbose) cat(paste0("\n","><> jbplot_catch()  <><","\n"))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
   if(as.png==TRUE){png(file = paste0(output.dir,"/Landings_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
@@ -97,12 +98,13 @@ jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, widt
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
 
-jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5){
+jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,verbose=TRUE){
     if(jabba$settings$add.catch.CV==TRUE){
-    cat(paste0("\n","><> jbplot_catcherror()  <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_catcherror()  <><","\n"))
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.7,0), tck = -0.02,cex=0.8)
     if(as.png) { png(file = paste0(output.dir,"/Catch.fit_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
@@ -119,7 +121,7 @@ jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE,
     legend("topright",c("Observed","Predicted"),pch=c(21,-1),bg=0,lwd=c(-1,2),col=c(1,4),bty="n")
     if(as.png==TRUE & add==FALSE){dev.off()}
   } else {
-    cat(paste0("\n","><> jbplot_catcherror() only available if add.catch.CV=TRUE <><","\n"))
+   if(verbose) cat(paste0("\n","><> jbplot_catcherror() only available if add.catch.CV=TRUE <><","\n"))
   }
 }
 
@@ -133,11 +135,13 @@ jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE,
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
-#' @param mfrow set up plot frame  
+#' @param mfrow set up plot frame
+#' @param addPP show PPMR and PPVR
+#' @param verbose silent option  
 #' @export
 
-jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((ncol(jabba$pars_posterior))/3+0.33,0),3),width  = 8, height = 2.5*round(ncol(jabba$pars_posterior)/3,0)){
-  cat(paste0("\n","><> jbplot_ppist() - prior and posterior distributions  <><","\n"))
+jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((ncol(jabba$pars_posterior))/3+0.33,0),3),width  = 8, height = 2.5*round(ncol(jabba$pars_posterior)/3,0),verbose=TRUE,addPP=TRUE){
+  if(verbose) cat(paste0("\n","><> jbplot_ppist() - prior and posterior distributions  <><","\n"))
   out =   jabba$pars_posterior
   node_id = names(out)
   #informative priors
@@ -178,7 +182,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
       polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
       PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
       PPVM = round(mean(post.par)/mean(rpr),3)
-      legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+     if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
 
 
     }
@@ -197,7 +201,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
         polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
         PPVR = round((sd(post.par)/mean(post.par))^2/(sd(mpr)/mean(mpr))^2,3)
         PPVM = round(mean(post.par)/mean(mpr),3)
-        legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+       if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
 
       }
     }
@@ -210,7 +214,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
         prior = dbeta(sort(rpr),jabba$settings$psi.pr[1],jabba$settings$psi.pr[2])
         PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
         PPVM = round(mean(post.par)/mean(rpr),3)
-        legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+        if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
 
       } else {
         rpr = rlnorm(10000,log(Prs[1,4]),Prs[2,4])
@@ -221,7 +225,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
       polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
       PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
       PPVM = round(mean(post.par)/mean(rpr),3)
-      legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+      if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
 
       #legend('topright',c("Prior","Posterior"),pch=22,pt.cex=1.5,pt.bg = c(grey(0.4,1),grey(0.8,0.6)),bty="n")
     }
@@ -239,7 +243,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
             polygon(c(prior$x,rev(prior$x)),c(prior$y,rep(0,length(prior$y))),col=gray(0.4,1))
             PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
             PPVM = round(mean(post.par)/mean(rpr),3)
-            legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+           if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
 
           }
 
@@ -264,10 +268,11 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
 #' @param width plot width
 #' @param height plot hight
 #' @param mfrow set up plot frame  
+#' @param verbose silent option
 #' @export
-jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((ncol(jabba$pars_posterior))/3+0.33,0),3),width  = 8, height = 2.5*round(jabba$pars_posterior/3,0)){
+jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((ncol(jabba$pars_posterior))/3+0.33,0),3),width  = 8, height = 2.5*round(jabba$pars_posterior/3,0),verbose=TRUE){
 
-  cat(paste0("\n","><> jbplot_mcmc() - mcmc chains  <><","\n"))
+ if(verbose) cat(paste0("\n","><> jbplot_mcmc() - mcmc chains  <><","\n"))
   out =   jabba$pars_posterior
   node_id = names(out)
 
@@ -296,12 +301,13 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param plotCIs plots error bars on CPUE observations
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
-jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE){
+jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE,verbose=TRUE){
   if(as.png==TRUE) add=FALSE
   if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
-    cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
     
     if(jabba$settings$Auxiliary){
@@ -443,7 +449,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
       if(as.png==TRUE){dev.off()}
     }
     } else {
-      cat(paste0("\n","><> jbplot_cpuefits() not available CatchOnly=TRUE <><","\n"))
+      if(verbose) cat(paste0("\n","><> jbplot_cpuefits() not available CatchOnly=TRUE <><","\n"))
     }
 } # End of CPUE plot function
 
@@ -459,12 +465,13 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param plotCIs plots error bars on CPUE observations
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
 
-jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE){
+jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE,verbose=TRUE){
   if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
-    cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
     if(jabba$settings$Auxiliary){
       if(jabba$settings$CatchOnly){
@@ -582,7 +589,7 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
 
         }
         }  else {
-    cat(paste0("\n","><> jbplot_logfit() not available CatchOnly=TRUE <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_logfit() not available CatchOnly=TRUE <><","\n"))
   }
 } # End of logfit
 
@@ -598,11 +605,12 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
 #' @param width plot width
 #' @param height plot hight
 #' @param cols option to add colour palette 
+#' @param verbose silent option
 #' @export
-jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,cols=NULL){
+jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,cols=NULL,verbose=TRUE){
 
   if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
-    cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_cpue() - fits to CPUE <><","\n"))
     
     if(jabba$settings$Auxiliary){
       if(jabba$settings$CatchOnly){
@@ -655,7 +663,7 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
     legend('bottomright',c(paste(indices),"Loess"),bty="n",col=1,pt.cex=1.1,cex=0.75,pch=c(rep(21,n.indices),-1),pt.bg=c(jabba$settings$col[series],1),lwd=c(rep(-1,n.indices),2))
     if(as.png==TRUE){dev.off()}
   }  else {
-    cat(paste0("\n","><> jbplot_residuals() not available CatchOnly=TRUE <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_residuals() not available CatchOnly=TRUE <><","\n"))
   }
 } # End of functions
 
@@ -670,11 +678,12 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 #' @param width plot width
 #' @param height plot hight
 #' @param cols option to add colour palette 
+#' @param verbose silent option
 #' @export
-jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height= 3.5,cols=NULL){
+jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height= 3.5,cols=NULL,verbose=TRUE){
 
   if(jabba$settings$CatchOnly==FALSE){
-    cat(paste0("\n","><> jbplot_staresiduals() - standardized residuals  <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_staresiduals() - standardized residuals  <><","\n"))
     if(is.null(cols)) cols = jabba$settings$cols 
     years = jabba$yr
     check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
@@ -710,7 +719,7 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
     legend('bottomright',c(paste(indices),"Loess"),bty="n",col=1,cex=0.75,pt.cex=1.1,pch=c(rep(21,n.indices),-1),pt.bg=c(jabba$settings$cols[series],1),lwd=c(rep(-1,n.indices),2))
     if(as.png==TRUE) dev.off()
   }  else {
-    cat(paste0("\n","><> jbplot_stdresiduals() not available CatchOnly=TRUE <><","\n"))
+   if(verbose) cat(paste0("\n","><> jbplot_stdresiduals() not available CatchOnly=TRUE <><","\n"))
   }
 
 } # end of function
@@ -719,6 +728,7 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #'
 #' Residual diagnostics with runs test p-value and 3xsigma limits
 #' @param jabba output list from fit_jabba
+#' @param mixing c("less","greater","two.sided"). Default "less" is checking for positive autocorrelation only
 #' @param index option to plot specific indices (numeric & in order)
 #' @param output.dir directory to save plots
 #' @param add if true par() is surpressed within the plot function
@@ -726,11 +736,21 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' @param single.plots if TRUE plot invidual fits else make multiplot
 #' @param width plot width
 #' @param height plot hight
+#' @param verbose silent option
 #' @export
-jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL){
+#' @examples 
+#' data(iccat)
+#' bet= iccat$bet
+#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
+#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' jbrunstest(fit)
+#' jbrunstest(fit,index=2)
+#' jbplot_runstest(fit,verbose=FALSE)
+
+jbplot_runstest <- function(jabba,index=NULL,mixing="less", output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,verbose=TRUE){
   if(as.png==TRUE) add=FALSE
   if(jabba$settings$CatchOnly==FALSE | jabba$settings$Auxiliary==TRUE){
-    cat(paste0("\n","><> jbplot_runstest()   <><","\n"))
+   if(verbose) cat(paste0("\n","><> jbplot_runstest()   <><","\n"))
 
     all.indices = unique(jabba$diags$name)
     if(is.null(index)) index = 1:length(all.indices)
@@ -757,7 +777,7 @@ jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 
       resid = (Resids[index[i],is.na(Resids[index[i],])==F])
       res.yr = years[is.na(Resids[index[i],])==F]
-      runstest = runs_sig3(x=as.numeric(resid),type="resid")
+      runstest = jbruns_sig3(x=as.numeric(resid),type="resid",mixing=mixing)
       # CPUE Residuals with runs test
       plot(res.yr,rep(0,length(res.yr)),type="n",ylim=c(min(-1,runstest$sig3lim[1]*1.25),max(1,runstest$sig3lim[2]*1.25)),lty=1,lwd=1.3,xlab="Year",ylab="Residuals")
       abline(h=0,lty=2)
@@ -783,7 +803,7 @@ jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
     for(i in 1:n.indices){
       resid = (Resids[index[i],is.na(Resids[index[i],])==F])
       res.yr = years[is.na(Resids[index[i],])==F]
-      runstest = runs_sig3(x=as.numeric(resid),type="resid")
+      runstest = jbruns_sig3(x=as.numeric(resid),type="resid",mixing=mixing)
       # CPUE Residuals with runs test
       plot(res.yr,rep(0,length(res.yr)),type="n",ylim=c(min(-1,runstest$sig3lim[1]*1.25),max(1,runstest$sig3lim[2]*1.25)),lty=1,lwd=1.3,xlab="Year",ylab="Residuals")
       abline(h=0,lty=2)
@@ -804,7 +824,7 @@ jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 
 
   }else {
-    cat(paste0("\n","><> jbplot_runstest() not available CatchOnly=TRUE <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_runstest() not available CatchOnly=TRUE <><","\n"))
   }
 
 } # end of runstest plot function
@@ -820,11 +840,12 @@ jbplot_runstest <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
-jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height = 3.5){
+jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height = 3.5,verbose=TRUE){
 
-  cat(paste0("\n","><> jbplot_procdev() - Process error diviations on log(biomass)  <><","\n"))
+  if(verbose) cat(paste0("\n","><> jbplot_procdev() - Process error diviations on log(biomass)  <><","\n"))
 
   years=jabba$yr
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
@@ -854,9 +875,10 @@ jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param mfrow set up plot frame  
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
-jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5){
+jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5,verbose=TRUE){
 
   for(i in 1:length(type)){
 
@@ -864,7 +886,7 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),output.di
     if(as.png==TRUE){png(file = paste0(output.dir,"/",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE){par(Par)}
-    cat(paste0("\n","><> jbplot_trj() - ", type[i]," trajectory  <><","\n"))
+    if(verbose) cat(paste0("\n","><> jbplot_trj() - ", type[i]," trajectory  <><","\n"))
 
     j = which(c("B","F","BBmsy","FFmsy","BB0")%in%type[i])
     ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest.label=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest.label=="Fmsy",expression(F/F[MSY]),expression(H/h[MSY])),expression(B/B[0]))
@@ -958,10 +980,11 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
-jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5){
-  cat(paste0("\n","><> jbplot_spdyn() - SPt+1 = Bt+1-Bt+Ct vs B  <><","\n"))
+jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
+  if(verbose) cat(paste0("\n","><> jbplot_spdyn() - SPt+1 = Bt+1-Bt+Ct vs B  <><","\n"))
 
   # extract pars
   m = jabba$pfun$m[1]
@@ -1027,10 +1050,11 @@ jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
+#' @param verbose silent option
 #' @export
 
-jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5){
-  cat(paste0("\n","><> jbplot_spphase() - JABBA Surplus Production Phase Plot  <><","\n"))
+jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
+  if(verbose) cat(paste0("\n","><> jbplot_spphase() - JABBA Surplus Production Phase Plot  <><","\n"))
   
   # extract pars
   m = jabba$pfun$m[1]
@@ -1095,11 +1119,12 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
-jbplot_kobe <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5){
+jbplot_kobe <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
 
-  cat(paste0("\n","><> jbplot_kobe() - Stock Status Plot  <><","\n"))
+  if(verbose) cat(paste0("\n","><> jbplot_kobe() - Stock Status Plot  <><","\n"))
 
   mu.f = jabba$timeseries[,,"FFmsy"]
   mu.b = jabba$timeseries[,,"BBmsy"]
@@ -1178,10 +1203,11 @@ jbplot_kobe <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
+#' @param verbose silent option
 #' @export
-jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5){
+jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
 
-  cat(paste0("\n","><> jbplot_biplot() - Stock Status Plot  <><","\n"))
+  if(verbose) cat(paste0("\n","><> jbplot_biplot() - Stock Status Plot  <><","\n"))
   mu.f = jabba$timeseries[,,"FFmsy"]
   mu.b = jabba$timeseries[,,"BBmsy"]
   f = jabba$kobe$harvest
@@ -1294,13 +1320,14 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
-#' @param height plot hight
+#' @param height plot height
+#' @param verbose silent option
 #' @export
-jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height = 3.5){
+jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height = 3.5,verbose=TRUE){
   if(jabba$settings$b.pr[3]==0){
-    cat(paste0("\n","><> No additional biomass depletion prior specified  <><","\n"))
+   if(verbose) cat(paste0("\n","><> No additional biomass depletion prior specified  <><","\n"))
   } else {
-  cat(paste0("\n","><> jbplot_bprior - biomass depletion prior vs posterior   <><","\n"))
+  if(verbose) cat(paste0("\n","><> jbplot_bprior - biomass depletion prior vs posterior   <><","\n"))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
   if(as.png==TRUE){png(file = paste0(output.dir,"/Bprior_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
@@ -1332,24 +1359,26 @@ jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
+#' @param verbose silent option
 #' @export
-jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"){
+jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe",verbose=TRUE){
 
-  jbplot_catch(jabba,as.png=as.png,output.dir=output.dir) # catch.metric
-  jbplot_catcherror(jabba,as.png=as.png,output.dir=output.dir) # posteriors
-  jbplot_cpuefits(jabba,as.png=as.png,output.dir=output.dir) # check years
-  jbplot_logfits(jabba,as.png=as.png,output.dir=output.dir) # check n.indices
-  jbplot_mcmc(jabba,as.png=as.png,output.dir=output.dir)
-  jbplot_ppdist(jabba,as.png=as.png,output.dir=output.dir) # check m
-  jbplot_procdev(jabba,as.png=as.png,output.dir=output.dir)
-  jbplot_trj(jabba,as.png=as.png,output.dir=output.dir)
-  jbplot_spphase(jabba,as.png=as.png,output.dir=output.dir) # check TC
-  jbplot_residuals(jabba,as.png=as.png,output.dir=output.dir) # check years
-  jbplot_stdresiduals(jabba,as.png=as.png,output.dir=output.dir)
-  jbplot_runstest(jabba,as.png=as.png,output.dir=output.dir)
+  jbplot_catch(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) # catch.metric
+  jbplot_catcherror(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) 
+  jbplot_cpuefits(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) # check years
+  jbplot_logfits(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) # check n.indices
+  jbplot_mcmc(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose)
+  jbplot_ppdist(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) # check m
+  jbplot_procdev(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose)
+  jbplot_trj(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose)
+  jbplot_spphase(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) # check TC
+  jbplot_residuals(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose) # check years
+  jbplot_runstest(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose)
+  jbplot_summary(jabba,as.png,output.dir=output.dir)
+  
   if(statusplot =="kobe"){
-    jbplot_kobe(jabba,as.png=as.png,output.dir=output.dir)} else {
-      jbplot_biplot(jabba,as.png=as.png,output.dir=output.dir)}
+    jbplot_kobe(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose)} else {
+      jbplot_biplot(jabba,as.png=as.png,output.dir=output.dir,verbose=verbose)}
 }
 
 
@@ -1359,6 +1388,7 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' Plots retrospective pattern of B, F, BBmsy, FFmsy, BB0 and SP #'
 #' @param hc output list from hindast_jabba()
 #' @param type  single plot option c("B","F","BBmsy","FFmsy","BB0","SP")
+#' @param forecast  includes retrospective forecasting if TRUE
 #' @param add  add to multi plot if TRUE
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
@@ -1371,7 +1401,16 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param verbose if FALSE be silent
 #' @return Mohn's rho statistic for several quantaties
 #' @export
-jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
+#' @examples 
+#' data(iccat)
+#' bet= iccat$bet
+#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
+#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
+#' jbplot_retro(hc)
+#' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
+
+jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,
                          add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE){
   
   hc.ls = hc 
@@ -1405,6 +1444,8 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
   FRP.rho = c("B","F", "Bmsy", "Fmsy", "procB","MSY")  
   rho = data.frame(mat.or.vec(length(retros)-1,length(FRP.rho)))
   colnames(rho) = FRP.rho
+  fcrho = rho
+  
   if(single.plots==TRUE){
     if(is.null(width)) width = 5
     if(is.null(height)) height = 3.5
@@ -1432,9 +1473,18 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
+          if(forecast){
+            lines(years[(nyrs-retros[i]):(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs-retros[i]):(nyrs+1-retros[i])],col= cols[i],lwd=1,lty=2)
+            points(years[(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs+1-retros[i])],pch=16,col= cols[i],cex=0.8)
+          }
+            
           if(i>1){
             rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
-            if(type[k]=="procB") rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
+            fcrho[i-1,k] = (y[runs%in%retros[i]][(nyrs+1-retros[i])]-ref[(nyrs+1-retros[i])])/ref[(nyrs+1-retros[i])]
+            if(type[k]=="procB"){
+              rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
+              fcrho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs+1-retros[i])])-exp(ref[(nyrs+1-retros[i])]))/exp(ref[(nyrs+1-retros[i])])
+            }
           }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
@@ -1448,10 +1498,13 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
           if(i>1){
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
+            fcrho[i-1,6] = NA
           }
         }}
       if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1.5,length(retros))))
-      legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
+      if(!forecast) legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
+      if(forecast)legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))~"("~.(round(mean(fcrho[,k]),2))~")") ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
+      
       
       if(as.png==TRUE) dev.off()
     } # End type loop
@@ -1480,15 +1533,24 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
+          if(forecast){
+            lines(years[(nyrs-retros[i]):(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs-retros[i]):(nyrs+1-retros[i])],col= cols[i],lwd=1,lty=2)
+            points(years[(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs+1-retros[i])],pch=16,col= cols[i],cex=0.8)
+          }
           if(i>1){
             rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
-            if(type[k]=="procB") rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
-             }
+            fcrho[i-1,k] = (y[runs%in%retros[i]][(nyrs+1-retros[i])]-ref[(nyrs+1-retros[i])])/ref[(nyrs+1-retros[i])]
+            if(type[k]=="procB"){
+              rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
+              fcrho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs+1-retros[i])]))/exp(ref[(nyrs+1-retros[i])])
+            }
+          }
         }
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
         if(type[k]%in%c("procB")) abline(h=0,lty=2)
         if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1.5,length(retros))))
-        legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
+        if(!forecast) legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
+        if(forecast)legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))~"("~.(round(mean(fcrho[,k]),2))~")") ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
         
       }  else {
         # Plot SP
@@ -1498,7 +1560,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
           if(i>1){
             rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
-            
+            fcrho[i-1,6] = NA
           }      
         }
         legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
@@ -1511,7 +1573,18 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),
   }
   rho = rbind(rho,apply(rho,2,mean))
   rownames(rho) = c(rev(years)[retros[-1]],"rho.mu")
-  return(rho)
+  
+  fcrho = rbind(fcrho,apply(fcrho,2,mean))
+  rownames(fcrho) = c(rev(years)[retros[-1]],"forecastrho.mu")
+  if(forecast){
+    out = list()
+    out$Mohns.rho = rho
+    out$Forecast.rho = fcrho
+  } else {
+    out = rho
+  }
+    
+  if(verbose) return(out)
 } # end of Retrospective Plot
 
 

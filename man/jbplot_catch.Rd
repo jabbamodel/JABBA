@@ -10,7 +10,8 @@ jbplot_catch(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 3.5
+  height = 3.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ jbplot_catch(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{verbose}{silent option}
 }
 \description{
 jbplot_catch()

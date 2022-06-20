@@ -10,7 +10,8 @@ jbplot_spphase(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 4.5
+  height = 4.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ jbplot_spphase(
 \item{width}{plot width}
 
 \item{height}{plot hight}
+
+\item{verbose}{silent option}
 }
 \description{
 plots the production function + Catch vs biomass and color-coded kobe phases

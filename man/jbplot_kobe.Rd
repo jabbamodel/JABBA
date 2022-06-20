@@ -10,7 +10,8 @@ jbplot_kobe(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 4.5
+  height = 4.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ jbplot_kobe(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
+
+\item{verbose}{silent option}
 }
 \description{
 plots the stock status posterior over B/Bmsy and F/Fmsy

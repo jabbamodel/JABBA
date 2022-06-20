@@ -10,7 +10,8 @@ jbplot_spdyn(
   as.png = FALSE,
   add = FALSE,
   width = 5,
-  height = 4.5
+  height = 4.5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ jbplot_spdyn(
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
+
+\item{verbose}{silent option}
 }
 \description{
 plots the production vs biomass (Walters et al 2008) and color-coded kobe phases

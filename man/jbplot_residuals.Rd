@@ -11,7 +11,8 @@ jbplot_residuals(
   add = FALSE,
   width = 5,
   height = 3.5,
-  cols = NULL
+  cols = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ jbplot_residuals(
 \item{height}{plot hight}
 
 \item{cols}{option to add colour palette}
+
+\item{verbose}{silent option}
 }
 \description{
 plots residuals for all indices as boxplot with a loess showing systematic trends

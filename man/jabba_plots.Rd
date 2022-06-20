@@ -4,7 +4,13 @@
 \alias{jabba_plots}
 \title{wrapper jbplot function}
 \usage{
-jabba_plots(jabba, output.dir = getwd(), as.png = TRUE, statusplot = "kobe")
+jabba_plots(
+  jabba,
+  output.dir = getwd(),
+  as.png = TRUE,
+  statusplot = "kobe",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{jabba}{output list from fit_jabba}
@@ -12,6 +18,8 @@ jabba_plots(jabba, output.dir = getwd(), as.png = TRUE, statusplot = "kobe")
 \item{output.dir}{directory to save plots}
 
 \item{as.png}{save as png file of TRUE}
+
+\item{verbose}{silent option}
 }
 \description{
 plots all routine JABBA plot to output.dir if as.png=TRUE (default)

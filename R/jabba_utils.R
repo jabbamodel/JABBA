@@ -125,14 +125,18 @@ kobeJabbaProj<-function(x){
 
 #' Function to do runs.test and 3 x sigma limits
 #'
-#' runs test is conducted with library(snpar)
+#' runs test is conducted with library(randtests)
 #' @param x residuals from CPUE fits
 #' @param type only c("resid","observations")
+#' @param mixing c("less","greater","two.sided"). Default less is checking for postive autocorrelation only    
 #' @return runs p value and 3 x sigma limits
 #' @export
-runs_sig3 <- function(x,type=NULL) {
+#' @author Henning Winker (JRC-EC) and Laurence Kell (Sea++)
+jbruns_sig3 <- function(x,type=NULL,mixing="less") {
   if(is.null(type)) type="resid"
-  if(type=="resid"){mu = 0}else{mu = mean(x, na.rm = TRUE)}
+  if(type=="resid"){
+    mu = 0}else{mu = mean(x, na.rm = TRUE)}
+  alternative=c("two.sided","left.sided","right.sided")[which(c("two.sided", "less","greater")%in%mixing)]
   # Average moving range
   mr  <- abs(diff(x - mu))
   amr <- mean(mr, na.rm = TRUE)
@@ -147,13 +151,153 @@ runs_sig3 <- function(x,type=NULL) {
   lcl <- mu - 3 * stdev
   ucl <- mu + 3 * stdev
   if(nlevels(factor(sign(x)))>1){
-    runstest = snpar::runs.test(x)
+    # Make the runs test non-parametric
+    runstest = randtests::runs.test(x,threshold = 0,alternative = alternative)
+    if(is.na(runstest$p.value)) p.value =0.001
     pvalue = round(runstest$p.value,3)} else {
       pvalue = 0.001
     }
-
+  
   return(list(sig3lim=c(lcl,ucl),p.runs= pvalue))
 }
+
+
+
+#' JABBA runs test 
+#'
+#' Residual diagnostics with runs test p-value 
+#' @param jabba output list from fit_jabba
+#' @param mixing c("less","greater","two.sided"). Default "less" is checking for positive autocorrelation only
+#' @param index option to plot specific indices (numeric & in order)
+#' @export
+#' @examples 
+#' data(iccat)
+#' bet= iccat$bet
+#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
+#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' jbrunstest(fit)
+#' jbrunstest(fit,index=2)
+#' jbplot_runstest(fit,verbose=FALSE)
+
+jbrunstest <- function(jabba,index=NULL,mixing="less"){
+    
+    all.indices = unique(jabba$diags$name)
+    if(is.null(index)) index = 1:length(all.indices)
+    indices = unique(jabba$diags$name)[index]
+    n.indices = length(indices)
+    Resids = jabba$residuals
+    years = jabba$yr
+    check.yrs = abs(apply(jabba$residuals,2,sum,na.rm=TRUE))
+    cpue.yrs = years[check.yrs>0]
+    
+      runs = NULL
+      for(i in 1:n.indices){
+        resid = (Resids[index[i],is.na(Resids[index[i],])==F])
+        res.yr = years[is.na(Resids[index[i],])==F]
+        if(length(resid)>3){
+        runstest = jbruns_sig3(x=as.numeric(resid),type="resid",mixing=mixing)
+        runs = rbind(runs,c(runstest$p.runs,runstest$sig3lim))
+        } else {
+          runs = rbind(runs,c(NA,NA,NA))
+        }}
+        
+        runstable = data.frame(Index=indices,runs.p=as.matrix(runs)[,1],Test=ifelse(is.na(as.matrix(runs)[,1]),"Excluded",ifelse(as.matrix(runs)[,1]<0.05,"Failed","Passed")),sigma3.lo=as.matrix(runs)[,2],sigma3.hi=as.matrix(runs)[,3]) 
+        colnames(runstable) = c("Index","runs.p","test","sigma3.lo","sigma3.hi")
+        
+        return(runstable)
+      
+} # end of runstest function
+
+
+#' jbretro() computes Mohn's rho and forecast rho
+#'
+#' Quantities retrospective pattern of B, F, BBmsy, FFmsy, BB0 and SP #'
+#' @param hc output list from hindast_jabba()
+#' @param type option c("B","F","BBmsy","FFmsy","BB0","SP")
+#' @param forecast  includes retrospective forecasting if TRUE
+#' @return Mohn's rho statistic for several quantities
+#' @export
+#' @examples 
+#' data(iccat)
+#' bet= iccat$bet
+#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
+#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
+#' jbretro(hc)
+#' jbplot_retro(hc)
+#' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
+
+jbretro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=TRUE){
+  
+  hc.ls = hc 
+  
+  peels = as.numeric(do.call(c,lapply(hc.ls,function(x){x$diags$retro.peels[1]})))
+  Ref = hc.ls[[1]]
+  hc = list(scenario = Ref$scenario, yr=Ref$yr,catch=Ref$catch,peels=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,diags=NULL,settings=Ref$settings)
+  for(i in 1:length(peels)){
+    hc.ls[[i]]$pfunc$level = peels[i] 
+    hc.ls[[i]]$refpts$level = peels[i]
+    hc$timeseries$mu = rbind(hc$timeseries$mu,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"mu",])) 
+    hc$timeseries$lci = rbind(hc$timeseries$lci,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"lci",])) 
+    hc$timeseries$uci = rbind(hc$timeseries$uci,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"uci",])) 
+    hc$diags = rbind(hc$diags,hc.ls[[i]]$diags)
+    hc$refpts= rbind(hc$refpts,hc.ls[[i]]$refpts[1,])
+    hc$pfunc= rbind(hc$pfunc ,hc.ls[[i]]$pfunc)
+  }
+  
+  retros = unique(peels)
+  runs= hc$timeseries$mu$level
+  years= hc$yr
+  nyrs = length(years)
+  FRP.rho = c("B","F", "Bmsy", "Fmsy", "procB","MSY")  
+  rho = data.frame(mat.or.vec(length(retros)-1,length(FRP.rho)))
+  colnames(rho) = FRP.rho
+  fcrho = rho
+  
+   for(k in 1:length(type)){
+      j = which(c("B","F","BBmsy","FFmsy","BB0","procB","SP")%in%type[k])
+      if(type[k]%in%c("B","F","BBmsy","FFmsy","procB")){
+        y = hc$timeseries$mu[,j+2]
+        ref = hc$timeseries$mu[runs%in%retros[1],j+2]
+        ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
+        yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
+        for(i in 1:length(retros)){
+          
+          if(i>1){
+            rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
+            fcrho[i-1,k] = (y[runs%in%retros[i]][(nyrs+1-retros[i])]-ref[(nyrs+1-retros[i])])/ref[(nyrs+1-retros[i])]
+            if(type[k]=="procB"){
+              rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
+              fcrho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs+1-retros[i])])-exp(ref[(nyrs+1-retros[i])]))/exp(ref[(nyrs+1-retros[i])])
+            }
+          }
+        }
+      } else {
+        # Plot SP
+        for(i in 1:length(retros)){
+          if(i>1){
+            rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
+            fcrho[i-1,6] = NA
+          }
+        }}
+   } # end k    
+  rho = rbind(rho,apply(rho,2,mean))
+  rownames(rho) = c(rev(years)[retros[-1]],"rho.mu")
+  
+  fcrho = rbind(fcrho,apply(fcrho,2,mean))
+  rownames(fcrho) = c(rev(years)[retros[-1]],"forecastrho.mu")
+  if(forecast){
+    out = list()
+    out$Mohns.rho = rho
+    out$Forecast.rho = fcrho
+  } else {
+    out = rho
+  }
+  
+  return(out)
+} # end of Retrospective Plot
+
+
 
 #' normIndex()
 #'
