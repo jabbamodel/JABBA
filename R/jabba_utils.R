@@ -339,12 +339,16 @@ ss3col <- function(n,alpha=1){
   if(n>3) col <- rc4(n+1)[-1]
   if(n<3)  col <- rc4(n)
   if(n==3) col <- c("blue","red","green3")
+  
   if(alpha<1){
     # new approach thanks to Trevor Branch
     cols <- adjustcolor(col, alpha.f=alpha)
+    if(n==1) cols = "darkgrey"#adjustcolor("darkgrey", alpha.f=alpha)
   } else {
     cols=col
+    if(n==1) cols <- "black"
   }
+  
   return(cols)
 }
 
@@ -472,4 +476,32 @@ zage =  function(ca,ages = "missing"){
   }
   return(out)
 }
+
+#' addBfrac()
+#'
+#' add biomass reference to kb ouput as fraction Bmsy or B0, e.g. for Blim or MSST
+#' @param jabba bfrac fraction of Bmsy or B0
+#' @param base defines biomass base "bmsy" or "b0"
+#' @param quantiles default is 95CIs as c(0.025,0.975)
+#' @return 
+#' @export
+addBfrac <- function(kb, bfrac=0.5, bref = c("bmsy","b0"),quantiles = c(0.025,0.975)){
+  if(!is.null(kb$settings)){ 
+    if(is.null(jabba$kbtrj)) stop("rerun with fit_jabba(...,save.trj = TRUE)")
+    kb = kb$kbtrj
+  } 
+  if(bref[1]=="bmsy"){
+    kb$BBfrac = kb$stock/bfrac
+    kb$Bref =  kb$B/(kb$stock/bfrac)
+  }
+  
+  if(bref[1]=="b0"){
+    kb$BBfrac = kb$BB0/bfrac
+    kb$Bref =  kb$B/(kb$BB0/bfrac)
+  }
+  Bref = data.frame(t(quantile(kb$Bref,c(0.5,quantiles[1],quantiles[2]))))
+  colnames(Bref) = c("mu","lci","uci")
+  return(list(kb=kb,bref=Bref))
+}
+
 
