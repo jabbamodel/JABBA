@@ -137,7 +137,7 @@ fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
 
   P[,1] = inits$BB0
   B[,1] = inits$B
-  H[,1] = inits$H
+  H[,1] = pmax(inits$H,0.001)
   
   # check length of initial values
   if(is.null(imp.yr)) imp.yr = length(initial)+1 
@@ -145,10 +145,10 @@ fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
   if(!length(initial)==(max(1,imp.yr-1))) stop("Missmatch between initial value vector and imp.yr")
   
     if(quant=="Catch"){
-     for(i in 2:(length(initial)+1)) C[,i][] = initial[i-1] # will be overwritten
+     for(i in 2:(length(initial)+1)) C[,i][] = pmax(initial[i-1],0.001) # will be overwritten
     }
     if(quant=="F"){
-      for(i in 2:(length(initial)+1)) H[,i][] = initial[i-1] # will be overwritten
+      for(i in 2:(length(initial)+1)) H[,i][] = pmax(initial[i-1],0.001) # will be overwritten
     }
     
   
@@ -188,8 +188,8 @@ fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
   kobe = do.call(rbind,lapply(fw.ls,function(x){ 
     
     if(imp.yr<=nyears){
-    if(quant=="Catch")C[,(imp.yr+1):ncol(C)][] = x[[2]]
-    if(quant=="F") H[,(imp.yr+1):ncol(C)][] = x[[2]]
+    if(quant=="Catch") C[,(imp.yr+1):ncol(C)][] = pmax(x[[2]],0.001)
+    if(quant=="F") H[,(imp.yr+1):ncol(C)][] = pmax(x[[2]],0.001)
     }
     kb = data.frame(year=pyears[1],run=x[[1]],type="fit",iter=1:iters,
                     stock=B[,1]/bmsy,harvest=H[,1]/fmsy,B=B[,1],H=H[,1],
@@ -199,9 +199,9 @@ fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
       P[,i] <- pmax((P[,i-1]+  r/(m-1)*P[,i-1]*(1-P[,i-1]^(m-1)) - C[,i-1]/k),0.005)*exp(devs[,i])
       B[,i] = P[,i]*k
       if(quant=="Catch"){
-        H[,i] = C[,i]/B[,i]#,fmax*median(fmsy)) # fmax constraint
+        H[,i] = pmax(C[,i],0.001)/B[,i]#,fmax*median(fmsy)) # fmax constraint
       } 
-      if(quant=="F") C[,i] = H[,i]*B[,i]
+      if(quant=="F") C[,i] = pmax(H[,i],0.0001)*B[,i]
       kb = rbind(kb,data.frame(year=pyears[i],run=x[[1]],type="prj",iter=1:iters,
                                stock=B[,i]/bmsy,harvest=H[,i]/fmsy,B=B[,i],H=H[,i],
                                Bdev=devs[,i],Catch=C[,i],BB0=P[,i]))

@@ -359,12 +359,13 @@ ss3col <- function(n,alpha=1){
 #' @param hc object list of hindcasts from hindcast_jabba() or jbhcxval()
 #' @param naive.min minimum MASE denominator (naive predictions) for MASE.adj (default = 0.1)
 #' @param index option to compute for specific indices (numeric & in order)
+#' @param residuals if TRUE, outputs individual prediction and naive residuals   
 #' @param verbose if FALSE run silent
 #' @return hc containing estimates of key joint results from all hindcast run 
 #' @export
 
-jbmase <- function(hc,naive.min=0.1,index=NULL,verbose=TRUE){
-  MASE = NULL
+jbmase <- function(hc,naive.min=0.1,index=NULL,residuals=FALSE,verbose=TRUE){
+  MASE = Residuals = NULL
   d. = do.call(rbind,lapply(hc,function(x){
     x$diags}))
   
@@ -416,7 +417,7 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,verbose=TRUE){
       nhc = length(endyrvec)-1
       pred.resid = NULL
       for(j in 1:(length(peels)-1)){
-        if(endyrvec[j] %in% xv$year){
+        if(endyrvec[1:length( naive.eval)][j] %in% xv$year){
           
           x <- min(py):max(yr.eval)
           x <- x[1:(length(x)-peels[j])]
@@ -425,11 +426,12 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,verbose=TRUE){
           pred.resid = c(pred.resid,log(y[length(x)])-log(obs[length(x)])) # add log() for v1.1
         }}
       
+      pred.resid = pred.resid[1:length( naive.eval)]
       maepr =  mean(abs(pred.resid))
       if(is.na(obs.eval[1])) obs.eval[1] =  rev(obs[obs%in%obs.eval==F])[1] 
       scaler = mean(abs(naive.eval))
       scaler.adj = mean(pmax(abs(naive.eval),naive.min))
-      
+      res.i = data.frame(Index=unique(xv$name)[1],Year=yr.eval[pe.eval],Pred.Res=pred.resid,Naive.Res=naive.eval,n.eval=npe) 
       MASE.i = NULL
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=maepr/scaler,MASE.adj=maepr/scaler.adj,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
       
@@ -440,11 +442,14 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,verbose=TRUE){
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=NA,MASE.adj=NA,MAE.PR=NA,MAE.base=NA,n.eval=0)  
     }
     MASE = rbind(MASE,MASE.i)
-    
+    Residuals = rbind(Residuals,res.i)
   } # end of index loop
-  
-  
-  return(MASE)
+  jstats = apply(abs(Residuals[c("Pred.Res","Naive.Res")]),2,mean)
+  joint = data.frame(Index="joint",
+                     MASE=jstats[1]/jstats[2],MAE.PR=jstats[1],MAE.base=jstats[2],
+                     MASE.adj=jstats[1]/pmax(jstats[2],naive.min),n.eval=nrow(Residuals))  
+  MASE = rbind(MASE,joint)
+  if(!residuals) return(MASE)
 }
 
 

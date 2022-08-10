@@ -4,7 +4,7 @@
 \alias{jbmase}
 \title{jbmase()}
 \usage{
-jbmase(hc, naive.min = 0.1, index = NULL, verbose = TRUE)
+jbmase(hc, naive.min = 0.1, index = NULL, residuals = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{hc}{object list of hindcasts from hindcast_jabba() or jbhcxval()}
@@ -12,6 +12,8 @@ jbmase(hc, naive.min = 0.1, index = NULL, verbose = TRUE)
 \item{naive.min}{minimum MASE denominator (naive predictions) for MASE.adj (default = 0.1)}
 
 \item{index}{option to compute for specific indices (numeric & in order)}
+
+\item{residuals}{if TRUE, outputs individual prediction and naive residuals}
 
 \item{verbose}{if FALSE run silent}
 }
