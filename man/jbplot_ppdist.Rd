@@ -11,6 +11,7 @@ jbplot_ppdist(
   mfrow = c(round((ncol(jabba$pars_posterior))/3 + 0.33, 0), 3),
   width = 8,
   height = 2.5 * round(ncol(jabba$pars_posterior)/3, 0),
+  cex = 0.8,
   verbose = TRUE,
   addPP = TRUE
 )

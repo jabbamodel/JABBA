@@ -140,7 +140,7 @@ jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE,
 #' @param verbose silent option  
 #' @export
 
-jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((ncol(jabba$pars_posterior))/3+0.33,0),3),width  = 8, height = 2.5*round(ncol(jabba$pars_posterior)/3,0),verbose=TRUE,addPP=TRUE){
+jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((ncol(jabba$pars_posterior))/3+0.33,0),3),width  = 8, height = 2.5*round(ncol(jabba$pars_posterior)/3,0),cex=0.8,verbose=TRUE,addPP=TRUE){
   if(verbose) cat(paste0("\n","><> jbplot_ppist() - prior and posterior distributions  <><","\n"))
   out =   jabba$pars_posterior
   node_id = names(out)
@@ -167,10 +167,10 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
 
       polygon(c(sort(rpr),rev(sort(rpr))),c(prior,rep(0,length(sort(rpr)))),col=gray(0.4,1))
       polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
-      legend('right',c("Prior","Posterior"),pch=22,pt.cex=1.5,pt.bg = c(grey(0.4,1),grey(0.8,0.6)),bty="n")
+      legend('right',c("Prior","Posterior"),pch=22,cex=cex+0.1,pt.cex=cex+0.1,pt.bg = c(grey(0.4,1),grey(0.8,0.6)),bty="n")
       PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
       PPVM = round(mean(post.par)/mean(rpr),3)
-      legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+      legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=cex,bty="n", x.intersp=0.5,y.intersp=0.85)
 
     }
     if(i==2){
@@ -182,7 +182,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
       polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
       PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
       PPVM = round(mean(post.par)/mean(rpr),3)
-     if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+     if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=cex,bty="n", x.intersp=0.5,y.intersp=0.85)
 
 
     }
@@ -201,7 +201,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
         polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
         PPVR = round((sd(post.par)/mean(post.par))^2/(sd(mpr)/mean(mpr))^2,3)
         PPVM = round(mean(post.par)/mean(mpr),3)
-       if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+       if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=cex,bty="n", x.intersp=0.5,y.intersp=0.85)
 
       }
     }
@@ -214,7 +214,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
         prior = dbeta(sort(rpr),jabba$settings$psi.pr[1],jabba$settings$psi.pr[2])
         PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
         PPVM = round(mean(post.par)/mean(rpr),3)
-        if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+        if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=cex,bty="n", x.intersp=0.5,y.intersp=0.85)
 
       } else {
         rpr = rlnorm(10000,log(Prs[1,4]),Prs[2,4])
@@ -225,7 +225,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
       polygon(c(pdf$x,rev(pdf$x)),c(pdf$y,rep(0,length(pdf$y))),col=gray(0.7,0.7))
       PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
       PPVM = round(mean(post.par)/mean(rpr),3)
-      if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+      if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=cex,bty="n", x.intersp=0.5,y.intersp=0.85)
 
       #legend('topright',c("Prior","Posterior"),pch=22,pt.cex=1.5,pt.bg = c(grey(0.4,1),grey(0.8,0.6)),bty="n")
     }
@@ -243,7 +243,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
             polygon(c(prior$x,rev(prior$x)),c(prior$y,rep(0,length(prior$y))),col=gray(0.4,1))
             PPVR = round((sd(post.par)/mean(post.par))^2/(sd(rpr)/mean(rpr))^2,3)
             PPVM = round(mean(post.par)/mean(rpr),3)
-           if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=1,bty="n")
+           if(addPP) legend("topright",c(paste("PPMR =",PPVM),paste("PPVR =",PPVR)),cex=cex,bty="n", x.intersp=0.5,y.intersp=0.85)
 
           }
 
