@@ -6,6 +6,8 @@
 \usage{
 jbplot_kobe(
   jabba,
+  ylab = NULL,
+  xlab = NULL,
   output.dir = getwd(),
   as.png = FALSE,
   add = FALSE,
@@ -16,6 +18,10 @@ jbplot_kobe(
 }
 \arguments{
 \item{jabba}{output list from fit_jabba}
+
+\item{ylab}{yaxis label}
+
+\item{xlab}{xaxis label}
 
 \item{output.dir}{directory to save plots}
 

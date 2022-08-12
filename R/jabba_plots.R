@@ -870,6 +870,7 @@ jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #'
 #' @param jabba output list from fit_jabba
 #' @param type = c("B","F","BBmsy","FFmsy","BB0")
+#' @param ylabs yaxis labels for quants
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
@@ -878,7 +879,7 @@ jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #' @param height plot height
 #' @param verbose silent option
 #' @export
-jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5,verbose=TRUE){
+jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),ylabs=NULL,output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5,verbose=TRUE){
 
   for(i in 1:length(type)){
 
@@ -889,7 +890,7 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),output.di
     if(verbose) cat(paste0("\n","><> jbplot_trj() - ", type[i]," trajectory  <><","\n"))
 
     j = which(c("B","F","BBmsy","FFmsy","BB0")%in%type[i])
-    ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest.label=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest.label=="Fmsy",expression(F/F[MSY]),expression(H/h[MSY])),expression(B/B[0]))
+    if(is.null(ylabs)) ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest.label=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest.label=="Fmsy",expression(F/F[MSY]),expression(H/h[MSY])),expression(B/B[0]))
     
     trj = jabba$timeseries[,,paste(type[i])]
     years = jabba$yr
@@ -1116,13 +1117,15 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
 #'
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
+#' @param ylab yaxis label
+#' @param xlab xaxis label
 #' @param as.png save as png file of TRUE
 #' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
 #' @export
-jbplot_kobe <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
+jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
 
   if(verbose) cat(paste0("\n","><> jbplot_kobe() - Stock Status Plot  <><","\n"))
 
@@ -1141,7 +1144,10 @@ jbplot_kobe <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=
   if(add==FALSE) par(Par)
 
   #Create plot
-  plot(1000,1000,type="b", xlim=c(0,max(1/(jabba$refpts$bmsy/jabba$refpts$k)[1],mu.b[,1]) +0.05), ylim=c(0,max(mu.f[,1],quantile(f,0.85),2.)),lty=3,ylab=ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))),xlab=expression(paste(B/B[MSY])),xaxs="i",yaxs="i")
+  if(is.null(ylab)) ylab=ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY])))
+  if(is.null(xlab)) xlab=expression(paste(B/B[MSY]))
+  
+  plot(1000,1000,type="b", xlim=c(0,max(1/(jabba$refpts$bmsy/jabba$refpts$k)[1],mu.b[,1]) +0.05), ylim=c(0,max(mu.f[,1],quantile(f,0.85),2.)),lty=3,ylab=ylab,xlab=xlab,xaxs="i",yaxs="i")
   c1 <- c(-1,100)
   c2 <- c(1,1)
 
@@ -1389,6 +1395,7 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param hc output list from hindast_jabba()
 #' @param type  single plot option c("B","F","BBmsy","FFmsy","BB0","SP")
 #' @param forecast  includes retrospective forecasting if TRUE
+#' @param ylabs yaxis labels for quants
 #' @param add  add to multi plot if TRUE
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
@@ -1410,7 +1417,7 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' jbplot_retro(hc)
 #' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
 
-jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,
+jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,ylabs=TRUE,
                          add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE){
   
   hc.ls = hc 
@@ -1434,7 +1441,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
   if(add) single.plots=TRUE
   if(single.plots==F) type=c("B","F","BBmsy","FFmsy","procB","SP")
   
-  ylabs = c(paste("Biomass",hc$settings$catch.metric),"Fishing mortality F",expression(B/B[MSY]),expression(F/F[MSY]),expression(B/B[0]),"Process Deviations",paste("Surplus Production",hc$settings$catch.metric))
+  if(is.null(ylabs)) ylabs = c(paste("Biomass",hc$settings$catch.metric),"Fishing mortality F",expression(B/B[MSY]),expression(F/F[MSY]),expression(B/B[0]),"Process Deviations",paste("Surplus Production",hc$settings$catch.metric))
   retros = unique(peels)
   runs= hc$timeseries$mu$level
   years= hc$yr
@@ -1594,6 +1601,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
 #' @param jabbas list() of JABBA model 1:n
 #' @param type for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")
 #' @param plotCIs Plot Credibilty Interval 
+#' @param ylabs yaxis labels for quants
 #' @param prefix Plot name specifier
 #' @param save.summary option to save a summary of all loaded model runs
 #' @param output.dir directory to save plots
@@ -1610,7 +1618,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
 #' @param plot.cex cex setting in par()
 #' @param verbose if FALSE be silent
 #' @export
-jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
+jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,ylabs=NULL,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
   
   if(!is.null(jabbas$settings)) jabbas = list(jabbas)
   if(as.png) add=FALSE
@@ -1657,7 +1665,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
   
   
   #type=c("B","F","BBmsy","FFmsy","BB0","SP")
-  ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest=="Fmsy",expression(F/F[MSY]),expression(H/H[MSY])),expression(B/B[0]),paste("Surplus Production",jabba$settings$catch.metric))
+  if(is.null(ylabs)) ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest=="Fmsy",expression(F/F[MSY]),expression(H/H[MSY])),expression(B/B[0]),paste("Surplus Production",jabba$settings$catch.metric))
   runs= jbs$timeseries$mu$level
   years= jbs$yr
   nyrs = length(years)

@@ -8,6 +8,7 @@ jbplot_summary(
   jabbas,
   type = c("B", "F", "BBmsy", "FFmsy", "BB0", "SP"),
   plotCIs = TRUE,
+  ylabs = NULL,
   prefix = "Summary",
   save.summary = FALSE,
   output.dir = getwd(),
@@ -31,6 +32,8 @@ jbplot_summary(
 \item{type}{for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")}
 
 \item{plotCIs}{Plot Credibilty Interval}
+
+\item{ylabs}{yaxis labels for quants}
 
 \item{prefix}{Plot name specifier}
 

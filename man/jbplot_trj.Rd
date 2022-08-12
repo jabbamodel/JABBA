@@ -7,6 +7,7 @@
 jbplot_trj(
   jabba,
   type = c("B", "F", "BBmsy", "FFmsy", "BB0"),
+  ylabs = NULL,
   output.dir = getwd(),
   as.png = FALSE,
   add = FALSE,
@@ -20,6 +21,8 @@ jbplot_trj(
 \item{jabba}{output list from fit_jabba}
 
 \item{type}{= c("B","F","BBmsy","FFmsy","BB0")}
+
+\item{ylabs}{yaxis labels for quants}
 
 \item{output.dir}{directory to save plots}
 

@@ -8,6 +8,7 @@ jbplot_retro(
   hc,
   type = c("B", "F", "BBmsy", "FFmsy", "procB", "SP"),
   forecast = FALSE,
+  ylabs = TRUE,
   add = F,
   output.dir = getwd(),
   as.png = FALSE,
@@ -26,6 +27,8 @@ jbplot_retro(
 \item{type}{single plot option c("B","F","BBmsy","FFmsy","BB0","SP")}
 
 \item{forecast}{includes retrospective forecasting if TRUE}
+
+\item{ylabs}{yaxis labels for quants}
 
 \item{add}{add to multi plot if TRUE}
 
