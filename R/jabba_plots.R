@@ -1417,8 +1417,8 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' jbplot_retro(hc)
 #' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
 
-jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,ylabs=TRUE,
-                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE){
+jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,ylabs=NULL,
+                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=add,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE){
   
   hc.ls = hc 
   
@@ -1476,7 +1476,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
                                     ,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
         if(!type[k]=="procB") ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
         
-        plot(years,years,type="n",ylim=ylim,ylab=ylabs[j],xlab="Year",xlim=xlim)
+        plot(years,years,type="n",ylim=ylim,ylab=ifelse(length(ylabs)>1,ylabs[j],ylabs),xlab="Year",xlim=xlim)
         polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
         for(i in 1:length(retros)){
           lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
@@ -1499,7 +1499,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
       } 
       else {
         # Plot SP
-        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.12)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
+        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.12)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ifelse(length(ylabs)>1,ylabs[j],ylabs),xlab=ylabs[1])
         for(i in 1:length(retros)){
           lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
           points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
@@ -1689,7 +1689,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
       if(type[k]%in%c("B","F","BBmsy","FFmsy","BB0")){
         y = jbs$timeseries$mu[,j+3]
         years = jbs$timeseries$mu$year
-        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=xlim[1] & years<=xlim[2]]),0))),ylab=ylabs[j],xlab="Year",xlim=xlim)
+        plot(years,years,type="n",ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],ifelse(plotCIs==T,max(jbs$timeseries$uci[,j+3][years>=xlim[1] & years<=xlim[2]]),0))),ylab=ifelse(length(ylabs)>1,ylabs[j],ylabs),xlab="Year",xlim=xlim)
         if(plotCIs==TRUE){
           for(i in 1:length(scenarios)){
             yr = jbs$timeseries$uci[runs%in%scenarios[i],"year"]
@@ -1704,7 +1704,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
         if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
       }  else {
         # Plot SP
-        plot(years,years,type="n",ylim=c(0,max(jbs$pfunc$SP)),xlim=c(0,max(jbs$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
+        plot(years,years,type="n",ylim=c(0,max(jbs$pfunc$SP)),xlim=c(0,max(jbs$pfunc$SB_i)),ylab=ifelse(length(ylabs)>1,ylabs[j],ylabs),xlab=ylabs[1])
         for(i in 1:length(scenarios)){
           lines(jbs$pfunc$SB_i[jbs$pfunc$level%in%scenarios[i]],jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]],col=cols[i],lwd=2,lty=1)
           points(mean(jbs$pfunc$SB_i[jbs$pfunc$level%in%scenarios[i]][jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]]==max(jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]])]),max(jbs$pfunc$SP[jbs$pfunc$level%in%scenarios[i]]),col=cols[i],pch=16,cex=1.2)
