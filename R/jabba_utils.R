@@ -450,6 +450,7 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,residuals=FALSE,verbose=TRUE){
                      MASE=jstats[1]/jstats[2],MAE.PR=jstats[1],MAE.base=jstats[2],
                      MASE.adj=jstats[1]/pmax(jstats[2],naive.min),n.eval=nrow(Residuals))  
   MASE = rbind(MASE,joint)
+  rownames(MASE) <- 1:nrow(MASE)
   if(!residuals) return(MASE)
 }
 
