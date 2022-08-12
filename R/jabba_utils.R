@@ -431,10 +431,11 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,residuals=FALSE,verbose=TRUE){
       if(is.na(obs.eval[1])) obs.eval[1] =  rev(obs[obs%in%obs.eval==F])[1] 
       scaler = mean(abs(naive.eval))
       scaler.adj = mean(pmax(abs(naive.eval),naive.min))
+      res.i = NULL
       res.i = data.frame(Index=unique(xv$name)[1],Year=yr.eval[pe.eval],Pred.Res=pred.resid,Naive.Res=naive.eval,n.eval=npe) 
       MASE.i = NULL
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=maepr/scaler,MASE.adj=maepr/scaler.adj,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
-      
+      Residuals = rbind(Residuals,res.i)  
     } else{
       xv = d.[d.$name%in%indices[i],]
       if(verbose) cat(paste0("\n","No observations in evaluation years to compute prediction residuals for Index ",xv $name[1]),"\n")
@@ -442,7 +443,7 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,residuals=FALSE,verbose=TRUE){
       MASE.i = data.frame(Index=unique(xv$name)[1], MASE=NA,MASE.adj=NA,MAE.PR=NA,MAE.base=NA,n.eval=0)  
     }
     MASE = rbind(MASE,MASE.i)
-    Residuals = rbind(Residuals,res.i)
+    
   } # end of index loop
   jstats = apply(abs(Residuals[c("Pred.Res","Naive.Res")]),2,mean)
   joint = data.frame(Index="joint",
