@@ -1788,7 +1788,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
 #' @export
 jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,minyr=NULL,cols=NULL,legend.loc="topright",legend.cex=0.7,legend.add=TRUE,label.add=TRUE,label.cex=0.9,verbose=TRUE,ymax=1){
   if(as.png==TRUE) add= FALSE
-  MASE = jbmase(hc,naive.min=naive.min,verbose=verbose)
+  MASE = jbmase(hc,naive.min=naive.min,verbose=verbose,residuals=FALSE)
   if(is.null(cols)) cols = ss3col(length(hc)-1)
   d. = do.call(rbind,lapply(hc,function(x){
     x$diags}))
@@ -1893,8 +1893,8 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
         }}
       lines(py,hat,col=1,lwd=2,lty=1,type="l",pch=16)
       
-      mase = MASE[MASE$Index== indices[i],]$MASE
-      maseadj = MASE[MASE$Index== indices[i],]$MASE.adj
+      mase = MASE[MASE$Index%in%indices[i],]$MASE
+      maseadj = MASE[MASE$Index%in%indices[i],]$MASE.adj
       lmase = paste0(unique(xv$name)[1], ": MASE = ",round(mase,2))
       if(mase.adj==TRUE) lmase = paste0(lmase,"(",round(maseadj,2),")")
       
