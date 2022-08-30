@@ -89,7 +89,7 @@ mp_jabba = function(jbinput,
 
   jbinput$jagsdata$I = jbd$I # update
   # jabba model building conditions
-  params = c("K","SBmsy","Hmsy","MSY","SB")
+  params = c("K","SBmsy","Hmsy","MSY","SB","H","BtoBmsy","HtoHmsy")
   
   
   ptm <- proc.time()
@@ -107,14 +107,23 @@ mp_jabba = function(jbinput,
   geweke = coda::geweke.diag(data.frame(par.dat))
   pvalues <- 2*pnorm(-abs(geweke$z))
   heidle = coda::heidel.diag(data.frame(par.dat))
+  yr = 1:length(years)
+  trj = rbind(  
+    b = data.frame(age="all",year= c(years),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$SB[,yr],2,quantile,b.quantile)),
+    f = data.frame(age="all",year= c(years),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$H[,yr],2,quantile,b.quantile)),
+    stock = data.frame(age="all",year= c(years),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$BtoBmsy[,yr],2,quantile,b.quantile)),
+    harvest = data.frame(age="all",year= c(years),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$HtoHmsy[,yr],2,quantile,b.quantile)),
+    catch = data.frame(age="all",year= c(years),unit="unique",season="all",area="unique",iter=1,data=jbinput$data$catch[,2])
+  )
+  rownames(trj) = 1:nrow(trj) 
   
   # Refpoints
   jabba = list(
   B = data.frame(age="all",year= c(years,max(years+1)),unit="unique",season="all",area="unique",iter=1,data= apply(posteriors$SB,2,quantile,b.quantile)),
+  trj = trj, 
   refpts = apply(par.dat,2,quantile,par.quantile),
   convergence = data.frame(Geweke.p=round(pvalues,3),Heidel.p = round(heidle[,3],3))
   )
-  
   return(jabba)
   
 } # end of fit_jabba()
