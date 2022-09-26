@@ -25,10 +25,12 @@
 #' @return A result list containing estimates of model input, settings and results
 #' @export
 #' @examples
+#' \dontrun{
 #' data(iccat)
 #' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
 #' bet1 = fit_jabba(jbinput,quickmcmc=TRUE,verbose=TRUE)
 #' jbplot_summary(bet1)
+#' }
 
 fit_jabba = function(jbinput,
                      # MCMC settings
