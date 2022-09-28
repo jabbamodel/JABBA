@@ -5,7 +5,9 @@
 # devtools:: install_github("jabbamodel/JABBA")
 
 library(JABBA)
-File = "C:/Work/Research/GitHub/JABBApkg_testing/example" # LINK to your folder of choice here
+#File = "C:/Work/Research/GitHub/JABBApkg_testing/example" # LINK to your folder of choice here
+file = here::i_am("examples/Examples_iccat.R", uuid= uuid::UUIDgenerate())
+library(here)
 
 #><>><>><>><>><>><>><>><>><>><>><>
 # Bigeye Tuna ICCAT
