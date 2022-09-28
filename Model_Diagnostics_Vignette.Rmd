@@ -1,0 +1,80 @@
+---
+title: Model Diagnostics Vignette
+subtitle: Internal Generation of Diagnostic Values
+author: "Henning Winker, Felipe Carvalho, Maia Kapur"
+geometry: margin = 1in
+output:
+  html_document
+fontsize: 11pt
+---
+
+# JABBA Diagnostics
+
+`JABBA` examines the root mean squared error (RMSE) to quantitatively evaluate the randomness of model residuals  (Francis 2011; Breen et al 2003, Carvalho et al 2017). Analysts are encouraged to also conduct a visual examination of observed and predicted values to verify goodness-of-fit. Residuals exhibiting heteroscedasticity or serial correlation may suggest non-randomness. The outcomes of the test are written to a file `diagnostics.csv` in the user's `output` directory.
+
+`JABBA` procures the root mean squared error (RMSE) for the series and returns the adjusted CV, or recommended weighting factor for that fleet. Accordingly, the RMSE is estimated as:
+
+<br>
+
+<a href="http://tinypic.com?ref=33w5qox" target="_blank"><img src="http://i63.tinypic.com/33w5qox.png" border="0"></a>
+
+<Br>
+
+where Yt is the observed CPUE in year t on the log scale, Y(hat)t is the predicted CPUE in year t, and N is the number of CPUE observations.
+
+# Relevant Citations
+Carvalho and Winker. 2015. Stock Assessment of South Atlantic Blue Shark (Prionace glauca) Through 2013 Collect. Vol. Sci. Pap. ICCAT SCRS/2015/153   
+
+Carvalho, F., Punt, A. E., Chang, Y. J., Maunder, M. N., & Piner, K. R. (2016). Can diagnostic tests help identify model misspecification in integrated stock assessments? Fisheries Research. http://doi.org/10.1016/j.fishres.2016.09.018
+
+Chang, Yi-Jay; ISC. (2016). Stock Assessment Update for Blue Marlin ( Makaira nigricans ) in the Pacific Ocean through 2014. Sapporo, Hokkaido, Japan. Retrieved from http://isc.fra.go.jp/pdf/BILL/ISC16_BILL_2/WP1_Chang_final.pdf
+
+Francis, R. I. C. C. 2011. Data weighting in statistical fisheries stock assessment models. Canadian Journal of Fisheries and Aquatic Sciences, 68: 1124-1138.
+
+## Implementation
+
+Within the `JABBA` function, posterior model fits are extracted and used to calculate the RMSE, DIC, and SDNR on the log and standardized residuals, and the SDNR on the latter. These are saved to the Goodness of Fit csv file and plotted.
+
+```{r, eval = F,  tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+Resids = NULL
+for (i in 1:series) {
+  Resids = rbind(Resids, log(CPUE[, i]) - log(apply(posteriors$CPUE[, , i], 2, quantile, c(0.5))))
+}
+DIC =round(mod$BUGSoutput$DIC,1)
+Nobs =length(as.numeric(Resids)[is.na(as.numeric(Resids))==FALSE])
+DF = Nobs-npar
+RMSE = round(100*sqrt(sum(Resids^2,na.rm =TRUE)/DF),1)
+
+
+# Standardized Residuals
+StResid = NULL
+for(i in 1:series){
+  StResid =rbind(StResid,log(CPUE[,i]/apply(posteriors$CPUE[,,i],2,quantile,c(0.5)))/
+                   apply(posteriors$TOE[,,i],2,quantile,c(0.5))+0.5*apply(posteriors$TOE[,,i],2,quantile,c(0.5)))        
+}
+mean.res = apply(StResid,2,mean,na.rm =TRUE)
+smooth.res = predict(loess(mean.res~Yr),data.frame(Yr=cpue.yrs))
+lines(cpue.yrs,smooth.res,lwd=2)
+DIC =round(mod$BUGSoutput$DIC,1)
+SDNR = round(sqrt(sum(StResid^2,na.rm =TRUE)/(Nobs-1)),2)
+Crit.value = (qchisq(.95, df=(Nobs-1))/(Nobs-1))^0.5
+
+
+#Save Residuals 
+Res.CPUE = data.frame(Resids)
+row.names(Res.CPUE) = indices   
+colnames(Res.CPUE) = paste(Yr)
+write.csv(Res.CPUE,paste0(output.dir,"/ResCPUE_",assessment,"_",Scenario,".csv"))
+
+#Save standardized Residuals 
+StRes.CPUE = data.frame(StResid)
+row.names(Res.CPUE) = indices   
+colnames(Res.CPUE) = paste(Yr)
+write.csv(Res.CPUE,paste0(output.dir,"/StResCPUE_",assessment,"_",Scenario,".csv"))
+
+# Produce statistice describing the Goodness of the Fit
+GOF = data.frame(Stastistic = c("N","p","DF","SDNR","RMSE","DIC"),Value = c(Nobs,npar,DF,SDNR,RMSE,DIC))
+write.csv(GOF,paste0(output.dir,"/GOF_",assessment,"_",Scenario,".csv"))
+
+```
+
