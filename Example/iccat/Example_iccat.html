@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ICCAT Bigeye Tuna assessment</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="Example_iccat_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Example_iccat_files/libs/quarto-html/quarto.js"></script>
+<script src="Example_iccat_files/libs/quarto-html/popper.min.js"></script>
+<script src="Example_iccat_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Example_iccat_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Example_iccat_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Example_iccat_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Example_iccat_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Example_iccat_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Example_iccat_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">ICCAT Bigeye Tuna assessment</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<section id="iccat-bigeye-tuna-assessment" class="level2">
+<h2 class="anchored" data-anchor-id="iccat-bigeye-tuna-assessment">ICCAT Bigeye Tuna assessment</h2>
+<div class="cell">
+
+</div>
+<div class="cell" data-hash="Example_iccat_cache/html/build-JAGS model_742b6f6c3ddc55696742f74d614067b4">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>jbinput1 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span>bet<span class="sc">$</span>se,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">assessment=</span>assessment,<span class="at">scenario =</span> <span class="st">"Run1"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">model.type =</span> <span class="st">"Fox"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">r.prior =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.5</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sigma.est =</span> <span class="cn">FALSE</span>, <span class="co"># estimate additional observation error</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fixed.obsE =</span> <span class="fl">0.01</span>, <span class="co"># mimum observation error</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">igamma =</span> <span class="fu">c</span>(<span class="fl">0.001</span>,<span class="fl">0.001</span>), <span class="co"># uninformative inv-gamma for process error</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">psi.prior =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.2</span>), <span class="co"># Initial depletion B/K</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">verbose=</span>F)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check input</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_indices</span>(jbinput1)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit JABBA (here mostly default value - careful)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>bet1 <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput1,<span class="at">quickmcmc =</span> <span class="cn">TRUE</span>) <span class="co"># quick run</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/build-JAGS%20model-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 199
+   Unobserved stochastic nodes: 358
+   Total graph size: 4242
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bet1<span class="sc">$</span>kobe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    factor level   yr     stock   harvest        bk
+1 BETiccat  Run1 2017 0.7260415 1.3551886 0.2672292
+2 BETiccat  Run1 2017 0.8862995 1.1834587 0.3262143
+3 BETiccat  Run1 2017 0.7020516 1.3278322 0.2583994
+4 BETiccat  Run1 2017 0.9335297 0.9873929 0.3435980
+5 BETiccat  Run1 2017 0.7663552 1.1500994 0.2820672
+6 BETiccat  Run1 2017 0.6987881 1.3491070 0.2571983</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make individual plots</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_catch</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_catch()  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_catcherror</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_catcherror()  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ppdist</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_ppist() - prior and posterior distributions  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_mcmc</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_mcmc() - mcmc chains  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_residuals</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-5.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_cpuefits</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-6.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_runstest</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_runstest()   &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-7.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_logfits</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-8.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_procdev</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_procdev() - Process error diviations on log(biomass)  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-9.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_PPC</span>(bet1) <span class="co"># Posterior Predictive Checks - Not great should 0.2-0.8</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jrplot_PPC() - Posterior Predictive Checks &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-10.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Posterior Predictive Checks with Bayesian p values </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Index Bayesian.p nobs
+1 JR2_early  0.9531667   20
+2  JR2_late  0.9863333   39
+3  Combined  0.9697500   59</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Status</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_summary()</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-11.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># combine plots</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(bet1,<span class="at">add=</span>T,<span class="at">type =</span> <span class="fu">c</span>(<span class="st">"BBmsy"</span>, <span class="st">"FFmsy"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_summary()</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_spphase</span>(bet1,<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_spphase() - JABBA Surplus Production Phase Plot  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_kobe</span>(bet1,<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_kobe() - Stock Status Plot  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/indvidual-plots-12.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.8</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="Example_iccat_cache/html/variance-model_2e48a68c8ae223699a2dfc1091dddc79">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Try to improve runs test diagnostics by changing the variance settings</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Increase minimum obs error from 0.01 to 0.1 and remove SEs from CPUE model</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>jbinput2 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span><span class="cn">NULL</span>,<span class="at">assessment=</span>assessment,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">scenario =</span> <span class="st">"Run2"</span>,<span class="at">model.type =</span> <span class="st">"Fox"</span>,<span class="at">sigma.est =</span> <span class="cn">TRUE</span>,<span class="at">fixed.obsE =</span> <span class="fl">0.1</span>,<span class="at">igamma =</span> <span class="fu">c</span>(<span class="fl">0.001</span>,<span class="fl">0.001</span>),</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">psi.prior =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.2</span>), <span class="co"># Initial depletion B/K</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">verbose =</span> F)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>bet2 <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput2,<span class="at">quickmcmc =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 199
+   Unobserved stochastic nodes: 358
+   Total graph size: 4127
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check residual diags</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_cpuefits</span>(bet2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/variance-plots-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_runstest</span>(bet2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_runstest()   &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/variance-plots-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_logfits</span>(bet2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/variance-plots-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_PPC</span>(bet2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jrplot_PPC() - Posterior Predictive Checks &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/variance-plots-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Posterior Predictive Checks with Bayesian p values </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Index Bayesian.p nobs
+1 JR2_early     0.6670   20
+2  JR2_late     0.7840   39
+3  Combined     0.7255   59</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Improved</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>refinput <span class="ot">=</span> jbinput2 <span class="co"># Note as reference input </span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(<span class="fu">list</span>(<span class="at">Run1=</span>bet1,<span class="at">Run2=</span>bet2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_summary()</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/variance-plots-5.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(<span class="fu">list</span>(<span class="at">Run1=</span>bet1,<span class="at">Run2=</span>bet2))</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Check parameters and convergence (p &lt;0.05 is not fully converged)</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>bet2<span class="sc">$</span>pars </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Median          LCI          UCI Geweke.p Heidel.p
+K      1.337289e+06 8.278359e+05 2.027482e+06    0.529    0.139
+r      1.671972e-01 1.037479e-01 2.842898e-01    0.205    0.097
+q.1    7.945800e-07 5.247624e-07 1.344728e-06    0.381    0.076
+q.2    1.543163e-06 1.038070e-06 2.450007e-06    0.102    0.094
+psi    9.546515e-01 6.595934e-01 1.282712e+00    0.071    0.301
+sigma2 5.942888e-03 2.056188e-03 1.407600e-02    0.748    0.454
+tau2.1 2.739137e-03 4.597178e-04 1.591589e-02    0.120    0.099
+tau2.2 1.698279e-03 3.739495e-04 8.355441e-03    0.541    0.838
+m      1.001000e+00 1.001000e+00 1.001000e+00      NaN       NA</code></pre>
+</div>
+</div>
+<div class="cell" data-hash="Example_iccat_cache/html/full-run model_00509c8f9a0b15436fb212a337b7bbe4">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a long MCMC run with 3 chains</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>bet.full <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput2,<span class="at">nc=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 199
+   Unobserved stochastic nodes: 358
+   Total graph size: 4127
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MCMC convergence</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>bet.full<span class="sc">$</span>pars </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Median          LCI          UCI Geweke.p Heidel.p
+K      1.250600e+06 7.761337e+05 2.118714e+06    0.174    0.421
+r      1.787460e-01 9.987966e-02 3.046585e-01    0.270    0.379
+q.1    8.531603e-07 4.905997e-07 1.445405e-06    0.291    0.736
+q.2    1.644943e-06 9.506164e-07 2.745391e-06    0.227    0.659
+psi    9.579150e-01 6.672140e-01 1.305552e+00    0.822    0.768
+sigma2 6.030239e-03 2.069649e-03 1.365746e-02    0.401    0.791
+tau2.1 2.725635e-03 4.435123e-04 1.586592e-02    0.619    0.302
+tau2.2 1.668321e-03 3.592151e-04 8.047739e-03    0.792    0.479
+m      1.001000e+00 1.001000e+00 1.001000e+00      NaN       NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_mcmc</span>(bet.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_mcmc() - mcmc chains  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get quantaties</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>tibble<span class="sc">::</span><span class="fu">as_tibble</span>(bet.full<span class="sc">$</span>estimates)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 3
+            mu         lci         uci
+         &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+ 1 1250600.    776134.     2118714.   
+ 2       0.179      0.0999       0.305
+ 3       0.958      0.667        1.31 
+ 4       0.078      0.045        0.117
+ 5       1.00       1.00         1.00 
+ 6       0.179      0.1          0.304
+ 7  460300.    285666.      779821.   
+ 8   82440.     68327.       95639.   
+ 9       0.368      0.368        0.368
+10       0.95       0.646        1.29 
+11       0.283      0.215        0.371
+12       0.77       0.585        1.01 
+13       1.22       0.89         1.67 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FLR data.frame trajectories</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>tibble<span class="sc">::</span><span class="fu">as_tibble</span>(bet.full<span class="sc">$</span>flqs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 276 × 8
+   age    year unit   season area    iter     data qname  
+   &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  
+ 1 all    1950 unique all    unique     1 1178844. biomass
+ 2 all    1951 unique all    unique     1 1176728. biomass
+ 3 all    1952 unique all    unique     1 1173449. biomass
+ 4 all    1953 unique all    unique     1 1170452. biomass
+ 5 all    1954 unique all    unique     1 1171114. biomass
+ 6 all    1955 unique all    unique     1 1163555. biomass
+ 7 all    1956 unique all    unique     1 1150687. biomass
+ 8 all    1957 unique all    unique     1 1144055. biomass
+ 9 all    1958 unique all    unique     1 1126012. biomass
+10 all    1959 unique all    unique     1 1112821. biomass
+# … with 266 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fits</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>tibble<span class="sc">::</span><span class="fu">as_tibble</span>(bet.full<span class="sc">$</span>diags)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 59 × 12
+   factor  level name   year season   obs   hat hat.lci hat.uci residual retro…¹
+   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+ 1 BETicc… Run2  JR2_…  1959      1 0.842 0.945   0.803    1.11 -0.115         0
+ 2 BETicc… Run2  JR2_…  1960      1 0.925 0.982   0.854    1.13 -0.0601        0
+ 3 BETicc… Run2  JR2_…  1961      1 1.17  1.06    0.922    1.21  0.103         0
+ 4 BETicc… Run2  JR2_…  1962      1 1.00  1.06    0.930    1.21 -0.0581        0
+ 5 BETicc… Run2  JR2_…  1963      1 1.15  1.10    0.964    1.26  0.0460        0
+ 6 BETicc… Run2  JR2_…  1964      1 1.17  1.12    0.983    1.28  0.0406        0
+ 7 BETicc… Run2  JR2_…  1965      1 1.23  1.13    0.991    1.29  0.0840        0
+ 8 BETicc… Run2  JR2_…  1966      1 1.08  1.09    0.951    1.24 -0.00852       0
+ 9 BETicc… Run2  JR2_…  1967      1 1.04  1.07    0.936    1.22 -0.0242        0
+10 BETicc… Run2  JR2_…  1968      1 1.19  1.08    0.939    1.24  0.104         0
+# … with 49 more rows, 1 more variable: hindcast &lt;lgl&gt;, and abbreviated
+#   variable name ¹​retro.peels</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/full-run%20values-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="estimate-shape-m-as-function-of-bmsyk" class="level2">
+<h2 class="anchored" data-anchor-id="estimate-shape-m-as-function-of-bmsyk">Estimate shape m as function of Bmsy/K</h2>
+<div class="cell" data-hash="Example_iccat_cache/html/shape m model_92717eecc4ebce15393d1766e545603e">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>jbinput3 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span><span class="cn">NULL</span>,<span class="at">assessment=</span>assessment,</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">scenario =</span> <span class="st">"Est.Shape"</span>,<span class="at">model.type =</span> <span class="st">"Pella_m"</span>, <span class="co"># Estimate shape</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">BmsyK=</span><span class="fl">0.4</span>, <span class="co"># mean 40%B0</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">shape.CV =</span> <span class="fl">0.3</span>, <span class="co">#CV</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">sigma.est =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">fixed.obsE =</span> <span class="fl">0.1</span>,</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">igamma =</span> <span class="fu">c</span>(<span class="fl">0.001</span>,<span class="fl">0.001</span>),</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">psi.prior =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.1</span>))</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>bet3 <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput3,<span class="at">quickmcmc=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 199
+   Unobserved stochastic nodes: 359
+   Total graph size: 4131
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ppdist</span>(bet3) <span class="co"># check shape prior &amp; posterior dist - not much information</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_ppist() - prior and posterior distributions  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(<span class="fu">list</span>(bet2,bet3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/shape-m%20checks-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_summary()</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/shape-m%20checks-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(<span class="fu">list</span>(bet2,bet3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="Example_iccat_cache/html/Schaefer-model_d796edfd7b8f95b42850b19bae849a13">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># also run model as Schaefer</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>jbinput4 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span><span class="cn">NULL</span>,<span class="at">assessment=</span>assessment,</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">scenario =</span> <span class="st">"Schaefer"</span>,<span class="at">model.type =</span> <span class="st">"Schaefer"</span>, <span class="co"># Estimate shape</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">sigma.est =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">fixed.obsE =</span> <span class="fl">0.1</span>,</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">igamma =</span> <span class="fu">c</span>(<span class="fl">0.001</span>,<span class="fl">0.001</span>),</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">psi.prior =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.1</span>))</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>bet4 <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput4,<span class="at">quickmcmc=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 199
+   Unobserved stochastic nodes: 358
+   Total graph size: 4127
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare </span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex=</span><span class="fl">0.7</span>)</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(<span class="fu">list</span>(bet1,bet2,bet3,bet4))</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex=</span><span class="fl">0.6</span>)</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(<span class="fu">list</span>(bet1,bet2,bet3,bet4),<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_summary()</code></pre>
+</div>
+</div>
+</section>
+<section id="forecasting" class="level1">
+<h1>Forecasting</h1>
+<section id="f-based-forecasting" class="level2">
+<h2 class="anchored" data-anchor-id="f-based-forecasting">F-based Forecasting</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># F-based forecasting</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Relative Fmsy</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Single Forecast for Base-Case model - now works with imp.yr=1 </span></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>fw1 <span class="ot">=</span> <span class="fu">fw_jabba</span>(bet2,<span class="at">nyears=</span><span class="dv">10</span>,<span class="at">imp.yr=</span><span class="dv">1</span>,<span class="at">imp.values =</span> <span class="fu">seq</span>(<span class="fl">0.8</span>,<span class="fl">1.2</span>,<span class="fl">0.1</span>),<span class="at">quant=</span><span class="st">"F"</span>,<span class="at">type=</span><span class="st">"msy"</span>,<span class="at">stochastic =</span> T)</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a><span class="co">#jbpar(mfrow=c(3,2))</span></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.7</span>)</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw1)</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Zoom-in</span></span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw1,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">2027</span>))</span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v=</span><span class="dv">2018</span>) <span class="co"># Check</span></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Forecast with AR1 process error</span></span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>fw1.ar1 <span class="ot">=</span> <span class="fu">fw_jabba</span>(bet2,<span class="at">nyears=</span><span class="dv">10</span>,<span class="at">imp.yr=</span><span class="dv">1</span>,<span class="at">quant=</span><span class="st">"F"</span>,<span class="at">type=</span><span class="st">"msy"</span>,<span class="at">AR1=</span><span class="cn">TRUE</span>,<span class="at">stochastic =</span> T)</span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a><span class="co"># now compare</span></span>
+<span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.6</span>)</span>
+<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>){</span>
+<span id="cb75-16"><a href="#cb75-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">jbplot_ensemble</span>(fw1,<span class="at">subplots =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>)[i],<span class="at">add=</span>T,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">2028</span>),<span class="at">legend=</span><span class="fu">ifelse</span>(i<span class="sc">==</span><span class="dv">1</span>,T,F))</span>
+<span id="cb75-17"><a href="#cb75-17" aria-hidden="true" tabindex="-1"></a>   <span class="fu">jbplot_ensemble</span>(fw1.ar1,<span class="at">subplots =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>)[i],<span class="at">add=</span>T,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">2028</span>),<span class="at">legend=</span><span class="fu">ifelse</span>(i<span class="sc">==</span><span class="dv">1</span>,T,F))</span>
+<span id="cb75-18"><a href="#cb75-18" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb75-19"><a href="#cb75-19" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="fu">c</span>(<span class="st">"Default"</span>,<span class="st">"AR1"</span>),<span class="at">outer=</span>T,<span class="at">at=</span><span class="fu">c</span>(<span class="fl">0.27</span>,<span class="fl">0.77</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="iotc-style" class="level2">
+<h2 class="anchored" data-anchor-id="iotc-style">IOTC style</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># IOTC-Style: Relative current catch (default mean 3 yrs)</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 years, 2 intermediate years, deterministic</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>fw.io <span class="ot">=</span> <span class="fu">fw_jabba</span>(bet2,<span class="at">nyears=</span><span class="dv">10</span>,<span class="at">imp.yr=</span><span class="dv">3</span>,<span class="at">imp.values =</span> <span class="fu">seq</span>(<span class="fl">0.6</span>,<span class="fl">1.2</span>,<span class="fl">0.1</span>),<span class="at">quant=</span><span class="st">"Catch"</span>,<span class="at">type=</span><span class="st">"ratio"</span>,<span class="at">nsq=</span><span class="dv">3</span>,<span class="at">stochastic =</span> F)</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.io)</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.io,<span class="at">add=</span>T,<span class="at">subplots =</span> <span class="dv">1</span>,<span class="at">legend.loc =</span> <span class="st">"topright"</span>)</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.io,<span class="at">add=</span>T,<span class="at">subplots =</span> <span class="dv">2</span>,<span class="at">legend=</span>F)</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.io,<span class="at">add=</span>T,<span class="at">subplots =</span> <span class="dv">5</span>,<span class="at">legend=</span>F)</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.io,<span class="at">add=</span>T,<span class="at">subplots =</span> <span class="dv">6</span>,<span class="at">legend=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="iccat-style" class="level2">
+<h2 class="anchored" data-anchor-id="iccat-style">ICCAT style</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ICCAT Style</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>Ccur <span class="ot">=</span> <span class="fu">mean</span>(<span class="fu">tail</span>(jbinput2<span class="sc">$</span>data<span class="sc">$</span>catch[,<span class="dv">2</span>],<span class="dv">2</span>))</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>TACs <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">75500</span>,<span class="fu">seq</span>(<span class="dv">60000</span>,<span class="dv">78000</span>,<span class="dv">2000</span>))</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>fw.iccat<span class="ot">=</span> <span class="fu">fw_jabba</span>(bet2,<span class="at">nyears=</span><span class="dv">10</span>,<span class="at">imp.yr=</span><span class="dv">3</span>,<span class="at">initial =</span> <span class="fu">c</span>(Ccur,<span class="dv">76000</span>),<span class="at">imp.values =</span> TACs,<span class="at">quant=</span><span class="st">"Catch"</span>,<span class="at">type=</span><span class="st">"abs"</span>,<span class="at">nsq=</span><span class="dv">3</span>,<span class="at">stochastic =</span> F,<span class="at">AR1=</span>T)</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.iccat,<span class="at">legendcex =</span> <span class="fl">0.4</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">2027</span>),<span class="at">subplots =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">6</span>),<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/ICCAT-style-forecast-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.iccat,<span class="at">legendcex =</span> <span class="fl">0.4</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">2027</span>),<span class="at">subplots =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">6</span>),<span class="at">plotCIs =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if correct</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>()</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.iccat,<span class="at">legendcex =</span> <span class="fl">0.4</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">2027</span>),<span class="at">subplots =</span> <span class="fu">c</span>(<span class="dv">6</span>),<span class="at">plotCIs =</span> F,<span class="at">add=</span>T)</span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v=</span><span class="fu">c</span>(<span class="dv">2017</span>,<span class="dv">2018</span>,<span class="dv">2019</span>,<span class="dv">2020</span>)) <span class="co"># 2020 = imp.yr</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/verify-forecasts-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="ensemble" class="level2">
+<h2 class="anchored" data-anchor-id="ensemble">Ensemble</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Do Ensemble modelling</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(<span class="fu">list</span>(bet2,bet3,bet4))</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Joint all runs</span></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>ens <span class="ot">=</span> <span class="fu">jbplot_ensemble</span>(<span class="fu">list</span>(bet2,bet3,bet4),<span class="at">kbout=</span>T,<span class="at">joint=</span>T)</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Do ensemble forecast</span></span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>fw.ens<span class="ot">=</span> <span class="fu">fw_jabba</span>(<span class="fu">list</span>(bet2,bet3,bet4),<span class="at">nyears=</span><span class="dv">10</span>,<span class="at">imp.yr=</span><span class="dv">2</span>,<span class="at">initial =</span> Ccur,<span class="at">imp.values =</span> TACs,<span class="at">quant=</span><span class="st">"Catch"</span>,<span class="at">type=</span><span class="st">"abs"</span>,<span class="at">nsq=</span><span class="dv">3</span>,<span class="at">stochastic =</span> F,<span class="at">AR1=</span>T,<span class="at">thin=</span><span class="dv">3</span>)</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.6</span>)</span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>) <span class="fu">jbplot_ensemble</span>(fw.ens,<span class="at">add=</span>T,<span class="at">subplots =</span> i,<span class="at">legend =</span> <span class="fu">ifelse</span>(i<span class="sc">==</span><span class="dv">2</span>,T,F))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="conduct-retrospective-analysis-and-hind-cast-cross-validation" class="level1">
+<h1>Conduct Retrospective Analysis and Hind-Cast Cross-Validation</h1>
+<section id="hindcast-cross-validation" class="level2">
+<h2 class="anchored" data-anchor-id="hindcast-cross-validation">Hindcast cross validation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Do hindcast cross-validation</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>hc1 <span class="ot">=</span> <span class="fu">hindcast_jabba</span>(jbinput2,bet2,<span class="at">peels=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show Retrospective Pattern</span></span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>mohns<span class="ot">=</span> <span class="fu">jbplot_retro</span>(hc1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_retro() - retrospective analysis &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/hcxvl-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>mohns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 B          F        Bmsy        Fmsy         procB
+2017   -0.13540214 0.15660708  0.01812184 -0.03547243 -0.0003170566
+2016   -0.09261701 0.10207047  0.04275104 -0.06202229  0.0072883238
+2015   -0.06997217 0.07523665 -0.02625670  0.02819481 -0.0084695762
+2014   -0.15587554 0.18465944 -0.06452429  0.07546742 -0.0210002906
+2013   -0.08713178 0.09544837 -0.11443550  0.21352945 -0.0382519582
+rho.mu -0.10819973 0.12280440 -0.02886872  0.04393939 -0.0121501116
+                 MSY
+2017    0.0155857951
+2016    0.0237526821
+2015   -0.0009394105
+2014   -0.0071615831
+2013   -0.0669528276
+rho.mu -0.0071430688</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>mohns[<span class="fu">row.names</span>(mohns)<span class="sc">==</span><span class="st">"rho.mu"</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                B         F        Bmsy       Fmsy       procB          MSY
+rho.mu -0.1081997 0.1228044 -0.02886872 0.04393939 -0.01215011 -0.007143069</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>hindcasts <span class="ot">=</span> hc1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="alternative-forecasts" class="level2">
+<h2 class="anchored" data-anchor-id="alternative-forecasts">Alternative Forecasts</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make alternative forecasts</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>hc2 <span class="ot">=</span> <span class="fu">jbhcxval</span>(hc1,<span class="at">AR1=</span>T) <span class="co"># make forecasts with AR1</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1</span>){</span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">jbplot_hcxval</span>(hc1,<span class="at">index=</span><span class="fu">c</span>(<span class="dv">2</span>)[i],<span class="at">add=</span>T,<span class="at">minyr =</span> <span class="dv">2000</span>,<span class="at">legend.add =</span> F)</span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">jbplot_hcxval</span>(hc2,<span class="at">index=</span><span class="fu">c</span>(<span class="dv">2</span>)[i],<span class="at">add=</span>T,<span class="at">minyr =</span> <span class="dv">2000</span>,<span class="at">legend.add =</span> F)</span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ &gt;&lt;&gt; Only including indices that have years overlapping hind-cast horizan 
+
+ &gt;&lt;&gt; Including indices: JR2_late 
+
+No observations in evaluation years to compute prediction residuals for Index JR2_early 
+
+ Computing MASE with all 5 of 5  prediction residuals for Index JR2_late </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ &gt;&lt;&gt; Only including indices that have years overlapping hind-cast horizan 
+
+ &gt;&lt;&gt; Including indices: JR2_late 
+
+No observations in evaluation years to compute prediction residuals for Index JR2_early 
+
+ Computing MASE with all 5 of 5  prediction residuals for Index JR2_late </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="fu">c</span>(<span class="st">"Default"</span>,<span class="st">"AR1"</span>),<span class="at">outer=</span>T,<span class="at">at=</span><span class="fu">c</span>(<span class="fl">0.27</span>,<span class="fl">0.77</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/Alt-hindcast%20forecast-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbmase</span>(hc2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ &gt;&lt;&gt; Only including indices that have years overlapping hind-cast horizan 
+
+ &gt;&lt;&gt; Including indices: JR2_late 
+
+No observations in evaluation years to compute prediction residuals for Index JR2_early 
+
+ Computing MASE with all 5 of 5  prediction residuals for Index JR2_late </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Index     MASE  MASE.adj    MAE.PR  MAE.base n.eval
+1 JR2_early       NA        NA        NA        NA      0
+2  JR2_late 1.078354 0.8897589 0.1481579 0.1373927      5
+3     joint 1.078354 1.0783537 0.1481579 0.1373927      5</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="catch-only-with-biomass-prior-in-2010-as-type-bbmsy" class="level1">
+<h1>Catch-Only with biomass prior in 2010 as type B/Bmsy</h1>
+<div class="cell" data-hash="Example_iccat_cache/html/catch-only model_a9d5e8d9b8620f6a0f59a25ad6d00bc2">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object for Catch Only</span></span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Add biomass prior based on B/Bmsy guestimate</span></span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>jbinput5 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">model.type =</span> <span class="st">"Fox"</span>,</span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">assessment=</span>assessment,<span class="at">scenario =</span>  <span class="st">"CatchOnly"</span> ,</span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">b.prior=</span><span class="fu">c</span>(<span class="fl">0.5</span>,<span class="fl">0.2</span>,<span class="dv">2010</span>,<span class="st">"bbmsy"</span>),</span>
+<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">psi.prior =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.1</span>))</span>
+<span id="cb95-7"><a href="#cb95-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit JABBA</span></span>
+<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>bet5 <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput5,<span class="at">save.jabba=</span><span class="cn">TRUE</span>,<span class="at">output.dir=</span>out.dir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 140
+   Unobserved stochastic nodes: 278
+   Total graph size: 3707
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check depletion prior vs posterior</span></span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_bprior</span>(bet5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_bprior - biomass depletion prior vs posterior   &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/catch-only-checks-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(<span class="fu">list</span>(bet2,bet5))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_summary()</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/catch-only-checks-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="original-south-atlantic-swordfish-example.winker-et-al.-2018.-jabba-just-another-biomass-assessment" class="level1">
+<h1>Original South Atlantic Swordfish example.Winker et al.&nbsp;(2018). JABBA: Just Another Biomass Assessment</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>swos <span class="ot">=</span> iccat<span class="sc">$</span>swos</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>assessment <span class="ot">=</span> <span class="st">"SWOSiccat"</span></span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a>scenario <span class="ot">=</span> <span class="st">"Base"</span></span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>out.dir <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"Example"</span>, <span class="st">"iccat"</span>, assessment)</span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(out.dir) ) {</span>
+<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(out.dir)</span>
+<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="Example_iccat_cache/html/swos-model_18f305dd560f78726ef8188136682a8c">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>jbswos <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>swos<span class="sc">$</span>catch,<span class="at">cpue=</span><span class="fu">normIndex</span>(swos<span class="sc">$</span>cpue),<span class="at">se=</span>swos<span class="sc">$</span>se,<span class="at">assessment=</span>assessment,<span class="at">scenario =</span> scenario,</span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">model.type =</span> <span class="st">"Pella"</span>,</span>
+<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">BmsyK =</span> <span class="fl">0.4</span>,</span>
+<span id="cb102-5"><a href="#cb102-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">r.prior=</span><span class="fu">c</span>(<span class="fl">0.42</span>,<span class="fl">0.37</span>),</span>
+<span id="cb102-6"><a href="#cb102-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">K.prior =</span> <span class="fu">c</span>(<span class="dv">250000</span>,<span class="dv">1</span>),</span>
+<span id="cb102-7"><a href="#cb102-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">psi.prior =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.25</span>),</span>
+<span id="cb102-8"><a href="#cb102-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fixed.obsE =</span> <span class="fl">0.2</span>,</span>
+<span id="cb102-9"><a href="#cb102-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">add.catch.CV =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb102-10"><a href="#cb102-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">proc.dev.all =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb102-11"><a href="#cb102-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">igamma=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="fl">0.01</span>), <span class="co"># default process error (moderately informative)</span></span>
+<span id="cb102-12"><a href="#cb102-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">P_bound =</span> <span class="fu">c</span>(<span class="fl">0.02</span>,<span class="fl">1.1</span>),<span class="at">verbose=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_indices</span>(jbswos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-indices-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="Example_iccat_cache/html/swos-fits_f1ee15639e02cc8a707cdc6a8e39173d">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit JABBA</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>fit.swos <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbswos,<span class="at">save.jabba=</span><span class="cn">TRUE</span>,<span class="at">output.dir=</span>out.dir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 226
+   Unobserved stochastic nodes: 924
+   Total graph size: 6093
+
+Initializing model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_cpuefits</span>(fit.swos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_logfits</span>(fit.swos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-plots-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_residuals</span>(fit.swos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-plots-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_cpue() - fits to CPUE &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-plots-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_runstest</span>(fit.swos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_runstest()   &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ppdist</span>(fit.swos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-plots-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_ppist() - prior and posterior distributions  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-plots-5.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.7</span>)</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_spphase</span>(fit.swos,<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_spphase() - JABBA Surplus Production Phase Plot  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_kobe</span>(fit.swos,<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+&gt;&lt;&gt; jbplot_kobe() - Stock Status Plot  &lt;&gt;&lt;</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-plots-6.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Project</span></span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ICCAT Style</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>Ccur <span class="ot">=</span> <span class="dv">10056</span></span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>TACs <span class="ot">=</span> <span class="fu">seq</span>(<span class="dv">10000</span>,<span class="dv">18000</span>,<span class="dv">1000</span>)</span>
+<span id="cb120-5"><a href="#cb120-5" aria-hidden="true" tabindex="-1"></a>fw.swos<span class="ot">=</span> <span class="fu">fw_jabba</span>(fit.swos,<span class="at">nyears=</span><span class="dv">10</span>,<span class="at">imp.yr=</span><span class="dv">4</span>,<span class="at">initial =</span> Ccur,<span class="at">imp.values =</span> TACs,<span class="at">quant=</span><span class="st">"Catch"</span>,<span class="at">type=</span><span class="st">"abs"</span>,<span class="at">nsq=</span><span class="dv">3</span>,<span class="at">stochastic =</span> T,<span class="at">AR1=</span>F)</span>
+<span id="cb120-6"><a href="#cb120-6" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.7</span>)</span>
+<span id="cb120-7"><a href="#cb120-7" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(fw.swos,<span class="at">legendcex =</span> <span class="fl">0.4</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2015</span>,<span class="dv">2025</span>),<span class="at">subplots =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>),<span class="at">add=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Example_iccat_files/figure-html/swos-iccat-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
