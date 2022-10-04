@@ -1,7 +1,7 @@
 
-
-setwd("C:/Work/Research/Laurie/JabbaZ")
-load("C:/Work/Research/Laurie/JabbaZ/om.75.RData",verbose=T)
+#setwd("C:/Work/Research/Laurie/JabbaZ")
+#here()
+#load("C:/Work/Research/Laurie/JabbaZ/om.75.RData",verbose=T)
 library(FLCore)
 library(FLBRP)
 
