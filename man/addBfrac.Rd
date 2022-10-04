@@ -14,7 +14,7 @@ addBfrac(kb, bfrac = 0.5, bref = c("bmsy", "b0"), quantiles = c(0.025, 0.975))
 \item{base}{defines biomass base "bmsy" or "b0"}
 }
 \value{
-
+List with kb and bref.
 }
 \description{
 add biomass reference to kb ouput as fraction Bmsy or B0, e.g. for Blim or MSST

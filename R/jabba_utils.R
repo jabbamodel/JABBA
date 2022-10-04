@@ -490,7 +490,7 @@ zage =  function(ca,ages = "missing"){
 #' @param jabba bfrac fraction of Bmsy or B0
 #' @param base defines biomass base "bmsy" or "b0"
 #' @param quantiles default is 95CIs as c(0.025,0.975)
-#' @return 
+#' @return List with kb and bref.
 #' @export
 addBfrac <- function(kb, bfrac=0.5, bref = c("bmsy","b0"),quantiles = c(0.025,0.975)){
   if(!is.null(kb$settings)){ 
