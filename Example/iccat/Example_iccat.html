@@ -122,7 +122,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell">
 
 </div>
-<div class="cell" data-hash="Example_iccat_cache/html/build-JAGS model_742b6f6c3ddc55696742f74d614067b4">
+<div class="cell" data-hash="Example_iccat_cache/html/build-JAGS-model_14bb08147f446aacc26def9621cdff51">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>jbinput1 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span>bet<span class="sc">$</span>se,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">assessment=</span>assessment,<span class="at">scenario =</span> <span class="st">"Run1"</span>,</span>
@@ -139,7 +139,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit JABBA (here mostly default value - careful)</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>bet1 <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput1,<span class="at">quickmcmc =</span> <span class="cn">TRUE</span>) <span class="co"># quick run</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Example_iccat_files/figure-html/build-JAGS%20model-1.png" class="img-fluid" width="672"></p>
+<p><img src="Example_iccat_files/figure-html/build-JAGS-model-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Compiling model graph
@@ -287,7 +287,7 @@ Initializing model</code></pre>
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbpar</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),<span class="at">plot.cex =</span> <span class="fl">0.8</span>)</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(bet1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="Example_iccat_cache/html/variance-model_2e48a68c8ae223699a2dfc1091dddc79">
+<div class="cell" data-hash="Example_iccat_cache/html/variance-jags_e6bc2456ebb56a041601f4694e714ad9">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Try to improve runs test diagnostics by changing the variance settings</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Increase minimum obs error from 0.01 to 0.1 and remove SEs from CPUE model</span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>jbinput2 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span><span class="cn">NULL</span>,<span class="at">assessment=</span>assessment,</span>
@@ -369,19 +369,29 @@ Initializing model</code></pre>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Check parameters and convergence (p &lt;0.05 is not fully converged)</span></span>
 <span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>bet2<span class="sc">$</span>pars </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>             Median          LCI          UCI Geweke.p Heidel.p
-K      1.337289e+06 8.278359e+05 2.027482e+06    0.529    0.139
-r      1.671972e-01 1.037479e-01 2.842898e-01    0.205    0.097
-q.1    7.945800e-07 5.247624e-07 1.344728e-06    0.381    0.076
-q.2    1.543163e-06 1.038070e-06 2.450007e-06    0.102    0.094
-psi    9.546515e-01 6.595934e-01 1.282712e+00    0.071    0.301
-sigma2 5.942888e-03 2.056188e-03 1.407600e-02    0.748    0.454
-tau2.1 2.739137e-03 4.597178e-04 1.591589e-02    0.120    0.099
-tau2.2 1.698279e-03 3.739495e-04 8.355441e-03    0.541    0.838
-m      1.001000e+00 1.001000e+00 1.001000e+00      NaN       NA</code></pre>
+<pre><code>                     Median                  LCI                  UCI Geweke.p
+K      1337289.166065378813 827835.9101383626694 2027482.186887500342    0.529
+r            0.167197219772      0.1037478919937       0.284289789285    0.205
+q.1          0.000000794580      0.0000005247624       0.000001344728    0.381
+q.2          0.000001543163      0.0000010380696       0.000002450007    0.102
+psi          0.954651509048      0.6595933628588       1.282711802820    0.071
+sigma2       0.005942888255      0.0020561884575       0.014075996760    0.748
+tau2.1       0.002739136646      0.0004597177970       0.015915888032    0.120
+tau2.2       0.001698279359      0.0003739494687       0.008355440901    0.541
+m            1.001000000000      1.0010000000000       1.001000000000      NaN
+       Heidel.p
+K         0.139
+r         0.097
+q.1       0.076
+q.2       0.094
+psi       0.301
+sigma2    0.454
+tau2.1    0.099
+tau2.2    0.838
+m            NA</code></pre>
 </div>
 </div>
-<div class="cell" data-hash="Example_iccat_cache/html/full-run model_00509c8f9a0b15436fb212a337b7bbe4">
+<div class="cell" data-hash="Example_iccat_cache/html/full-run-model_e6e96196ce9ac9eb10d9790050a9ef1a">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a long MCMC run with 3 chains</span></span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>bet.full <span class="ot">=</span> <span class="fu">fit_jabba</span>(jbinput2,<span class="at">nc=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -400,16 +410,26 @@ Initializing model</code></pre>
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MCMC convergence</span></span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>bet.full<span class="sc">$</span>pars </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>             Median          LCI          UCI Geweke.p Heidel.p
-K      1.250600e+06 7.761337e+05 2.118714e+06    0.174    0.421
-r      1.787460e-01 9.987966e-02 3.046585e-01    0.270    0.379
-q.1    8.531603e-07 4.905997e-07 1.445405e-06    0.291    0.736
-q.2    1.644943e-06 9.506164e-07 2.745391e-06    0.227    0.659
-psi    9.579150e-01 6.672140e-01 1.305552e+00    0.822    0.768
-sigma2 6.030239e-03 2.069649e-03 1.365746e-02    0.401    0.791
-tau2.1 2.725635e-03 4.435123e-04 1.586592e-02    0.619    0.302
-tau2.2 1.668321e-03 3.592151e-04 8.047739e-03    0.792    0.479
-m      1.001000e+00 1.001000e+00 1.001000e+00      NaN       NA</code></pre>
+<pre><code>                      Median                  LCI                  UCI Geweke.p
+K      1250599.8168887742795 776133.6509626600891 2118713.711132049561    0.174
+r            0.1787459798048      0.0998796644263       0.304658478777    0.270
+q.1          0.0000008531603      0.0000004905997       0.000001445405    0.291
+q.2          0.0000016449425      0.0000009506164       0.000002745391    0.227
+psi          0.9579150362218      0.6672140268222       1.305551987004    0.822
+sigma2       0.0060302392889      0.0020696491200       0.013657464409    0.401
+tau2.1       0.0027256348131      0.0004435122504       0.015865924187    0.619
+tau2.2       0.0016683205237      0.0003592150623       0.008047739015    0.792
+m            1.0010000000000      1.0010000000000       1.001000000000      NaN
+       Heidel.p
+K         0.421
+r         0.379
+q.1       0.736
+q.2       0.659
+psi       0.768
+sigma2    0.791
+tau2.1    0.302
+tau2.2    0.479
+m            NA</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_mcmc</span>(bet.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -474,13 +494,13 @@ m      1.001000e+00 1.001000e+00 1.001000e+00      NaN       NA</code></pre>
 #   variable name ¹​retro.peels</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="Example_iccat_files/figure-html/full-run%20values-1.png" class="img-fluid" width="672"></p>
+<p><img src="Example_iccat_files/figure-html/full-run-convergence-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 <section id="estimate-shape-m-as-function-of-bmsyk" class="level2">
 <h2 class="anchored" data-anchor-id="estimate-shape-m-as-function-of-bmsyk">Estimate shape m as function of Bmsy/K</h2>
-<div class="cell" data-hash="Example_iccat_cache/html/shape m model_92717eecc4ebce15393d1766e545603e">
+<div class="cell" data-hash="Example_iccat_cache/html/jbinput3-JAGS_fa4b24064e8890b4062da0bbc4562d17">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object</span></span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>jbinput3 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">cpue=</span>bet<span class="sc">$</span>cpue,<span class="at">se=</span><span class="cn">NULL</span>,<span class="at">assessment=</span>assessment,</span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">scenario =</span> <span class="st">"Est.Shape"</span>,<span class="at">model.type =</span> <span class="st">"Pella_m"</span>, <span class="co"># Estimate shape</span></span>
@@ -513,14 +533,14 @@ Initializing model</code></pre>
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare</span></span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_summary</span>(<span class="fu">list</span>(bet2,bet3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Example_iccat_files/figure-html/shape-m%20checks-1.png" class="img-fluid" width="672"></p>
+<p><img src="Example_iccat_files/figure-html/jbinput3-check-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 &gt;&lt;&gt; jbplot_summary()</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="Example_iccat_files/figure-html/shape-m%20checks-2.png" class="img-fluid" width="672"></p>
+<p><img src="Example_iccat_files/figure-html/jbinput3-check-2.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbplot_ensemble</span>(<span class="fu">list</span>(bet2,bet3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -715,7 +735,7 @@ No observations in evaluation years to compute prediction residuals for Index JR
 </div>
 <div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="fu">c</span>(<span class="st">"Default"</span>,<span class="st">"AR1"</span>),<span class="at">outer=</span>T,<span class="at">at=</span><span class="fu">c</span>(<span class="fl">0.27</span>,<span class="fl">0.77</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Example_iccat_files/figure-html/Alt-hindcast%20forecast-1.png" class="img-fluid" width="672"></p>
+<p><img src="Example_iccat_files/figure-html/Alt-hindcast-forecast-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jbmase</span>(hc2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -739,7 +759,7 @@ No observations in evaluation years to compute prediction residuals for Index JR
 </section>
 <section id="catch-only-with-biomass-prior-in-2010-as-type-bbmsy" class="level1">
 <h1>Catch-Only with biomass prior in 2010 as type B/Bmsy</h1>
-<div class="cell" data-hash="Example_iccat_cache/html/catch-only model_a9d5e8d9b8620f6a0f59a25ad6d00bc2">
+<div class="cell" data-hash="Example_iccat_cache/html/catch-only-model_181f7813a733eac85b8e204ddd35586e">
 <div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile JABBA JAGS model and input object for Catch Only</span></span>
 <span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Add biomass prior based on B/Bmsy guestimate</span></span>
 <span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>jbinput5 <span class="ot">=</span> <span class="fu">build_jabba</span>(<span class="at">catch=</span>bet<span class="sc">$</span>catch,<span class="at">model.type =</span> <span class="st">"Fox"</span>,</span>

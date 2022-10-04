@@ -37,7 +37,7 @@ bet = iccat$bet
 ```
 
 ```{r}
-#| label: build-JAGS model
+#| label: build-JAGS-model
 #| message: false
 #| warning: false
 #| cache: true
@@ -88,7 +88,7 @@ jbplot_ensemble(bet1)
 ```
 
 ```{r}
-#| label: variance-model
+#| label: variance-jags
 #| message: false
 #| warning: false
 #| cache: true
@@ -121,7 +121,7 @@ bet2$pars
 ```
 
 ```{r}
-#| label: full-run model 
+#| label: full-run-model 
 #| warning: false
 #| message: false
 #| cache: true
@@ -130,7 +130,7 @@ bet.full = fit_jabba(jbinput2,nc=3)
 ```
 
 ```{r}
-#| label: full-run values
+#| label: full-run-convergence
 # MCMC convergence
 bet.full$pars 
 jbplot_mcmc(bet.full)
@@ -148,7 +148,7 @@ tibble::as_tibble(bet.full$diags)
 ## Estimate shape m as function of Bmsy/K
 
 ```{r}
-#| label: shape m model
+#| label: jbinput3-JAGS
 #| message: false
 #| warning: false
 #| cache: true
@@ -166,7 +166,7 @@ bet3 = fit_jabba(jbinput3,quickmcmc=F)
 ```
 
 ```{r}
-#| label: shape-m checks
+#| label: jbinput3-check
 jbplot_ppdist(bet3) # check shape prior & posterior dist - not much information
 # Compare
 jbplot_summary(list(bet2,bet3))
@@ -203,7 +203,7 @@ jbplot_summary(list(bet1,bet2,bet3,bet4),add=T)
 ## F-based Forecasting
 
 ```{r}
-#| label: F-based forecasting
+#| label: Fforecast
 # F-based forecasting
 # Relative Fmsy
 # Single Forecast for Base-Case model - now works with imp.yr=1 
@@ -265,7 +265,7 @@ abline(v=c(2017,2018,2019,2020)) # 2020 = imp.yr
 ## Ensemble
 
 ```{r}
-#| label: ensemble model forecast
+#| label: ensemble-model-forecast
 # Do Ensemble modelling
 jbplot_ensemble(list(bet2,bet3,bet4))
 
@@ -300,7 +300,7 @@ hindcasts = hc1
 
 ## Alternative Forecasts
 ```{r}
-#| label: Alt-hindcast forecast
+#| label: Alt-hindcast-forecast
 # Make alternative forecasts
 hc2 = jbhcxval(hc1,AR1=T) # make forecasts with AR1
 
@@ -317,7 +317,7 @@ jbmase(hc2)
 # Catch-Only with biomass prior in 2010 as type B/Bmsy
 
 ```{r}
-#| label: catch-only model
+#| label: catch-only-model
 #| message: false
 #| warning: false
 #| cache: true
