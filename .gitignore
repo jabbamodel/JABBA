@@ -2,6 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-**/Example/iccat/Example_iccat_cache
-**/Example/iccat/Example_iccat_files
-**/Example/iccat/*iccat
+**/iccat/Example_iccat_cache
+**/iccat/Example_iccat_files
+**/iccat/*iccat
