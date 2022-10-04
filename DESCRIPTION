@@ -12,7 +12,7 @@ Authors@R:
     person(given = "Maia",
            family = "Kapur",
            role = c("aut")))
-Description: Bayesian State-Space Surplus Production Model to Catch and Abundance data
+Description: Bayesian State-Space Surplus Production Model to Catch and Abundance data.
 Depends:
     R (>= 3.5)
 Imports:
@@ -29,4 +29,4 @@ Suggests:
 License: EUPL
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
