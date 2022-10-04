@@ -6,7 +6,7 @@
 
 library(JABBA)
 #File = "C:/Work/Research/GitHub/JABBApkg_testing/example" # LINK to your folder of choice here
-file = here::i_am("examples/Examples_iccat.R", uuid= uuid::UUIDgenerate())
+file = here::i_am("examples/Examples_iccat.R")
 library(here)
 
 #><>><>><>><>><>><>><>><>><>><>><>

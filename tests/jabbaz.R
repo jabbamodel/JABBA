@@ -12,7 +12,7 @@ z$data = z$data*rlnorm(nrow(z),0,0.1)
 # Prepare df
 df = rbind(catch,index,z)
   
-inp = reshape2::dcast(df,year~qname,value.var="data",fun.aggregate=sum)
+inp = dcast(df,year~qname,value.var="data",fun.aggregate=sum)
 # JABBA data.frames
 Index = inp[,c("year","Index")]
 Index[Index==0] = NA
