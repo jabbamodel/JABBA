@@ -1818,18 +1818,20 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
   n.indices = length(indices)  
   if(single.plots==FALSE){  
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/hcxaval_",hc[[1]]$assessment,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/hcxaval_",hc[[1]]$assessment,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     if(add==F) par(Par)
   }  
   for(i in 1:length(indices)){
+    valid = NULL
     if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
+      valid=c(valid,paste(indices[i]))
       if(single.plots==TRUE){  
         if(is.null(width)) width = 5
         if(is.null(height)) height = 3.5
         
         Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-        if(as.png==TRUE){png(file = paste0(output.dir,"/hcxval_",hc$scenario,"_",indices[i],".png"), width = width, height = height,
+        if(as.png==TRUE){png(filename = paste0(output.dir,"/hcxval_",hc$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
         if(add==F){
           if(as.png==TRUE | indices[i]==valid[1]) par(Par)
