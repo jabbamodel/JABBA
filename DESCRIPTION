@@ -22,7 +22,9 @@ Imports:
       R2jags,
       randtests,
       reshape,
+      reshape2,
       here,
+      methods,
       scales
 Suggests:
       mvtnorm

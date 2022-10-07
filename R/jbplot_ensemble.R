@@ -67,6 +67,7 @@
 #' @param add surpresses par() to create multiplot figs
 #' @param run name for single models or joint ensembles
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
+#' @importFrom methods is
 #' @export
 #' @examples
 #' data(iccat)
@@ -126,7 +127,7 @@ jbplot_ensemble<- function(kb,
     kb = kb$kbtrj
   }      
       # if a list of fit_jabba() is provided
-      if(class(kb)=="list"){   
+      if(is(class(kb),"list")){   
       
       if(!is.null(kb$settings)){
         kb = list(kb)
