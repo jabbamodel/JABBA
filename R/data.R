@@ -74,3 +74,19 @@
 #' \item{msy}{msy}
 #' }
 "om"
+
+
+#' iccat
+#'
+#' iccat list
+#' 
+#' @docType data
+#' 
+#' @format List of 4 
+#' \describe{
+#' \item{bet}{Cpue, se, and catch data.frames from JR2 }
+#' \item{whm}{Cpue, se, and catch data.frames from JPNLL priors, JPNLL, CTPLL, BRARR, BRALL, USARR, USALL, VENLL, and VENGL }
+#' \item{swos}{Cpue, se, and catch data.frames from BRA_LL, SPA_LL, JPN_LL, URU_LL, SA_LL}
+#' \item{bum}{Cpue, se, and catch data.frames from JAP.LL.hist, TAI, USA.LL, VEN.LL, VEN.GIL, VEN.Rec, BRA.LL, BRA.Rec, GHA.GIL}
+#' }
+"iccat"
