@@ -36,7 +36,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
   nI = ncol(y) 
   if(is.null(cols)) cols = jabbainput$settings$cols
   Par = list(mfrow=c(1,1),mar = c(4, 4, 1, 1), mgp =c(2.5,1,0),mai = c(0.6, 0.6, 0.1, 0.1),mex=0.8, tck = -0.02,cex=plot.cex)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Index_",jabbainput$settings$assessment,"_",jabbainput$settings$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/Index_",jabbainput$settings$assessment,"_",jabbainput$settings$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
@@ -77,7 +77,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
 jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,verbose=TRUE){
   if(verbose) cat(paste0("\n","><> jbplot_catch()  <><","\n"))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Landings_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/Landings_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) {par(Par)}
 
@@ -106,7 +106,7 @@ jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE,
     if(jabba$settings$add.catch.CV==TRUE){
     if(verbose) cat(paste0("\n","><> jbplot_catcherror()  <><","\n"))
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.7,0), tck = -0.02,cex=0.8)
-    if(as.png) { png(file = paste0(output.dir,"/Catch.fit_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png) { png(filename = paste0(output.dir,"/Catch.fit_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE){par(Par)}
     # estimated Catch
@@ -149,7 +149,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
 
   #Posteriors
   Par = list(mfrow=mfrow,mai=c(0.4,0.1,0,.1),omi = c(0.3,0.5,0.1,0) + 0.1,mgp=c(1,0.1,0), tck = -0.02,cex=0.8)
-  if(as.png){png(file = paste0(output.dir,"/Posteriors_",jabba$assessment,"_",jabba$scenario,".png"),width  = width, height = height,
+  if(as.png){png(filename = paste0(output.dir,"/Posteriors_",jabba$assessment,"_",jabba$scenario,".png"),width  = width, height = height,
       res = 200, units = "in")}
   par(Par)
 
@@ -277,7 +277,7 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
   node_id = names(out)
 
   Par = list(mfrow=c(round(length(node_id)/3+0.33,0),3),mai=c(0.4,0.1,0,.1),omi = c(0.3,0.5,0.1,0) + 0.1,mgp=c(1,0.1,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/MCMC_",jabba$assessment,"_",jabba$scenario,".png"), width = 8, height = 2.5*round(length(node_id)/3,0),
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/MCMC_",jabba$assessment,"_",jabba$scenario,".png"), width = 8, height = 2.5*round(length(node_id)/3,0),
       res = 200, units = "in")}
   par(Par)
   for(i in 1:length(node_id)){
@@ -343,7 +343,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
     if(is.null(height)) height = 3.5
     for(i in 1:n.indices){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                            res = 200, units = "in")}
       if(!add){
       if(as.png==TRUE | i==1) par(Par)
@@ -396,7 +396,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
     if(is.null(width)) width = 7
     if(is.null(height)) height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0)
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                            res = 200, units = "in")}
     if(!add) par(Par)
 
@@ -505,7 +505,7 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
       if(is.null(height)) height = 3.5
       for(i in 1:n.indices){
         Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-        if(as.png==TRUE){png(file = paste0(output.dir,"/logFits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+        if(as.png==TRUE){png(filename = paste0(output.dir,"/logFits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
         if(!add){
         if(as.png==TRUE | i==1) par(Par)
@@ -548,7 +548,7 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
         if(is.null(width)) width = 7
         if(is.null(height)) height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0)
         Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-        if(as.png==TRUE){png(file = paste0(output.dir,"/logFits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+        if(as.png==TRUE){png(filename = paste0(output.dir,"/logFits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                              res = 200, units = "in")}
         if(!add) par(Par)
         for(i in 1:n.indices){
@@ -637,7 +637,7 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 
     # JABBA-residual plot
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Residuals_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Residuals_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE) par(Par)
 
@@ -697,7 +697,7 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
     StResid = jabba$std.residuals
 
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/StandardizedResids_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/StandardizedResids_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE) par(Par)
     # Standardized Residuals
@@ -767,7 +767,7 @@ jbplot_runstest <- function(jabba,index=NULL,mixing="less", output.dir=getwd(),a
         if(is.null(height)) height = 3.5
         for(i in 1:n.indices){
           Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-          if(as.png==TRUE){png(file = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+          if(as.png==TRUE){png(filename = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                                res = 200, units = "in")}
 
           if(add==FALSE){
@@ -797,7 +797,7 @@ jbplot_runstest <- function(jabba,index=NULL,mixing="less", output.dir=getwd(),a
     if(is.null(width)) width = 7
     if(is.null(height)) height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0)
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     if(add==FALSE) par(Par)
     for(i in 1:n.indices){
@@ -849,7 +849,7 @@ jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 
   years=jabba$yr
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/ProcDev_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/ProcDev_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
   ylim = c(min(-0.22,jabba$timeseries[,,"procB"]),max(0.22,jabba$timeseries[,,"procB"]))#range(proc.dev)*1.1
@@ -884,7 +884,7 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),ylabs=NUL
   for(i in 1:length(type)){
 
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE){par(Par)}
     if(verbose) cat(paste0("\n","><> jbplot_trj() - ", type[i]," trajectory  <><","\n"))
@@ -936,7 +936,7 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
   for(i in 1:length(type)){
     
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/prj",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/prj",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                          res = 200, units = "in")}
     if(add==FALSE){par(Par)}
     cat(paste0("\n","><> jbplot_prj() - ", type[i]," trajectory  <><","\n"))
@@ -1001,7 +1001,7 @@ jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width
   years = jabba$yr
   ylim=c(min(c(1.2*jabba$timeseries[-1,1,"SPt"],0)),max(c(max(jabba$timeseries[-1,1,"SPt"],na.rm=T)*1.05,max(MSY.sp*1.1))))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/SPdyn_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/SPdyn_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
 
@@ -1070,7 +1070,7 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
   N = jabba$settings$N
   years = jabba$yr
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/SPphase_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/SPphase_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
@@ -1139,7 +1139,7 @@ jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=F
   kernelF <- gplots::ci2d(b,f,nbins=151,factor=1.5,ci.levels=c(0.50,0.80,0.75,0.90,0.95),show="none",col=1,xlab= ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))),ylab=expression(paste(B/B[MSY])))
 
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){ png(file = paste0(output.dir,"/Kobe_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){ png(filename = paste0(output.dir,"/Kobe_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
 
@@ -1226,7 +1226,7 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 
 
   Par = list(mfrow=c(1,1),mai=c(0.2,0.15,0,.15),omi = c(0.3,0.25,0.2,0) + 0.1, mgp =c(3,1,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){ png(file = paste0(output.dir,"/Biplot_",jabba$assessment,"_",jabba$cenario,".png"), width = width, height = height,
+  if(as.png==TRUE){ png(filename = paste0(output.dir,"/Biplot_",jabba$assessment,"_",jabba$cenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
 
@@ -1335,7 +1335,7 @@ jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width
   } else {
   if(verbose) cat(paste0("\n","><> jbplot_bprior - biomass depletion prior vs posterior   <><","\n"))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Bprior_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/Bprior_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
@@ -1458,7 +1458,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
     if(is.null(height)) height = 3.5
     for(k in 1:length(type)){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Retro",hc$scenario ,"_",type[k],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/Retro",hc$scenario ,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
       
@@ -1519,7 +1519,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
     if(is.null(width)) width = 7
     if(is.null(height)) height = 8 
     Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Retro_",hc$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Retro_",hc$scenario,".png"), width = width, height = height,
                          res = 200, units = "in")}
     par(Par)
     for(k in 1:length(type)){
@@ -1678,7 +1678,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
     if(is.null(height)) height = 3.5
     for(k in 1:length(type)){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=plot.cex)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,"_",type[k],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/",prefix,"_",jbs$assessment,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
       if(!add) if(as.png==TRUE | k==1) par(Par)
@@ -1719,7 +1719,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
     if(is.null(width)) width = 7
     if(is.null(height)) height = 8 
     Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=plot.cex)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = width, height = height,
                          res = 200, units = "in")}
     par(Par)
     for(k in 1:length(type)){
@@ -1974,7 +1974,7 @@ jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(
     if(is.null(height)) height = 5
     for(i in 1:n.indices){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=plot.cex)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                            res = 200, units = "in")}
       if(add==FALSE){
         if(as.png==TRUE | i==1) par(Par)
@@ -2005,7 +2005,7 @@ jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(
     if(is.null(width)) width = 7
     if(is.null(height)) height = ifelse(n.indices==1,7,ifelse(n.indices==2,4.,3.5))*round(n.indices/2+0.01,0)
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=plot.cex)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     par(Par)
     

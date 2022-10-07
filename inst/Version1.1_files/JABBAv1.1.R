@@ -90,7 +90,7 @@ TC = apply(Catch,1,sum)
 cat(paste0("\n","><> Plot Catch in Input subfolder <><","\n","\n"))
 
 Par = list(mfrow=c(1,1),mar = c(5, 5, 1, 1), mgp =c(3,1,0), tck = -0.02,cex=0.8)
-png(file = paste0(input.dir,"/Catches_",assessment,".png"), width = 7, height = 5, 
+png(filename = paste0(input.dir,"/Catches_",assessment,".png"), width = 7, height = 5, 
     res = 200, units = "in")
 par(Par)
 plot(catch[,1],catch[,1],ylim=c(0,max(catch[,2:ncol(catch)],na.rm=TRUE)),ylab=paste0("Catch ",catch.metric),xlab="Year",type="n")
@@ -264,7 +264,7 @@ if(CPUE.plot==TRUE){
   
   
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  png(file = paste0(input.dir,"/CPUE_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+  png(filename = paste0(input.dir,"/CPUE_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
       res = 200, units = "in")
   par(Par)
   u.ylim = NULL
@@ -464,7 +464,7 @@ if(shape==FALSE){
 cat(paste0("\n","><> Plot Prior distributions in Input subfolder  <><","\n"))
 
 Par = list(mfrow=c(1,3),mai=c(0.5,0.1,0,.1),omi = c(0.1,0.2,0.1,0) + 0.1,mgp=c(2,1,0), tck = -0.02,cex=0.8)
-png(file = paste0(input.dir,"/Priors_",assessment,"_",Scenario,".png"), width = 9, height = 3, 
+png(filename = paste0(input.dir,"/Priors_",assessment,"_",Scenario,".png"), width = 9, height = 3, 
     res = 200, units = "in")
 par(Par)
 K.pr = plot_lnorm(exp(log.K),CV.K,Prior="K")
@@ -485,7 +485,7 @@ cat(paste0("\n","><> Plot assumed Surplus Production shape in Input subfolder  <
 
 # Plot MSY
 Par = list(mfrow=c(1,1),mai=c(0.6,0.3,0,.15),omi = c(0.1,0.2,0.2,0) + 0.1,mgp=c(2,1,0), tck = -0.02,cex=0.8)
-png(file = paste0(input.dir,"/Production",assessment,"_",Scenario,".png"), width = 6, height = 5, 
+png(filename = paste0(input.dir,"/Production",assessment,"_",Scenario,".png"), width = 6, height = 5, 
     res = 200, units = "in")
 par(Par)
 
@@ -875,7 +875,7 @@ write.csv(data.frame(BtoBmsy=B_Bmsy.cur,FtoFmsy=H_Hmsy.cur),paste0(output.dir,"/
 #----------------
 Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
 
-png(file = paste0(output.dir,"/Landings_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+png(filename = paste0(output.dir,"/Landings_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
     res = 200, units = "in")
 par(Par)
 
@@ -899,7 +899,7 @@ Prs = as.matrix(cbind(K.pr,r.pr,c(0,0),psi.pr))
 
 #Posteriors
 Par = list(mfrow=c(round(length(node_id)/3+0.33,0),3),mai=c(0.4,0.1,0,.1),omi = c(0.3,0.5,0.1,0) + 0.1,mgp=c(1,0.1,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/Posteriors_",assessment,"_",Scenario,".png"),width  = 8, height = 2.5*round(length(node_id)/3,0), 
+png(filename = paste0(output.dir,"/Posteriors_",assessment,"_",Scenario,".png"),width  = 8, height = 2.5*round(length(node_id)/3,0), 
     res = 200, units = "in")
 par(Par)
 
@@ -988,7 +988,7 @@ dev.off()
 #-----------------------------
 
 Par = list(mfrow=c(round(length(node_id)/3+0.33,0),3),mai=c(0.4,0.1,0,.1),omi = c(0.3,0.5,0.1,0) + 0.1,mgp=c(1,0.1,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/MCMC_",assessment,"_",Scenario,".png"), width = 8, height = 2.5*round(length(node_id)/3,0), 
+png(filename = paste0(output.dir,"/MCMC_",assessment,"_",Scenario,".png"), width = 8, height = 2.5*round(length(node_id)/3,0), 
     res = 200, units = "in")
 par(Par)
 for(i in 1:length(node_id)){
@@ -1015,7 +1015,7 @@ cpue.yrs = years[check.yrs>0]
 
 #CPUE FITS
 Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.3,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/Fits_",assessment,"_",Scenario,".png"), width = 7, height = ifelse(n.indices==1,5,2.5)*round(n.indices/2+0.01,0), 
+png(filename = paste0(output.dir,"/Fits_",assessment,"_",Scenario,".png"), width = 7, height = ifelse(n.indices==1,5,2.5)*round(n.indices/2+0.01,0), 
     res = 200, units = "in")
 par(Par)
 
@@ -1060,7 +1060,7 @@ dev.off()
 
 #log CPUE FITS
 Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.3,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/logFits_",assessment,"_",Scenario,".png"), width = 7, height = ifelse(n.indices==1,5,2.5)*round(n.indices/2+0.01,0), 
+png(filename = paste0(output.dir,"/logFits_",assessment,"_",Scenario,".png"), width = 7, height = ifelse(n.indices==1,5,2.5)*round(n.indices/2+0.01,0), 
     res = 200, units = "in")
 par(Par)
 
@@ -1106,7 +1106,7 @@ dev.off()
 
 # JABBA-residual plot
 Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/Residuals_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+png(filename = paste0(output.dir,"/Residuals_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
     res = 200, units = "in")
 par(Par)
 
@@ -1149,7 +1149,7 @@ write.csv(Res.CPUE,paste0(output.dir,"/ResCPUE_",assessment,"_",Scenario,".csv")
 # Stadardized Residuals
 #--------------------------------------
 Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/StandardizedResids_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+png(filename = paste0(output.dir,"/StandardizedResids_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
     res = 200, units = "in")
 par(Par)
 
@@ -1200,7 +1200,7 @@ proc.dev = apply(posteriors$Proc.Dev,2,quantile,c(0.025,0.5,0.975))
 
 Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
 
-png(file = paste0(output.dir,"/ProcDev_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+png(filename = paste0(output.dir,"/ProcDev_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
     res = 200, units = "in")
 par(Par)
 
@@ -1229,7 +1229,7 @@ B_t = posteriors$SB
 mu.B = apply(B_t,2,quantile,c(0.025,0.5,0.975))
 
 Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/Biomass_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+png(filename = paste0(output.dir,"/Biomass_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
     res = 200, units = "in")
 par(Par)
 
@@ -1260,7 +1260,7 @@ mu.b = apply(BtoBmsy,2,quantile,c(0.025,0.5,0.975))
 f = HtoHmsy[,N]
 b = BtoBmsy[,N]
 Par = list(mfrow=c(1,2),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-png(file = paste0(output.dir,"/TrendMSY_",assessment,"_",Scenario,".png"), width = 7, height = 3, 
+png(filename = paste0(output.dir,"/TrendMSY_",assessment,"_",Scenario,".png"), width = 7, height = 3, 
     res = 200, units = "in")
 par(Par)
 
@@ -1289,7 +1289,7 @@ if(SP.plot!="phase"){
   # Produce simple Production function plot
   #-----------------------------------------
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  png(file = paste0(output.dir,"/SP_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
+  png(filename = paste0(output.dir,"/SP_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
       res = 200, units = "in")
   par(Par)
   Bit = seq(1,mean(posteriors$K),mean(posteriors$K)/500)
@@ -1319,7 +1319,7 @@ if(SP.plot=="phase"){
   # Produce JABBA SP-phase plot
   #-----------------------------------------
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  png(file = paste0(output.dir,"/SPphase_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
+  png(filename = paste0(output.dir,"/SPphase_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
       res = 200, units = "in")
   par(Par)
   Bit = seq(1,median(posteriors$K),median(posteriors$K)/500)
@@ -1390,7 +1390,7 @@ if(KOBE.plot==TRUE){
   
   
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  png(file = paste0(output.dir,"/Kobe_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
+  png(filename = paste0(output.dir,"/Kobe_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
       res = 200, units = "in")
   par(Par)
   
@@ -1467,7 +1467,7 @@ if(Biplot==TRUE){
   
   
   Par = list(mfrow=c(1,1),mai=c(0.2,0.15,0,.15),omi = c(0.3,0.25,0.2,0) + 0.1, mgp =c(3,1,0), tck = -0.02,cex=0.8)
-  png(file = paste0(output.dir,"/Biplot_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
+  png(filename = paste0(output.dir,"/Biplot_",assessment,"_",Scenario,".png"), width = 5, height = 4.5, 
       res = 200, units = "in")
   par(Par)
   
@@ -1562,7 +1562,7 @@ if(Projection ==TRUE){
   cat(paste0("\n","><> Producing Future TAC Projections <><","\n"))
   
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  png(file = paste0(output.dir,"/Projections_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
+  png(filename = paste0(output.dir,"/Projections_",assessment,"_",Scenario,".png"), width = 5, height = 3.5, 
       res = 200, units = "in")
   par(Par)
   
