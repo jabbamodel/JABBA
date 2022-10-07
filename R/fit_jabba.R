@@ -24,6 +24,8 @@
 #' @param verbose option show cat comments and progress
 #' @return A result list containing estimates of model input, settings and results
 #' @export
+#' @importFrom stats rlnorm runif rbeta pnorm quantile qchisq sd median
+#' @importFrom utils write.csv
 #' @examples
 #' \dontrun{
 #' data(iccat)

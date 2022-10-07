@@ -6,6 +6,7 @@
 \usage{
 jbplot_summary(
   jabbas,
+  assessment = "jabba",
   type = c("B", "F", "BBmsy", "FFmsy", "BB0", "SP"),
   plotCIs = TRUE,
   ylabs = NULL,
@@ -28,6 +29,8 @@ jbplot_summary(
 }
 \arguments{
 \item{jabbas}{list() of JABBA model 1:n}
+
+\item{assessment}{Assessment Name}
 
 \item{type}{for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")}
 

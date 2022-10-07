@@ -4,6 +4,7 @@
 #' @param catch  catch time series, requires data.frame(year, catch)
 #' @param bw kernel bandwith for catch smoothing (default=3)
 #' @return list with initial start bk range and c(mu,cv) 
+#' @importFrom stats ksmooth sd
 #' @export
 cmsy.bkprior = function(catch,bw=3,prior.r=c(0.05,0.5)){
 

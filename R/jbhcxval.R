@@ -13,6 +13,7 @@
 #' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
 #' @export
+#' @importFrom utils tail
 #' @examples
 #' data(iccat)
 #' whm = iccat$whm

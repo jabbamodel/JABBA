@@ -25,6 +25,7 @@
 #' @param run option to assign a scenario name other than specified in build_jabba()
 #' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
+#' @importFrom stats aggregate rnorm median
 #' @export
 
 #{{{

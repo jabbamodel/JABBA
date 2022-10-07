@@ -7,6 +7,8 @@
 #' @param Prior X-axis label
 #' @param Plot c(TRUE,FALSE)
 #' @return a and b parameter (shape and scale)
+#' @importFrom stats dbeta
+#' @importFrom graphics polygon
 #' @export
 get_beta <- function(mu,CV,Min=0,Prior="x",Plot=FALSE){
   a = seq(0.0001,1000,0.001)
@@ -35,6 +37,8 @@ get_beta <- function(mu,CV,Min=0,Prior="x",Plot=FALSE){
 #' @param Prior X-axis label
 #' @param Plot c(TRUE,FALSE)
 #' @return a and b parameter (shape and scale)
+#' @importFrom stats rgamma dgamma
+#' @importFrom graphics polygon
 #' @export
 get_gamma <- function(mu,CV,Prior="x", Plot=FALSE){
   a = seq(0.00001,10000,0.0001)
@@ -102,10 +106,11 @@ plot_lnorm <- function(mu,CV,Prior="x",Plot=FALSE){
 #'
 #' Function to convert kobe posteriors into KOBE FLR input object
 #' @param x posterior array dims(iter,year,stock,harvest)
+#' @importFrom reshape melt
 #' @export
 kobeJabba<-function(x){
 
-  out=cbind(reshape::melt(x[,,2]),c(x[,,3]))
+  out=cbind(melt(x[,,2]),c(x[,,3]))
   names(out)=c("iter","year","stock","harvest")
   out$year=out$year
   out}
@@ -114,10 +119,11 @@ kobeJabba<-function(x){
 #'
 #' Function to convert kobe projection matrix posteriors into Kobe FLR input object
 #' @param x posterior array dims(iter,year,tac,stock,harvest)
+#' @importFrom reshape melt
 #' @export
 kobeJabbaProj<-function(x){
 
-  out=cbind(reshape::melt(x[,,,2]),reshape::melt(x[,,,3])[,4],reshape::melt(x[,,,1])[,4])
+  out=cbind(melt(x[,,,2]),melt(x[,,,3])[,4],melt(x[,,,1])[,4])
   names(out)=c("iter","year","tac","stock","harvest","bk")
   out$year=out$year
 
@@ -315,6 +321,7 @@ normIndex <- function(cpue){
 #' @param n number of colors
 #' @param alpha transluscency 
 #' @return vector of color codes
+#' @importFrom stats dnorm
 #' @export
 rc4 <- function(n,alpha=1){
   # a subset of rich.colors by Arni Magnusson from the gregmisc package
@@ -461,10 +468,12 @@ jbmase <- function(hc,naive.min=0.1,index=NULL,residuals=FALSE,verbose=TRUE){
 #' @param ca data.frame input with column names year, age, data
 #' @param ages for which the z slope is taken
 #' @return data.frame with data = z
+#' @importFrom stats coef lm
+#' @importFrom utils data
 #' @export
-zage =  function(ca,ages = "missing"){
+zage <- function(ca,ages = "missing"){
   out=NULL
-  CN = catch.n
+  CN = data("catch.n", envir = environment())
   years=unique(CN$year)
   age = unique(CN$age)
   
@@ -491,10 +500,11 @@ zage =  function(ca,ages = "missing"){
 #' @param base defines biomass base "bmsy" or "b0"
 #' @param quantiles default is 95CIs as c(0.025,0.975)
 #' @return List with kb and bref.
+#' @importFrom stats quantile
 #' @export
 addBfrac <- function(kb, bfrac=0.5, bref = c("bmsy","b0"),quantiles = c(0.025,0.975)){
   if(!is.null(kb$settings)){ 
-    if(is.null(jabba$kbtrj)) stop("rerun with fit_jabba(...,save.trj = TRUE)")
+    if(is.null(kb$kbtrj)) stop("rerun with fit_jabba(...,save.trj = TRUE)")
     kb = kb$kbtrj
   } 
   if(bref[1]=="bmsy"){

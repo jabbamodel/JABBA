@@ -57,6 +57,9 @@
 #' @param add surpresses par() to create multiplot figs
 #' @param run name for single models or joint ensembles
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
+#' @importFrom grDevices graphics.off adjustcolor png dev.off
+#' @importFrom stats aggregate 
+#' @importFrom graphics lines abline axis box
 #' @export
 #' @examples
 #' data(iccat)
@@ -168,7 +171,8 @@ jbplot_Crisk<- function(prjc,
   
   if(!single.plots){
   Par = list(mfrow=c(1,1),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Risk_",jbs$assessment,".png"), width = 7, height = 6,
+  #if(as.png==TRUE){png(filename = paste0(plotdir,"/Risk_",jbs$assessment,".png"), width = 7, height = 6,
+  if(as.png==TRUE){png(filename = paste0(plotdir,"/Risk_","jbs$assessment",".png"), width = 7, height = 6,
                        res = 200, units = "in")}
   par(Par)
   }

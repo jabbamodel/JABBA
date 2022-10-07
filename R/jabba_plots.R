@@ -4,6 +4,7 @@
 #' Set the par() to options suitable for jabba multi plots   
 #' @param mfrow determines plot frame set up
 #' @param plot.cex cex graphic option
+#' @importFrom graphics par
 #' @export
 jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.5,0.5,0.15,.15),omi = c(0.2,0.2,0.2,0),mar=c(2.5,2.5, 0.7, 0.7),labs=TRUE){
   if(!labs)  mai=c(0.35,0.15,0,.15)
@@ -100,6 +101,7 @@ jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, widt
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom graphics points legend
 #' @export
 
 jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,verbose=TRUE){
@@ -303,6 +305,9 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom grDevices grey
+#' @importFrom stats qlnorm 
+#' @importFrom graphics arrows points legend mtext
 #' @export
 jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE,verbose=TRUE){
   if(as.png==TRUE) add=FALSE
@@ -467,6 +472,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom stats qnorm
 #' @export
 
 jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE,verbose=TRUE){
@@ -606,6 +612,8 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
 #' @param height plot hight
 #' @param cols option to add colour palette 
 #' @param verbose silent option
+#' @importFrom graphics boxplot
+#' @importFrom stats predict loess
 #' @export
 jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,cols=NULL,verbose=TRUE){
 
@@ -679,6 +687,8 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 #' @param height plot hight
 #' @param cols option to add colour palette 
 #' @param verbose silent option
+#' @importFrom graphics boxplot
+#' @importFrom stats predict loess
 #' @export
 jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height= 3.5,cols=NULL,verbose=TRUE){
 
@@ -738,6 +748,8 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' @param height plot hight
 #' @param verbose silent option
 #' @export
+#' @importFrom graphics rect
+#' @importFrom grDevices rgb
 #' @examples 
 #' data(iccat)
 #' bet= iccat$bet
@@ -983,6 +995,7 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom graphics rect
 #' @export
 jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
   if(verbose) cat(paste0("\n","><> jbplot_spdyn() - SPt+1 = Bt+1-Bt+Ct vs B  <><","\n"))
@@ -1052,6 +1065,8 @@ jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width
 #' @param width plot width
 #' @param height plot hight
 #' @param verbose silent option
+#' @importFrom graphics rect
+#' @importFrom grDevices rgb
 #' @export
 
 jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
@@ -1210,6 +1225,7 @@ jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=F
 #' @param width plot width
 #' @param height plot hight
 #' @param verbose silent option
+#' @importFrom graphics points legend mtext text
 #' @export
 jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
 
@@ -1328,6 +1344,8 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom graphics legend
+#' @importFrom grDevices gray grey
 #' @export
 jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height = 3.5,verbose=TRUE){
   if(jabba$settings$b.pr[3]==0){
@@ -1599,6 +1617,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
 #'
 #' Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata 
 #' @param jabbas list() of JABBA model 1:n
+#' @param assessment Assessment Name
 #' @param type for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")
 #' @param plotCIs Plot Credibilty Interval 
 #' @param ylabs yaxis labels for quants
@@ -1617,8 +1636,9 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
 #' @param legend.add show legend
 #' @param plot.cex cex setting in par()
 #' @param verbose if FALSE be silent
+#' 
 #' @export
-jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,ylabs=NULL,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
+jbplot_summary <- function(jabbas,assessment="jabba",type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,ylabs=NULL,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
   
   if(!is.null(jabbas$settings)) jabbas = list(jabbas)
   if(as.png) add=FALSE
@@ -1941,6 +1961,8 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
 #' @param add if TRUE par is not called to enable manual multiplots
 #' @param verbose commentary 
 #' @return Bayesin p values and n observation per index
+#' @importFrom graphics points legend mtext
+#' @importFrom grDevices grey
 #' @export
 jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(),as.png=FALSE,single.plots=add,width=NULL,height=NULL,ylab=expression(paste("Predicted D(",chi^2,")")),xlab=expression(paste("Realized D(",chi^2,")")),plot.cex=0.8,index=NULL,index.label=TRUE,add=FALSE,verbose=TRUE){
   

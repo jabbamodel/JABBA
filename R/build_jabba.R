@@ -51,6 +51,8 @@
 #' @param catch.metric  "(t)" # Define catch input metric e.g. (tons) "000 t" 
 #' @param verbose option show cat comments
 #' @return List to be used as data input to JABBA JAGS model.
+#' @importFrom grDevices rainbow
+#' @importFrom stats dlnorm
 #' @export
 
 build_jabba <- function(
