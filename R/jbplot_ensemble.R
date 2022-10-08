@@ -71,18 +71,34 @@
 #' @export
 #' @examples
 #' data(iccat)
-#' bet = iccat$bet 
+#' bet <- iccat$bet 
+#' 
 #' # Fit Fox and Schaefer
-#' jb1 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Fox",model.type="Fox")
-#' jb2 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Schaefer",model.type="Schaefer")
-#' fit1 = fit_jabba(jb1,quickmcmc=TRUE,verbose=TRUE)
-#' fit2 = fit_jabba(jb2,quickmcmc=TRUE,verbose=TRUE)
+#' jb1 <- build_jabba(catch=bet$catch, 
+#'                    cpue=bet$cpue,
+#'                    se=bet$se,
+#'                    scenario = "Fox",
+#'                    model.type="Fox")
+#' jb2 <- build_jabba(catch=bet$catch,
+#'                    cpue=bet$cpue,
+#'                    se=bet$se,
+#'                    scenario = "Schaefer",
+#'                    model.type="Schaefer")
+#' fit1 <- fit_jabba(jb1,
+#'                   quickmcmc=TRUE,
+#'                   verbose=TRUE)
+#' fit2 <- fit_jabba(jb2,
+#'                   quickmcmc=TRUE,
+#'                   verbose=TRUE)
 #' # Compare
 #' jbplot_ensemble(list(fit1,fit2))
 #' # Joint to 2-model ensemble
 #' jbplot_ensemble(list(fit1,fit2),joint=T)
 #' # Do 2-model ensemble forecast
-#' prj = fw_jabba(list(fit1),quant="Catch",type="abs",imp.values = seq(60,100,1)*1000)
+#' prj <- fw_jabba(list(fit1),
+#'                quant="Catch",
+#'                type="abs",
+#'                imp.values = seq(60,100,1)*1000)
 #' jbplot_ensemble(prj)
 #' # Zoom in
 #' jbplot_ensemble(prj,xlim=c(2000,2027))

@@ -17,14 +17,28 @@
 #' @export
 #' @examples
 #' data(iccat)
-#' whm = iccat$whm
+#' 
+#' # ICCAT white marlin 
+#' whm <- iccat$whm
+#' 
 #' # ICCAT white marlin setup
-#' jb = build_jabba(catch=whm$catch,cpue=whm$cpue,se=whm$se,assessment="WHM",scenario = "BaseCase",model.type = "Pella",r.prior = c(0.181,0.18),BmsyK = 0.39,igamma = c(0.001,0.001))
-#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=TRUE)
-#' hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:5)
+#' jb <- build_jabba(catch=whm$catch,
+#'                   cpue=whm$cpue,
+#'                   se=whm$se,
+#'                   assessment="WHM",
+#'                   scenario = "BaseCase",
+#'                   model.type = "Pella",
+#'                   r.prior = c(0.181,0.18),
+#'                   BmsyK = 0.39,
+#'                   igamma = c(0.001,0.001))
+#' 
+#' fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=TRUE)
+#' 
+#' # Hindcast
+#' hc <- hindcast_jabba(jbinput=jb,fit=fit,peels=1:5)
 #' jbplot_retro(hc)
 #' jbplot_hcxval(hc,index=c(8,11))
-#' hc.ar1 = jbhcxval(hc,AR1=TRUE) # do hindcasting with AR1
+#' hc.ar1 <- jbhcxval(hc,AR1=TRUE) # do hindcasting with AR1
 #' jbplot_hcxval(hc.ar1,index=c(8,11))
 
 hindcast_jabba = function(jbinput,fit,

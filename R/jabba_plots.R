@@ -752,9 +752,16 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' @importFrom grDevices rgb
 #' @examples 
 #' data(iccat)
-#' bet= iccat$bet
-#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
-#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' bet <- iccat$bet
+#' jb <- build_jabba(catch=bet$catch,
+#'                   cpue=bet$cpue,
+#'                   se=bet$se,
+#'                   assessment="BET",
+#'                   scenario = "Ref",
+#'                   model.type = "Pella",
+#'                   igamma = c(0.001,0.001),
+#'                   verbose=FALSE)
+#' fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
 #' jbrunstest(fit)
 #' jbrunstest(fit,index=2)
 #' jbplot_runstest(fit,verbose=FALSE)
@@ -1428,10 +1435,17 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @export
 #' @examples 
 #' data(iccat)
-#' bet= iccat$bet
-#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
-#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
-#' hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
+#' bet <- iccat$bet
+#' jb <- build_jabba(catch=bet$catch,
+#'                  cpue=bet$cpue,
+#'                  se=bet$se,
+#'                  assessment="BET",
+#'                  scenario = "Ref",
+#'                  model.type = "Pella",
+#'                  igamma = c(0.001,0.001),
+#'                  verbose=FALSE)
+#' fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' hc <- hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
 #' jbplot_retro(hc)
 #' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
 
