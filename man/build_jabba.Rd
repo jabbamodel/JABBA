@@ -64,6 +64,8 @@ build_jabba(
 
 \item{auxiliary}{additional time series of either c(Z,Effort,B/B0,B/Bmsy,F/Fmsy)}
 
+\item{auxiliary.se}{optional input standard errors on auxilary data}
+
 \item{auxiliary.type}{c("effort","z","bk","bbmsy","ffmsy")}
 
 \item{assessment}{= "example",}
@@ -116,6 +118,8 @@ VARIANCE options}
 
 \item{qA.cv}{precision on lognormal prior for e.g. qA*Z (not applicable to effort)}
 
+\item{sets.varA}{estimate individual additional variance}
+
 \item{sigma.proc}{=  TRUE, # TRUE: Estimate process error, else set to value}
 
 \item{proc.dev.all}{= TRUE, # TRUE: All year, year = starting year}
@@ -138,6 +142,10 @@ VARIANCE options}
 
 \item{sigmaproc_bound}{= 0.2, # Adds an upper bound to the process variance}
 
+\item{q_bounds}{c(10^-30,1000), # Defines lower and upper bounds for q}
+
+\item{K_bounds}{c(0.01,10^10), # Defines lower and upper bounds for K}
+
 \item{qA_bounds}{Defines lower and upper bounds for q of auxiliary data type effort}
 
 \item{harvest.label}{= c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy}
@@ -145,12 +153,6 @@ VARIANCE options}
 \item{catch.metric}{"(t)" # Define catch input metric e.g. (tons) "000 t"}
 
 \item{verbose}{option show cat comments}
-
-\item{auxiliary, se}{optional input standard errors on auxilary data}
-
-\item{q_bounds=}{c(10^-30,1000), # Defines lower and upper bounds for q}
-
-\item{K_bounds=}{c(0.01,10^10), # Defines lower and upper bounds for K}
 }
 \value{
 List to be used as data input to JABBA JAGS model.

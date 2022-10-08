@@ -3,7 +3,7 @@
 #'
 #' Plots plots JABBA ensemble models + projections - joint or by run  
 #' 
-#' @param kb objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj    
+#' @param prjc objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj    
 #' @param subplots option choose from subplots 1:7 
 #' \itemize{
 #'   \item 1: Risk B < Bmsy  
@@ -13,9 +13,13 @@
 #' @param riskout if TRUE, produces the kb data.frame as output 
 #' @param bfrac biomass fraction of Bmsy or B0 (subplot 8), default 0.5Bmsy
 #' @param bref biomass fraction reference options c("bmsy","b0")
+#' @param years TODO DOCUMENTATION
 #' @param ylabs yaxis labels for quants
 #' @param ylab.bref option to only specify BBfrac plot ylab 
 #' final year of values to show for each model. By default it is set to the
+#' @param xlab xaxis label
+#' @param plot TODO DOCUMENTATION
+#' @param as.png TODO DOCUMENTATION
 #' @param col Optional vector of colors to be used for lines. Input NULL
 #' @param pch Optional vector of plot character values
 #' @param lty Optional vector of line types
@@ -26,6 +30,7 @@
 #' @param xlim = NULL range of years
 #' @param xaxs Choice of xaxs parameter (see ?par for more info)
 #' @param yaxs Choice of yaxs parameter (see ?par for more info)
+#' @param xylabs TODO DOCUMENTATION
 #' @param type Type parameter passed to points (default 'o' overplots points on
 #' top of lines)
 #' @param legend Add a legend?
@@ -37,7 +42,7 @@
 #' the legend display the model names in an order that is different than that
 #' which is represented in the summary input object.
 #' @param legendncol Number of columns for the legend.
-#' @param legendcex=1 Allows to adjust legend cex
+#' @param legendcex Defeult=1 Allows to adjust legend cex
 #' @param legendsp Space between legend labels
 #' @param pwidth Width of plot
 #' @param pheight Height of plot
@@ -56,6 +61,8 @@
 #' @param new Create new empty plot window
 #' @param add surpresses par() to create multiplot figs
 #' @param run name for single models or joint ensembles
+#' @param single.plots TODO DOCUMENTATION
+#' @param fmax TODO DOCUMENTATION
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
 #' @importFrom grDevices graphics.off adjustcolor png dev.off
 #' @importFrom stats aggregate 

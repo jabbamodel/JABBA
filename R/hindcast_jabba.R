@@ -2,7 +2,7 @@
 #'
 #' Wrapper to fit retrospectives 
 #' @param jbinput object from build_jabba()
-#' @param jbfit fitted model from fit_jabba
+#' @param fit fitted model from fit_jabba
 #' MCMC settings
 #' @param ni number of iterations
 #' @param nt thinning interval of saved iterations

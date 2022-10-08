@@ -15,6 +15,8 @@ jbhcxval(
 )
 }
 \arguments{
+\item{hindcasts}{object (list of models) from hindcast_jabba()}
+
 \item{stochastic}{if FALSE, process error sigma.proc is set to zero}
 
 \item{AR1}{if TRUE, projection account auto correlation in the process devs}
@@ -26,10 +28,6 @@ jbhcxval(
 \item{ndevs}{number years on the tail to set initial proc.error for forecasting}
 
 \item{run}{option to assign a scenario name other than specified in build_jabba()}
-
-\item{hc}{object (list of models) from hindcast_jabba()}
-
-\item{thin}{option to thin the posterior at rates > 1}
 }
 \value{
 data.frame of kobe posterior model + forecast scenarios

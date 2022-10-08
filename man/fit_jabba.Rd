@@ -66,6 +66,8 @@ Initial values}
 
 \item{seed}{default 123, set random by e.g. sample.int(999,1)}
 
+\item{jagsdir}{JAGS Model output path}
+
 \item{verbose}{option show cat comments and progress}
 }
 \value{

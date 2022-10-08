@@ -20,6 +20,9 @@ hindcast_jabba(
 \arguments{
 \item{jbinput}{object from build_jabba()}
 
+\item{fit}{fitted model from fit_jabba
+MCMC settings}
+
 \item{ni}{number of iterations}
 
 \item{nt}{thinning interval of saved iterations}
@@ -36,9 +39,6 @@ Initial values}
 \item{peels}{sequence of retrospective peels default 1:5}
 
 \item{verbose}{if FALSE run silent}
-
-\item{jbfit}{fitted model from fit_jabba
-MCMC settings}
 }
 \value{
 hc containing estimates of key joint results from all hindcast run

@@ -20,7 +20,8 @@
 #' @param save.all add complete posteriors to fitted object 
 #' @param output.dir path to save plot. default is getwd()
 #' @param quickmcmc option to run short mcmc
-#' @param seed default 123, set random by e.g. sample.int(999,1) 
+#' @param seed default 123, set random by e.g. sample.int(999,1)
+#' @param jagsdir JAGS Model output path 
 #' @param verbose option show cat comments and progress
 #' @return A result list containing estimates of model input, settings and results
 #' @export

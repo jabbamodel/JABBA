@@ -26,6 +26,10 @@ fw_jabba(
 \arguments{
 \item{jabba}{objects from fit_jabba() or list of fit_jabba() objects}
 
+\item{nyears}{Number of years. default is 10}
+
+\item{imp.yr}{TODO DOCUMENT. NULL by default}
+
 \item{quant}{quantity to forecast  c("Catch","F")
 \itemize{
   \item Catch  
@@ -42,6 +46,8 @@ fw_jabba(
 \item{initial}{value or vector Catch or F values, default takes mean over recent 3 yrs}
 
 \item{imp.values}{vector Catch or F scenarios provide as absolute or ratios}
+
+\item{nsq}{TODO DOCUMENT}
 
 \item{stochastic}{if FALSE, process error sigma.proc is set to zero}
 

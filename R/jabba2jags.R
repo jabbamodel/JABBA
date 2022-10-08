@@ -2,6 +2,7 @@
 #'
 #' Writes JAGS code for JABBA into a temporary directory
 #' @param jbinput JABBA input object from build_jabba()
+#' @param dir Temporary directory
 #' @export
 
 jabba2jags = function(jbinput, dir){

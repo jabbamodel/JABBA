@@ -53,6 +53,8 @@ jbplot_Crisk(
 )
 }
 \arguments{
+\item{prjc}{objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj}
+
 \item{subplots}{option choose from subplots 1:7 
 \itemize{
   \item 1: Risk B < Bmsy  
@@ -64,12 +66,20 @@ jbplot_Crisk(
 
 \item{bref}{biomass fraction reference options c("bmsy","b0")}
 
+\item{years}{TODO DOCUMENTATION}
+
 \item{riskout}{if TRUE, produces the kb data.frame as output}
 
 \item{ylabs}{yaxis labels for quants}
 
 \item{ylab.bref}{option to only specify BBfrac plot ylab 
 final year of values to show for each model. By default it is set to the}
+
+\item{xlab}{xaxis label}
+
+\item{plot}{TODO DOCUMENTATION}
+
+\item{as.png}{TODO DOCUMENTATION}
 
 \item{col}{Optional vector of colors to be used for lines. Input NULL}
 
@@ -90,6 +100,8 @@ year in timeseries plots.}
 
 \item{yaxs}{Choice of yaxs parameter (see ?par for more info)}
 
+\item{xylabs}{TODO DOCUMENTATION}
+
 \item{type}{Type parameter passed to points (default 'o' overplots points on
 top of lines)}
 
@@ -106,6 +118,8 @@ the legend display the model names in an order that is different than that
 which is represented in the summary input object.}
 
 \item{legendncol}{Number of columns for the legend.}
+
+\item{legendcex}{Defeult=1 Allows to adjust legend cex}
 
 \item{legendsp}{Space between legend labels}
 
@@ -139,9 +153,9 @@ It will be separated from default name by an underscore.}
 
 \item{add}{surpresses par() to create multiplot figs}
 
-\item{kb}{objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj}
+\item{single.plots}{TODO DOCUMENTATION}
 
-\item{legendcex=1}{Allows to adjust legend cex}
+\item{fmax}{TODO DOCUMENTATION}
 
 \item{run}{name for single models or joint ensembles}
 }

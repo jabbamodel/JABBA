@@ -2,14 +2,13 @@
 #' 
 #' additional hindcast options with external foreward projections 
 #'
-#' @param hc object (list of models) from hindcast_jabba() 
+#' @param hindcasts object (list of models) from hindcast_jabba() 
 #' @param stochastic if FALSE, process error sigma.proc is set to zero 
 #' @param AR1 if TRUE, projection account auto correlation in the process devs 
 #' @param rho if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs
 #' @param sigma.proc option to specify the process error other than the posterior estimate
 #' @param ndevs number years on the tail to set initial proc.error for forecasting  
 #' @param run option to assign a scenario name other than specified in build_jabba()
-#' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
 #' @export
 #' @importFrom utils tail

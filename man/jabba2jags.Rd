@@ -8,6 +8,8 @@ jabba2jags(jbinput, dir)
 }
 \arguments{
 \item{jbinput}{JABBA input object from build_jabba()}
+
+\item{dir}{Temporary directory}
 }
 \description{
 Writes JAGS code for JABBA into a temporary directory

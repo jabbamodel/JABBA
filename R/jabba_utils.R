@@ -510,8 +510,10 @@ zage <- function(ca,ages = "missing"){
 #' addBfrac()
 #'
 #' add biomass reference to kb ouput as fraction Bmsy or B0, e.g. for Blim or MSST
-#' @param jabba bfrac fraction of Bmsy or B0
-#' @param base defines biomass base "bmsy" or "b0"
+#' 
+#' @param kb kb output
+#' @param bfrac fraction of Bmsy or B0
+#' @param bref defines biomass base "bmsy" or "b0"
 #' @param quantiles default is 95CIs as c(0.025,0.975)
 #' @return List with kb and bref.
 #' @importFrom stats quantile

@@ -11,7 +11,7 @@
 #' @param catch.cv  catch error on log-scale (default = 0.1)
 #' @param catch.error can be random or directional under reporting "under"
 #' @param auxiliary additional time series of either c(Z,Effort,B/B0,B/Bmsy,F/Fmsy)
-#' @param auxiliary,se optional input standard errors on auxilary data 
+#' @param auxiliary.se optional input standard errors on auxilary data 
 #' @param auxiliary.type c("effort","z","bk","bbmsy","ffmsy") 
 #' @param auxiliary.lag  lag option in years (default 1) for effort, z and ffmsy  
 #' @param Plim = 0, # Set Plim = Blim/K where recruitment may become impaired (e.g. Plim = 0.25)
@@ -33,7 +33,8 @@
 #' @param fixed.obsE  # Minimum fixed observation error
 #' @param auxiliary.obsE # Fixed observation error for auxiliary data   
 #' @param auxiliary.sigma # TRUE/FALSE 
-#' @param qA.cv precision on lognormal prior for e.g. qA*Z (not applicable to effort) 
+#' @param qA.cv precision on lognormal prior for e.g. qA*Z (not applicable to effort)
+#' @param sets.varA estimate individual additional variance 
 #' @param sigma.proc =  TRUE, # TRUE: Estimate process error, else set to value
 #' @param proc.dev.all = TRUE, # TRUE: All year, year = starting year
 #' @param projection = FALSE, # Switch on by Projection = TRUE
@@ -44,8 +45,8 @@
 #' @param P_bound = c(0.02,1.3),  # Soft penalty bounds for b/k
 #' @param sigmaobs_bound = 1, # Adds an upper bound to the observation variance
 #' @param sigmaproc_bound = 0.2, # Adds an upper bound to the process variance
-#' @param q_bounds= c(10^-30,1000), # Defines lower and upper bounds for q
-#' @param K_bounds= c(0.01,10^10), # Defines lower and upper bounds for K
+#' @param q_bounds c(10^-30,1000), # Defines lower and upper bounds for q
+#' @param K_bounds c(0.01,10^10), # Defines lower and upper bounds for K
 #' @param qA_bounds Defines lower and upper bounds for q of auxiliary data type effort 
 #' @param harvest.label = c("Hmsy","Fmsy")[2], # choose label preference H/Hmsy versus Fmsy
 #' @param catch.metric  "(t)" # Define catch input metric e.g. (tons) "000 t" 

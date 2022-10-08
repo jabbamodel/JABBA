@@ -17,7 +17,17 @@ jbpar(
 \arguments{
 \item{mfrow}{determines plot frame set up}
 
+\item{mex}{mex Par graphics param}
+
 \item{plot.cex}{cex graphic option}
+
+\item{mai}{mai Par graphics param}
+
+\item{omi}{omi Par graphics param}
+
+\item{mar}{mar Par graphics param}
+
+\item{labs}{TODO DOcumentation}
 }
 \description{
 Set the par() to options suitable for jabba multi plots

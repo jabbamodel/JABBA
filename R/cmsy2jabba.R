@@ -3,6 +3,7 @@
 #' approximates initial b/k prior using CMSY++15c.R
 #' @param catch  catch time series, requires data.frame(year, catch)
 #' @param bw kernel bandwith for catch smoothing (default=3)
+#' @param prior.r prior.r TODO DOCUMENT  
 #' @return list with initial start bk range and c(mu,cv) 
 #' @importFrom stats ksmooth sd
 #' @export

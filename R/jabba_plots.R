@@ -4,6 +4,11 @@
 #' Set the par() to options suitable for jabba multi plots   
 #' @param mfrow determines plot frame set up
 #' @param plot.cex cex graphic option
+#' @param mex mex Par graphics param 
+#' @param mai mai Par graphics param
+#' @param omi omi Par graphics param
+#' @param mar mar Par graphics param
+#' @param labs TODO DOcumentation
 #' @importFrom graphics par
 #' @export
 jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.5,0.5,0.15,.15),omi = c(0.2,0.2,0.2,0),mar=c(2.5,2.5, 0.7, 0.7),labs=TRUE){
@@ -1390,6 +1395,7 @@ jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
+#' @param statusplot flag for kobe plot
 #' @param verbose silent option
 #' @export
 jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe",verbose=TRUE){
