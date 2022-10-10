@@ -28,8 +28,6 @@ jbplot_mcmc(
 \item{height}{plot hight}
 
 \item{verbose}{silent option}
-
-\item{add}{if true don't call par() to allow construction of multiplots}
 }
 \description{
 MCMC chains of esimated parameters: K, r, m (shape), psi (depletion) and variances

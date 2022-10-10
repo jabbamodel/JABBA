@@ -25,6 +25,8 @@
 #' @param ylabs yaxis labels for quants
 #' @param ylab.bref option to only specify BBfrac plot ylab 
 #' final year of values to show for each model. By default it is set to the
+#' @param plot TODO DOCUMENTATION
+#' @param as.png TODO DOCUMENTATION
 #' @param col Optional vector of colors to be used for lines. Input NULL
 #' @param bref.col option to set color for Bref reference line (default is "red")
 #' @param pch Optional vector of plot character values
@@ -36,6 +38,7 @@
 #' @param xlim = NULL range of years
 #' @param xaxs Choice of xaxs parameter (see ?par for more info)
 #' @param yaxs Choice of yaxs parameter (see ?par for more info)
+#' @param xylabs x and y axis labels
 #' @param type Type parameter passed to points (default 'o' overplots points on
 #' top of lines)
 #' @param legend Add a legend?
@@ -47,7 +50,7 @@
 #' the legend display the model names in an order that is different than that
 #' which is represented in the summary input object.
 #' @param legendncol Number of columns for the legend.
-#' @param legendcex=1 Allows to adjust legend cex
+#' @param legendcex Default=1 Allows to adjust legend cex
 #' @param legendsp Space between legend labels
 #' @param pwidth Width of plot
 #' @param pheight Height of plot
@@ -65,7 +68,9 @@
 #' @param shadealpha Transparency adjustment used to make default shadecol
 #' @param new Create new empty plot window
 #' @param add surpresses par() to create multiplot figs
+#' @param single.plots TODO DOCUMENTATION
 #' @param run name for single models or joint ensembles
+#' @param fmax TODO DOCUMENTATION
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
 #' @importFrom methods is
 #' @export

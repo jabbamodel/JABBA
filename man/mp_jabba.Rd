@@ -48,8 +48,6 @@ Initial values}
 \item{quickmcmc}{option to run short mcmc}
 
 \item{verbose}{option show cat comments and progress}
-
-\item{peels}{= NULL, # retro peel option}
 }
 \value{
 A result list containing estimates of model input, settings and results

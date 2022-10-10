@@ -90,6 +90,10 @@ jbplot_ensemble(
 \item{ylab.bref}{option to only specify BBfrac plot ylab 
 final year of values to show for each model. By default it is set to the}
 
+\item{plot}{TODO DOCUMENTATION}
+
+\item{as.png}{TODO DOCUMENTATION}
+
 \item{col}{Optional vector of colors to be used for lines. Input NULL}
 
 \item{bref.col}{option to set color for Bref reference line (default is "red")}
@@ -111,6 +115,8 @@ year in timeseries plots.}
 
 \item{yaxs}{Choice of yaxs parameter (see ?par for more info)}
 
+\item{xylabs}{x and y axis labels}
+
 \item{type}{Type parameter passed to points (default 'o' overplots points on
 top of lines)}
 
@@ -127,6 +133,8 @@ the legend display the model names in an order that is different than that
 which is represented in the summary input object.}
 
 \item{legendncol}{Number of columns for the legend.}
+
+\item{legendcex}{Default=1 Allows to adjust legend cex}
 
 \item{legendsp}{Space between legend labels}
 
@@ -160,9 +168,11 @@ It will be separated from default name by an underscore.}
 
 \item{add}{surpresses par() to create multiplot figs}
 
+\item{single.plots}{TODO DOCUMENTATION}
+
 \item{run}{name for single models or joint ensembles}
 
-\item{legendcex=1}{Allows to adjust legend cex}
+\item{fmax}{TODO DOCUMENTATION}
 }
 \description{
 Plots plots JABBA ensemble models + projections - joint or by run

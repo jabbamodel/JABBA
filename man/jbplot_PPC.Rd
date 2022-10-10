@@ -45,13 +45,13 @@ jbplot_PPC(
 
 \item{plot.cex}{graphic option}
 
+\item{index}{names of indices to plot (default = "all")}
+
 \item{index.label}{show index name in plot}
 
 \item{add}{if TRUE par is not called to enable manual multiplots}
 
 \item{verbose}{commentary}
-
-\item{indices}{names of indices to plot (default = "all")}
 }
 \value{
 Bayesin p values and n observation per index

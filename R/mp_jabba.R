@@ -12,7 +12,6 @@
 #' @param init.K = NULL,
 #' @param init.r = NULL,
 #' @param init.q = NULL,# vector
-#' @param peels = NULL, # retro peel option
 #' @param quickmcmc option to run short mcmc
 #' @param verbose option show cat comments and progress
 #' @param par.quantile quantile(s) of parameter posterior, default median 0.5 

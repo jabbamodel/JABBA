@@ -60,8 +60,7 @@
 #' @param shadealpha Transparency adjustment used to make default shadecol
 #' @param new Create new empty plot window
 #' @param add surpresses par() to create multiplot figs
-#' @param run name for single models or joint ensembles
-#' @param single.plots TODO DOCUMENTATION
+#' @param single.plots TODO DOCUMENTATION. name for single models or joint ensembles
 #' @param fmax TODO DOCUMENTATION
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
 #' @importFrom grDevices graphics.off adjustcolor png dev.off

@@ -153,11 +153,9 @@ It will be separated from default name by an underscore.}
 
 \item{add}{surpresses par() to create multiplot figs}
 
-\item{single.plots}{TODO DOCUMENTATION}
+\item{single.plots}{TODO DOCUMENTATION. name for single models or joint ensembles}
 
 \item{fmax}{TODO DOCUMENTATION}
-
-\item{run}{name for single models or joint ensembles}
 }
 \description{
 Plots plots JABBA ensemble models + projections - joint or by run

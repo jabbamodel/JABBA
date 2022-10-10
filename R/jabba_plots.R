@@ -139,11 +139,11 @@ jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE,
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
-#' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
 #' @param mfrow set up plot frame
 #' @param addPP show PPMR and PPVR
+#' @param cex grapical parameter(see \code{?par} for details)
 #' @param verbose silent option  
 #' @export
 
@@ -271,7 +271,6 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
-#' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
 #' @param mfrow set up plot frame  
@@ -1976,7 +1975,7 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
 #' @param ylab option to change y-axis label
 #' @param xlab option to change x-axis label
 #' @param plot.cex graphic option
-#' @param indices names of indices to plot (default = "all")
+#' @param index names of indices to plot (default = "all")
 #' @param index.label show index name in plot
 #' @param add if TRUE par is not called to enable manual multiplots
 #' @param verbose commentary 
