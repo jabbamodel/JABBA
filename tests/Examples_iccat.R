@@ -6,7 +6,7 @@
 
 library(JABBA)
 #File = "C:/Work/Research/GitHub/JABBApkg_testing/example" # LINK to your folder of choice here
-file = here::i_am("examples/Examples_iccat.R")
+file = here::i_am("tests/Examples_iccat.R")
 library(here)
 
 #><>><>><>><>><>><>><>><>><>><>><>
@@ -15,6 +15,7 @@ library(here)
 
 assessment = "BETiccat"
 output.dir = file.path(File,assessment)
+message("Output Dir:", output.dir)
 dir.create(output.dir,showWarnings = F)
 setwd(output.dir)
 #------------------------------------------------------
