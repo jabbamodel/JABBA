@@ -169,7 +169,7 @@ fit1 = fit_jabba(jb1,quickmcmc=TRUE,verbose=TRUE)
 # Compare
 jbplot_ensemble(fit1)
 # Do forecast
-prjc = fw_jabba(list(fit1,fit2),quant="Catch",type="abs",imp.values = seq(60,100,1)*1000)
+prjc = fw_jabba(list(fit1),quant="Catch",type="abs",imp.values = seq(60,100,1)*1000)
 jbplot_Crisk(prjc,subplots=1)
 jbplot_Crisk(prjc,subplots=2)
 jbplot_Crisk(prjc,subplots=3) # MSST as (1-0.5)*Bmsy with bfrac =0.5
