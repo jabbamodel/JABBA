@@ -75,6 +75,7 @@
 #' @importFrom methods is
 #' @export
 #' @examples
+#' 
 #' data(iccat)
 #' bet <- iccat$bet 
 #' 
@@ -98,7 +99,7 @@
 #' # Compare
 #' jbplot_ensemble(list(fit1,fit2))
 #' # Joint to 2-model ensemble
-#' jbplot_ensemble(list(fit1,fit2),joint=T)
+#' jbplot_ensemble(list(fit1,fit2),joint=TRUE)
 #' # Do 2-model ensemble forecast
 #' prj <- fw_jabba(list(fit1),
 #'                quant="Catch",
@@ -143,43 +144,53 @@ jbplot_ensemble<- function(kb,
      
     
  
-  
+  #Pull the kbtrj data.frame to 
   if(!is.null(kb$settings)){ 
-    kb = kb$kbtrj
-  }      
-      # if a list of fit_jabba() is provided
-      if(is(class(kb),"list")){   
-      
-      if(!is.null(kb$settings)){
-        kb = list(kb)
-        if(!is.null(run)) names(kb) = run
-      }
-      
-        if(is.null(names(kb)[1])){
-          run.ls = do.call(c,lapply(kb,function(x){
-          x$scenario
-          })) } else {
-          run.ls = names(kb)
-          }
-          run.ls = as.list(run.ls)
+    kb <- kb$kbtrj
+  }
+  
+  # if a list of fit_jabba() is provided
+  #if(is(class(kb),"list")){   
+  #if(class(kb) == "list"){
     
-          
-          kb = do.call(rbind,Map(function(x,y){
-          z = x$kbtrj
-          z$run = y
-          z
-          },x=kb,y=run.ls))
-          
-          
-          if(joint & !is.null(run)) kb$run = run
-          if(joint & is.null(run)) kb$run = "Joint"
-      }
+    if(!is.null(kb$settings)){
+      kb = list(kb)
+      if(!is.null(run))
+        names(kb) = run
+    }
+    
+    if (is.null(names(kb)[1])) {
+      run.ls = do.call(c, lapply(kb, function(x) {
+        x$scenario
+      }))
+    } else {
+      run.ls <- names(kb)
+    }
+    run.ls = as.list(run.ls)
+    
+    
+    kb = do.call(rbind, Map(function(x, y) {
+      z <- x$kbtrj
+      z$run <- y
+      z
+    }, x = kb, y = run.ls))
+    
+  #}
+  if(is.data.frame(kb)){
+    
+    if(joint & !is.null(run)) kb$run <- run
+    if(joint & is.null(run)) kb$run <- "Joint" 
+    
+    if(!is.null(xlim)) {
+      kb = kb[kb$year<=xlim[2] & kb$year>=xlim[1],]
+    }
+    message("class:", class(kb))
+    # Constraint on F/Fmsy
+    kb$harvest[kb$type=="prj"] = pmin(kb[kb$type=="prj",]$harvest,fmax)
+    kb$H[kb$type=="prj"]= pmin(fmax*median(kb[kb$type=="prj",]$H/kb[kb$type=="prj",]$harvest),kb[kb$type=="prj",]$H)
+    
+  }
   
-   if(!is.null(xlim)) kb =kb[kb$year<=xlim[2] & kb$year>=xlim[1],]
-  
-   # Constraint on F/Fmsy
-   kb$harvest[kb$type=="prj"] = pmin(kb[kb$type=="prj",]$harvest,fmax)
-   kb$H[kb$type=="prj"]= pmin(fmax*median(kb[kb$type=="prj",]$H/kb[kb$type=="prj",]$harvest),kb[kb$type=="prj",]$H)
    
   if(as.png==TRUE){
     add=FALSE
@@ -202,8 +213,8 @@ jbplot_ensemble<- function(kb,
   refquants=c("stock","harvest","B","H","Bdev","Catch","BB0","BBfrac")
   
   # for defaul multiplot use always 6 subplots in order
-  if(!single.plots){
-  subplots = c(subplots,(1:8)[(1:8)%in%subplots==F])[1:6]  
+  if (!single.plots) {
+    subplots = c(subplots, (1:8)[(1:8) %in% subplots == FALSE])[1:6]
   }
   
   kb = addBfrac(kb,bfrac=bfrac,bref=bref,quantiles=quantiles)$kb
@@ -306,14 +317,15 @@ jbplot_ensemble<- function(kb,
     
     
     # open new window if requested
-    if(single.plots){
-    if(plot & as.png==FALSE){
-      if(!add) par(par)
-      
-    } else {
-      
-      if(!add) par(par)
-    }
+    if (single.plots) {
+      if (plot & as.png == FALSE) {
+        if (!add)
+          par(par)
+        
+      } else {
+        if (!add)
+          par(par)
+      }
     }
     
    if(is.null(xlim)) xlim = c(max(min(years)),max(years)) 
@@ -385,28 +397,31 @@ jbplot_ensemble<- function(kb,
   } # End of plot_quant function  
   legend.temp = legend  
   # Do plotting
-  if(plot){ 
+  if(plot) {
     # subplots
-    for(s in 1:length(subplots)){
-    if(print & single.plots){
-    quant=quants[s]
-    par(par)
-    pngfun(paste0("ModelComp_",quant,".png",sep=""))
-    plot_quants(quant)
-    dev.off()
-    }
+    for (s in 1:length(subplots)) {
+      if (print & single.plots) {
+        quant = quants[s]
+        par(par)
+        pngfun(paste0("ModelComp_", quant, ".png", sep = ""))
+        plot_quants(quant)
+        dev.off()
+      }
     }
     # subplots
-    for(s in 1:length(subplots)){
-      if(verbose) cat(paste0("\n","Plot Comparison of ",quants[s],"\n"))
+    for (s in 1:length(subplots)) {
+      if (verbose)
+        cat(paste0("\n", "Plot Comparison of ", quants[s], "\n"))
       
-    if(!add & single.plots)par(par)
-    quant=quants[s]
-    plot_quants(quant)   
+      if (!add & single.plots)
+        par(par)
+      quant = quants[s]
+      plot_quants(quant)
     }
-    if(kbout) return(kb)
+    if (kbout)
+      return(kb)
   } # endplot
-
+  
 } 
 #}}} end of jbplot_ensemble()
 #-----------------------------------------------------------------------------------------

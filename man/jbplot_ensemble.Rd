@@ -178,6 +178,7 @@ It will be separated from default name by an underscore.}
 Plots plots JABBA ensemble models + projections - joint or by run
 }
 \examples{
+
 data(iccat)
 bet <- iccat$bet 
 
@@ -201,7 +202,7 @@ fit2 <- fit_jabba(jb2,
 # Compare
 jbplot_ensemble(list(fit1,fit2))
 # Joint to 2-model ensemble
-jbplot_ensemble(list(fit1,fit2),joint=T)
+jbplot_ensemble(list(fit1,fit2),joint=TRUE)
 # Do 2-model ensemble forecast
 prj <- fw_jabba(list(fit1),
                quant="Catch",
