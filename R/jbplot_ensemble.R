@@ -143,25 +143,24 @@ jbplot_ensemble<- function(kb,
                         ){ # plot different fits to a single index of abundance
      
     
- 
   #Pull the kbtrj data.frame to 
-  if(!is.null(kb$settings)){ 
-    kb <- kb$kbtrj
+  if(!is.null(kb[["settings"]])){ 
+    kb <- kb[["kbtrj"]]
   }
   
   # if a list of fit_jabba() is provided
   #if(is(class(kb),"list")){   
   #if(class(kb) == "list"){
     
-    if(!is.null(kb$settings)){
-      kb = list(kb)
+    if(!is.null(kb[["settings"]])){
+      kb <- list(kb)
       if(!is.null(run))
         names(kb) = run
     }
     
     if (is.null(names(kb)[1])) {
       run.ls = do.call(c, lapply(kb, function(x) {
-        x$scenario
+        x[["scenario"]]
       }))
     } else {
       run.ls <- names(kb)
@@ -169,25 +168,26 @@ jbplot_ensemble<- function(kb,
     run.ls = as.list(run.ls)
     
     
-    kb = do.call(rbind, Map(function(x, y) {
-      z <- x$kbtrj
-      z$run <- y
-      z
-    }, x = kb, y = run.ls))
-    
   #}
   if(is.data.frame(kb)){
     
-    if(joint & !is.null(run)) kb$run <- run
-    if(joint & is.null(run)) kb$run <- "Joint" 
+    if(joint & !is.null(run)) kb[["run"]] <- run
+    if(joint & is.null(run)) kb[["run"]] <- "Joint" 
     
     if(!is.null(xlim)) {
-      kb = kb[kb$year<=xlim[2] & kb$year>=xlim[1],]
+      kb = kb[kb[["year"]]<=xlim[2] & kb[["year"]]>=xlim[1],]
     }
     message("class:", class(kb))
     # Constraint on F/Fmsy
-    kb$harvest[kb$type=="prj"] = pmin(kb[kb$type=="prj",]$harvest,fmax)
-    kb$H[kb$type=="prj"]= pmin(fmax*median(kb[kb$type=="prj",]$H/kb[kb$type=="prj",]$harvest),kb[kb$type=="prj",]$H)
+    kb$harvest[kb[["type"]]=="prj"] = pmin(kb[kb[["type"]]=="prj",]$harvest,fmax)
+    kb$H[kb[["type"]]=="prj"]= pmin(fmax*median(kb[kb[["type"]]=="prj",]$H/kb[kb[["type"]]=="prj",]$harvest),kb[kb[["type"]]=="prj",]$H)
+    
+  }else{
+    kb = do.call(rbind, Map(function(x, y) {
+      z <- x[["kbtrj"]]
+      z$run <- y
+      z
+    }, x = kb, y = run.ls))
     
   }
   
