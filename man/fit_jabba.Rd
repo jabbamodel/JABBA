@@ -66,6 +66,8 @@ Initial values}
 
 \item{seed}{default 123, set random by e.g. sample.int(999,1)}
 
+\item{jagsdir}{JAGS Model output path}
+
 \item{verbose}{option show cat comments and progress}
 }
 \value{
@@ -79,4 +81,5 @@ data(iccat)
 jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
 bet1 = fit_jabba(jbinput,quickmcmc=TRUE,verbose=TRUE)
 jbplot_summary(bet1)
+
 }

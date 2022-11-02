@@ -90,6 +90,10 @@ jbplot_ensemble(
 \item{ylab.bref}{option to only specify BBfrac plot ylab 
 final year of values to show for each model. By default it is set to the}
 
+\item{plot}{TODO DOCUMENTATION}
+
+\item{as.png}{TODO DOCUMENTATION}
+
 \item{col}{Optional vector of colors to be used for lines. Input NULL}
 
 \item{bref.col}{option to set color for Bref reference line (default is "red")}
@@ -111,6 +115,8 @@ year in timeseries plots.}
 
 \item{yaxs}{Choice of yaxs parameter (see ?par for more info)}
 
+\item{xylabs}{x and y axis labels}
+
 \item{type}{Type parameter passed to points (default 'o' overplots points on
 top of lines)}
 
@@ -127,6 +133,8 @@ the legend display the model names in an order that is different than that
 which is represented in the summary input object.}
 
 \item{legendncol}{Number of columns for the legend.}
+
+\item{legendcex}{Default=1 Allows to adjust legend cex}
 
 \item{legendsp}{Space between legend labels}
 
@@ -160,27 +168,46 @@ It will be separated from default name by an underscore.}
 
 \item{add}{surpresses par() to create multiplot figs}
 
+\item{single.plots}{TODO DOCUMENTATION}
+
 \item{run}{name for single models or joint ensembles}
 
-\item{legendcex=1}{Allows to adjust legend cex}
+\item{fmax}{TODO DOCUMENTATION}
 }
 \description{
 Plots plots JABBA ensemble models + projections - joint or by run
 }
 \examples{
+
 data(iccat)
-bet = iccat$bet 
+bet <- iccat$bet 
+
 # Fit Fox and Schaefer
-jb1 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Fox",model.type="Fox")
-jb2 <- build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,scenario = "Schaefer",model.type="Schaefer")
-fit1 = fit_jabba(jb1,quickmcmc=TRUE,verbose=TRUE)
-fit2 = fit_jabba(jb2,quickmcmc=TRUE,verbose=TRUE)
+jb1 <- build_jabba(catch=bet$catch, 
+                   cpue=bet$cpue,
+                   se=bet$se,
+                   scenario = "Fox",
+                   model.type="Fox")
+jb2 <- build_jabba(catch=bet$catch,
+                   cpue=bet$cpue,
+                   se=bet$se,
+                   scenario = "Schaefer",
+                   model.type="Schaefer")
+fit1 <- fit_jabba(jb1,
+                  quickmcmc=TRUE,
+                  verbose=TRUE)
+fit2 <- fit_jabba(jb2,
+                  quickmcmc=TRUE,
+                  verbose=TRUE)
 # Compare
 jbplot_ensemble(list(fit1,fit2))
 # Joint to 2-model ensemble
-jbplot_ensemble(list(fit1,fit2),joint=T)
+jbplot_ensemble(list(fit1,fit2),joint=TRUE)
 # Do 2-model ensemble forecast
-prj = fw_jabba(list(fit1),quant="Catch",type="abs",imp.values = seq(60,100,1)*1000)
+prj <- fw_jabba(list(fit1),
+               quant="Catch",
+               type="abs",
+               imp.values = seq(60,100,1)*1000)
 jbplot_ensemble(prj)
 # Zoom in
 jbplot_ensemble(prj,xlim=c(2000,2027))

@@ -1,0 +1,49 @@
+---
+title: Convergence Diagnostic
+author: "Henning Winker, Felipe Carvalho, Maia Kapur"
+geometry: margin = 1in
+output:
+  html_document
+fontsize: 11pt
+---
+
+# Evaluate Convergence
+
+A critical issue in using MCMC methods is how to determine if random draws have converged to the posterior distribution. Convergence of the MCMC samples to the posterior distribution was checked by monitoring the trace and by diagnosing the autocorrelation plot. Gelman and Rubin (1992) and Heidelberger and Welch (1983) diagnostics as implemented in the R language (R Development Core Team, 2013) and the CODA package were also examined. In this study, three MCMC chains were used. The model was run for 100,000 iterations, sampled with a thinning rate of 10 with a burn-in period of 20,000 for each of the three chains. Basic diagnostics of model convergence and fitting included visualization of the MCMC chains, comparing the predicted CPUE indices for each model to the observed CPUE and inspecting the process error deviation over time. 
+
+```{r, eval = F,  tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+# run some mcmc convergence tests
+par.dat= data.frame(posteriors[params[c(1:6)]])
+geweke = geweke.diag(data.frame(par.dat))
+pvalues <- 2*pnorm(-abs(geweke$z))
+pvalues
+
+#heidle = heidel.diag(data.frame(par.dat))
+
+# postrior means + 95% BCIs
+#Model  parameter
+apply(par.dat,2,quantile,c(0.025,0.5,0.975))
+
+man.dat = data.frame(posteriors[params[8:10]])
+#Management quantaties
+apply(man.dat,2,quantile,c(0.025,0.5,0.975))
+
+# Depletion
+Depletion = posteriors$P[,c(1,n.years)]
+colnames(Depletion) = c(paste0("P",years[1]),paste0("P",years[n.years]))
+
+H_Hmsy.cur = posteriors$HtoHmsy[,c(n.years)]
+B_Bmsy.cur = posteriors$BtoBmsy[,c(n.years)]
+
+
+man.dat = data.frame(man.dat,Depletion,B_Bmsy.cur,H_Hmsy.cur)
+
+results = round(t(cbind(apply(par.dat,2,quantile,c(0.025,0.5,0.975)))),3)
+
+results = data.frame(Median = results[,2],LCI=results[,1],UCI=results[,3],Geweke.p=round(pvalues,3))
+
+ref.points = round(t(cbind(apply(man.dat,2,quantile,c(0.025,0.5,0.975)))),3)
+
+ref.points = data.frame(Median = ref.points[,2],LCI=ref.points[,1],UCI=ref.points[,3])
+
+```

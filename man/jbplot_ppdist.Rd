@@ -29,11 +29,11 @@ jbplot_ppdist(
 
 \item{height}{plot hight}
 
+\item{cex}{grapical parameter(see \code{?par} for details)}
+
 \item{verbose}{silent option}
 
 \item{addPP}{show PPMR and PPVR}
-
-\item{add}{if true don't call par() to allow construction of multiplots}
 }
 \description{
 Prior and posterior distributions of esimated parameters: K, r, psi (depletion) and variances

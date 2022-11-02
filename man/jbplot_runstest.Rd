@@ -43,9 +43,16 @@ Residual diagnostics with runs test p-value and 3xsigma limits
 }
 \examples{
 data(iccat)
-bet= iccat$bet
-jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
-fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+bet <- iccat$bet
+jb <- build_jabba(catch=bet$catch,
+                  cpue=bet$cpue,
+                  se=bet$se,
+                  assessment="BET",
+                  scenario = "Ref",
+                  model.type = "Pella",
+                  igamma = c(0.001,0.001),
+                  verbose=FALSE)
+fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
 jbrunstest(fit)
 jbrunstest(fit,index=2)
 jbplot_runstest(fit,verbose=FALSE)

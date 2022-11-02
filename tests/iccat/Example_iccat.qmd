@@ -1,26 +1,46 @@
+---
+title: "ICCAT Bigeye Tuna assessment"
+format: html
+editor: visual
+---
 
-# Installation
-# install.packages(devtools)
-# UPDATE Latest Version
-# devtools:: install_github("jabbamodel/JABBA")
-
+```{r}
+#| label: install-jabba
+#| include: false
+remotes::install_github("jabbamodel/JABBA")
 library(JABBA)
-File = "C:/Work/Research/GitHub/JABBApkg_testing/example" # LINK to your folder of choice here
+```
 
-#><>><>><>><>><>><>><>><>><>><>><>
-# Bigeye Tuna ICCAT
-#><>><>><>><>><>><>><>><>><>><>><>
-
+```{r}
+#| label: file-setup
+#| include: false
+library(here)
+file = here("Example/Example_iccat.R")
 assessment = "BETiccat"
-output.dir = file.path(File,assessment)
-dir.create(output.dir,showWarnings = F)
-setwd(output.dir)
+out.dir = here("Example","iccat", assessment)
+if(!file.exists(out.dir) ) {
+  dir.create(out.dir)
+}
+```
+
+## ICCAT Bigeye Tuna assessment
+
+```{r}
+#| label: iccat-data
+#| echo: false 
 #------------------------------------------------------
 # Simple example fit JABBA to Catch and CPUE with SEs
 #-------------------------------------------------------
 data(iccat)
 # get BET data
 bet = iccat$bet
+```
+
+```{r}
+#| label: build-JAGS-model
+#| message: false
+#| warning: false
+#| cache: true
 # Compile JABBA JAGS model and input object
 jbinput1 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,
                       assessment=assessment,scenario = "Run1",
@@ -34,10 +54,12 @@ jbinput1 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,
 # Check input
 jbplot_indices(jbinput1)
 
-
 # Fit JABBA (here mostly default value - careful)
 bet1 = fit_jabba(jbinput1,quickmcmc = TRUE) # quick run
+```
 
+```{r}
+#| label: indvidual-plots
 head(bet1$kobe)
 
 # Make individual plots
@@ -54,6 +76,7 @@ jbplot_PPC(bet1) # Posterior Predictive Checks - Not great should 0.2-0.8
 
 # Status
 jbplot_summary(bet1)
+
 # combine plots
 jbpar(mfrow=c(2,2))
 jbplot_summary(bet1,add=T,type = c("BBmsy", "FFmsy"))
@@ -62,7 +85,13 @@ jbplot_kobe(bet1,add=T)
 
 jbpar(mfrow=c(3,2),plot.cex = 0.8)
 jbplot_ensemble(bet1)
+```
 
+```{r}
+#| label: variance-jags
+#| message: false
+#| warning: false
+#| cache: true
 # Try to improve runs test diagnostics by changing the variance settings
 # Increase minimum obs error from 0.01 to 0.1 and remove SEs from CPUE model
 jbinput2 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,
@@ -72,6 +101,10 @@ jbinput2 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessme
 
 
 bet2 = fit_jabba(jbinput2,quickmcmc = T)
+```
+
+```{r}
+#| label: variance-plots
 # Check residual diags
 jbplot_cpuefits(bet2)
 jbplot_runstest(bet2)
@@ -79,32 +112,46 @@ jbplot_logfits(bet2)
 jbplot_PPC(bet2)
 # Improved
 refinput = jbinput2 # Note as reference input 
-
 # Compare
 jbplot_summary(list(Run1=bet1,Run2=bet2))
 jbplot_ensemble(list(Run1=bet1,Run2=bet2))
 
 # Check parameters and convergence (p <0.05 is not fully converged)
 bet2$pars 
+```
+
+```{r}
+#| label: full-run-model 
+#| warning: false
+#| message: false
+#| cache: true
 # Make a long MCMC run with 3 chains
 bet.full = fit_jabba(jbinput2,nc=3)
+```
 
+```{r}
+#| label: full-run-convergence
 # MCMC convergence
 bet.full$pars 
 jbplot_mcmc(bet.full)
 
 # get quantaties
-bet.full$estimates
+tibble::as_tibble(bet.full$estimates)
 # FLR data.frame trajectories
-bet.full$flqs
+tibble::as_tibble(bet.full$flqs)
 # fits
-bet.full$diags
+tibble::as_tibble(bet.full$diags)
 
 
-#------------------------------------------------------
-# Estimate shape m as function of Bmsy/K
-#-------------------------------------------------------
+```
 
+## Estimate shape m as function of Bmsy/K
+
+```{r}
+#| label: jbinput3-JAGS
+#| message: false
+#| warning: false
+#| cache: true
 # Compile JABBA JAGS model and input object
 jbinput3 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,
               scenario = "Est.Shape",model.type = "Pella_m", # Estimate shape
@@ -116,12 +163,21 @@ jbinput3 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessme
               psi.prior = c(1,0.1))
 
 bet3 = fit_jabba(jbinput3,quickmcmc=F)
+```
 
+```{r}
+#| label: jbinput3-check
 jbplot_ppdist(bet3) # check shape prior & posterior dist - not much information
 # Compare
 jbplot_summary(list(bet2,bet3))
 jbplot_ensemble(list(bet2,bet3))
+```
 
+```{r}
+#| label: Schaefer-model
+#| message: false
+#| warning: false
+#| cache: true
 # also run model as Schaefer
 jbinput4 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessment,
                        scenario = "Schaefer",model.type = "Schaefer", # Estimate shape
@@ -131,17 +187,23 @@ jbinput4 = build_jabba(catch=bet$catch,cpue=bet$cpue,se=NULL,assessment=assessme
                        psi.prior = c(1,0.1))
 
 bet4 = fit_jabba(jbinput4,quickmcmc=T)
+```
 
+```{r}
+#| label: Schaefer-plots
 # Compare 
 jbpar(mfrow=c(3,2),plot.cex=0.7)
 jbplot_ensemble(list(bet1,bet2,bet3,bet4))
 jbpar(mfrow=c(3,2),plot.cex=0.6)
 jbplot_summary(list(bet1,bet2,bet3,bet4),add=T)
+```
 
-#----------------------------------------------------
-# Do some forecasting
-#----------------------------------------------------
+# Forecasting
 
+## F-based Forecasting
+
+```{r}
+#| label: Fforecast
 # F-based forecasting
 # Relative Fmsy
 # Single Forecast for Base-Case model - now works with imp.yr=1 
@@ -161,7 +223,12 @@ for(i in 1:3){
    jbplot_ensemble(fw1.ar1,subplots = c(1,2,5)[i],add=T,xlim=c(2010,2028),legend=ifelse(i==1,T,F))
    }
 mtext(c("Default","AR1"),outer=T,at=c(0.27,0.77))
+```
 
+## IOTC style
+
+```{r}
+#| label: IOTC-style-forecast
 # IOTC-Style: Relative current catch (default mean 3 yrs)
 # 10 years, 2 intermediate years, deterministic
 fw.io = fw_jabba(bet2,nyears=10,imp.yr=3,imp.values = seq(0.6,1.2,0.1),quant="Catch",type="ratio",nsq=3,stochastic = F)
@@ -171,7 +238,11 @@ jbplot_ensemble(fw.io,add=T,subplots = 1,legend.loc = "topright")
 jbplot_ensemble(fw.io,add=T,subplots = 2,legend=F)
 jbplot_ensemble(fw.io,add=T,subplots = 5,legend=F)
 jbplot_ensemble(fw.io,add=T,subplots = 6,legend=F)
+```
 
+## ICCAT style
+```{r}
+#| label: ICCAT-style-forecast
 # ICCAT Style
 Ccur = mean(tail(jbinput2$data$catch[,2],2))
 TACs = c(75500,seq(60000,78000,2000))
@@ -181,11 +252,20 @@ jbpar(mfrow=c(2,2))
 jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(1,2,5,6),add=T)
 jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(1,2,5,6),plotCIs = F)
 
+```
+
+```{r}
+#| label: verify-forecasts
 # Check if correct
 jbpar()
 jbplot_ensemble(fw.iccat,legendcex = 0.4,xlim=c(2010,2027),subplots = c(6),plotCIs = F,add=T)
 abline(v=c(2017,2018,2019,2020)) # 2020 = imp.yr
+```
 
+## Ensemble
+
+```{r}
+#| label: ensemble-model-forecast
 # Do Ensemble modelling
 jbplot_ensemble(list(bet2,bet3,bet4))
 
@@ -199,20 +279,28 @@ jbpar(mfrow=c(3,2),plot.cex = 0.6)
 for(i in 1:6) jbplot_ensemble(fw.ens,add=T,subplots = i,legend = ifelse(i==2,T,F))
 
 
-#----------------------------------------------------------------
-# Conduct Retrospective Analysis and Hind-Cast Cross-Validation
-#----------------------------------------------------------------
+```
 
+# Conduct Retrospective Analysis and Hind-Cast Cross-Validation
+
+## Hindcast cross validation
+```{r}
+#| label: hcxvl
 # Do hindcast cross-validation
 hc1 = hindcast_jabba(jbinput2,bet2,peels=1:5)
 
- # Show Retrospective Pattern
+# Show Retrospective Pattern
 mohns= jbplot_retro(hc1)
 
 mohns
 mohns[row.names(mohns)=="rho.mu",]
 
 hindcasts = hc1
+```
+
+## Alternative Forecasts
+```{r}
+#| label: Alt-hindcast-forecast
 # Make alternative forecasts
 hc2 = jbhcxval(hc1,AR1=T) # make forecasts with AR1
 
@@ -224,40 +312,52 @@ for(i in 1:1){
 mtext(c("Default","AR1"),outer=T,at=c(0.27,0.77))
 
 jbmase(hc2)
+```
 
-#------------------------------------------------------
 # Catch-Only with biomass prior in 2010 as type B/Bmsy
-#------------------------------------------------------
+
+```{r}
+#| label: catch-only-model
+#| message: false
+#| warning: false
+#| cache: true
 # Compile JABBA JAGS model and input object for Catch Only
 # Add biomass prior based on B/Bmsy guestimate
 jbinput5 = build_jabba(catch=bet$catch,model.type = "Fox",
                       assessment=assessment,scenario =  "CatchOnly" ,
                       b.prior=c(0.5,0.2,2010,"bbmsy"),
                       psi.prior = c(1,0.1))
-
-
 # Fit JABBA
-bet5 = fit_jabba(jbinput5,save.jabba=TRUE,output.dir=output.dir)
+bet5 = fit_jabba(jbinput5,save.jabba=TRUE,output.dir=out.dir)
+```
 
+```{r}
+#| label: catch-only-checks
 # Check depletion prior vs posterior
 jbplot_bprior(bet5)
 # Compare
 jbplot_summary(list(bet2,bet5))
+```
 
+# Original South Atlantic Swordfish example.Winker et al. (2018). JABBA: Just Another Biomass Assessment
 
-
-#><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
-# Original South Atlantic Swordfish example here
-# Winker et al. (2018). JABBA: Just Another Biomass Assessment
-#><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>
+```{r}
+#| label: swos-setup
 swos = iccat$swos
 
 assessment = "SWOSiccat"
 scenario = "Base"
-output.dir = file.path(File,assessment)
-dir.create(output.dir,showWarnings = F)
-setwd(output.dir)
+out.dir = here("Example", "iccat", assessment)
+if(!file.exists(out.dir) ) {
+  dir.create(out.dir)
+}
+```
 
+```{r}
+#| label: swos-model
+#| message: false
+#| warning: false
+#| cache: true
 # Compile JABBA JAGS model and input object
 jbswos = build_jabba(catch=swos$catch,cpue=normIndex(swos$cpue),se=swos$se,assessment=assessment,scenario = scenario,
                       model.type = "Pella",
@@ -271,11 +371,23 @@ jbswos = build_jabba(catch=swos$catch,cpue=normIndex(swos$cpue),se=swos$se,asses
                       igamma=c(4,0.01), # default process error (moderately informative)
                       P_bound = c(0.02,1.1),verbose=FALSE)
 
+```
+
+```{r}
+#| label: swos-indices
 jbplot_indices(jbswos)
-
+```
+```{r}
+#| label: swos-fits
+#| message: false
+#| warning: false
+#| cache: true
 # fit JABBA
-fit.swos = fit_jabba(jbswos,save.jabba=TRUE,output.dir=output.dir)
+fit.swos = fit_jabba(jbswos,save.jabba=TRUE,output.dir=out.dir)
+```
 
+```{r}
+#| label: swos-plots
 jbplot_cpuefits(fit.swos)
 jbplot_logfits(fit.swos)
 jbplot_residuals(fit.swos)
@@ -286,6 +398,10 @@ jbpar(mfrow=c(1,2),plot.cex = 0.7)
 jbplot_spphase(fit.swos,add=T)
 jbplot_kobe(fit.swos,add=T)
 
+```
+
+```{r}
+#| label: swos-iccat
 # Project
 # ICCAT Style
 Ccur = 10056
@@ -293,4 +409,4 @@ TACs = seq(10000,18000,1000)
 fw.swos= fw_jabba(fit.swos,nyears=10,imp.yr=4,initial = Ccur,imp.values = TACs,quant="Catch",type="abs",nsq=3,stochastic = T,AR1=F)
 jbpar(mfrow=c(2,2),plot.cex = 0.7)
 jbplot_ensemble(fw.swos,legendcex = 0.4,xlim=c(2015,2025),subplots = c(1:4),add=T)
-
+```

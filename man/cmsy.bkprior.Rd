@@ -10,6 +10,8 @@ cmsy.bkprior(catch, bw = 3, prior.r = c(0.05, 0.5))
 \item{catch}{catch time series, requires data.frame(year, catch)}
 
 \item{bw}{kernel bandwith for catch smoothing (default=3)}
+
+\item{prior.r}{prior.r TODO DOCUMENT}
 }
 \value{
 list with initial start bk range and c(mu,cv)

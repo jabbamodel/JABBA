@@ -4,6 +4,12 @@
 #' Set the par() to options suitable for jabba multi plots   
 #' @param mfrow determines plot frame set up
 #' @param plot.cex cex graphic option
+#' @param mex mex Par graphics param 
+#' @param mai mai Par graphics param
+#' @param omi omi Par graphics param
+#' @param mar mar Par graphics param
+#' @param labs TODO DOcumentation
+#' @importFrom graphics par
 #' @export
 jbpar <- function(mfrow=c(1,1),mex=0.8,plot.cex=0.8,mai=c(0.5,0.5,0.15,.15),omi = c(0.2,0.2,0.2,0),mar=c(2.5,2.5, 0.7, 0.7),labs=TRUE){
   if(!labs)  mai=c(0.35,0.15,0,.15)
@@ -36,7 +42,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
   nI = ncol(y) 
   if(is.null(cols)) cols = jabbainput$settings$cols
   Par = list(mfrow=c(1,1),mar = c(4, 4, 1, 1), mgp =c(2.5,1,0),mai = c(0.6, 0.6, 0.1, 0.1),mex=0.8, tck = -0.02,cex=plot.cex)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Index_",jabbainput$settings$assessment,"_",jabbainput$settings$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/Index_",jabbainput$settings$assessment,"_",jabbainput$settings$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
@@ -77,7 +83,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
 jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,verbose=TRUE){
   if(verbose) cat(paste0("\n","><> jbplot_catch()  <><","\n"))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Landings_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/Landings_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) {par(Par)}
 
@@ -100,13 +106,14 @@ jbplot_catch <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, widt
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom graphics points legend
 #' @export
 
 jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,verbose=TRUE){
     if(jabba$settings$add.catch.CV==TRUE){
     if(verbose) cat(paste0("\n","><> jbplot_catcherror()  <><","\n"))
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.7,0), tck = -0.02,cex=0.8)
-    if(as.png) { png(file = paste0(output.dir,"/Catch.fit_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png) { png(filename = paste0(output.dir,"/Catch.fit_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE){par(Par)}
     # estimated Catch
@@ -132,11 +139,11 @@ jbplot_catcherror <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE,
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
-#' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
 #' @param mfrow set up plot frame
 #' @param addPP show PPMR and PPVR
+#' @param cex grapical parameter(see \code{?par} for details)
 #' @param verbose silent option  
 #' @export
 
@@ -149,7 +156,7 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
 
   #Posteriors
   Par = list(mfrow=mfrow,mai=c(0.4,0.1,0,.1),omi = c(0.3,0.5,0.1,0) + 0.1,mgp=c(1,0.1,0), tck = -0.02,cex=0.8)
-  if(as.png){png(file = paste0(output.dir,"/Posteriors_",jabba$assessment,"_",jabba$scenario,".png"),width  = width, height = height,
+  if(as.png){png(filename = paste0(output.dir,"/Posteriors_",jabba$assessment,"_",jabba$scenario,".png"),width  = width, height = height,
       res = 200, units = "in")}
   par(Par)
 
@@ -264,7 +271,6 @@ jbplot_ppdist <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
-#' @param add if true don't call par() to allow construction of multiplots
 #' @param width plot width
 #' @param height plot hight
 #' @param mfrow set up plot frame  
@@ -277,7 +283,7 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
   node_id = names(out)
 
   Par = list(mfrow=c(round(length(node_id)/3+0.33,0),3),mai=c(0.4,0.1,0,.1),omi = c(0.3,0.5,0.1,0) + 0.1,mgp=c(1,0.1,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/MCMC_",jabba$assessment,"_",jabba$scenario,".png"), width = 8, height = 2.5*round(length(node_id)/3,0),
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/MCMC_",jabba$assessment,"_",jabba$scenario,".png"), width = 8, height = 2.5*round(length(node_id)/3,0),
       res = 200, units = "in")}
   par(Par)
   for(i in 1:length(node_id)){
@@ -303,6 +309,9 @@ jbplot_mcmc <- function(jabba, output.dir=getwd(),as.png = FALSE,mfrow=c(round((
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom grDevices grey
+#' @importFrom stats qlnorm 
+#' @importFrom graphics arrows points legend mtext
 #' @export
 jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE,verbose=TRUE){
   if(as.png==TRUE) add=FALSE
@@ -343,7 +352,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
     if(is.null(height)) height = 3.5
     for(i in 1:n.indices){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                            res = 200, units = "in")}
       if(!add){
       if(as.png==TRUE | i==1) par(Par)
@@ -396,7 +405,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
     if(is.null(width)) width = 7
     if(is.null(height)) height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0)
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                            res = 200, units = "in")}
     if(!add) par(Par)
 
@@ -467,6 +476,7 @@ jbplot_cpuefits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.pn
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom stats qnorm
 #' @export
 
 jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png=FALSE,single.plots=add,width=NULL,height=NULL,plotCIs=TRUE,verbose=TRUE){
@@ -505,7 +515,7 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
       if(is.null(height)) height = 3.5
       for(i in 1:n.indices){
         Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-        if(as.png==TRUE){png(file = paste0(output.dir,"/logFits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+        if(as.png==TRUE){png(filename = paste0(output.dir,"/logFits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
         if(!add){
         if(as.png==TRUE | i==1) par(Par)
@@ -548,7 +558,7 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
         if(is.null(width)) width = 7
         if(is.null(height)) height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0)
         Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-        if(as.png==TRUE){png(file = paste0(output.dir,"/logFits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+        if(as.png==TRUE){png(filename = paste0(output.dir,"/logFits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                              res = 200, units = "in")}
         if(!add) par(Par)
         for(i in 1:n.indices){
@@ -606,6 +616,8 @@ jbplot_logfits <- function(jabba,index=NULL, output.dir=getwd(),add=FALSE,as.png
 #' @param height plot hight
 #' @param cols option to add colour palette 
 #' @param verbose silent option
+#' @importFrom graphics boxplot
+#' @importFrom stats predict loess
 #' @export
 jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, width = 5, height = 3.5,cols=NULL,verbose=TRUE){
 
@@ -637,7 +649,7 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 
     # JABBA-residual plot
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Residuals_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Residuals_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE) par(Par)
 
@@ -679,6 +691,8 @@ jbplot_residuals <- function(jabba,output.dir=getwd(),as.png = FALSE,add=FALSE, 
 #' @param height plot hight
 #' @param cols option to add colour palette 
 #' @param verbose silent option
+#' @importFrom graphics boxplot
+#' @importFrom stats predict loess
 #' @export
 jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height= 3.5,cols=NULL,verbose=TRUE){
 
@@ -697,7 +711,7 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
     StResid = jabba$std.residuals
 
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/StandardizedResids_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/StandardizedResids_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE) par(Par)
     # Standardized Residuals
@@ -738,11 +752,20 @@ jbplot_stdresiduals <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE
 #' @param height plot hight
 #' @param verbose silent option
 #' @export
+#' @importFrom graphics rect
+#' @importFrom grDevices rgb
 #' @examples 
 #' data(iccat)
-#' bet= iccat$bet
-#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
-#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' bet <- iccat$bet
+#' jb <- build_jabba(catch=bet$catch,
+#'                   cpue=bet$cpue,
+#'                   se=bet$se,
+#'                   assessment="BET",
+#'                   scenario = "Ref",
+#'                   model.type = "Pella",
+#'                   igamma = c(0.001,0.001),
+#'                   verbose=FALSE)
+#' fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
 #' jbrunstest(fit)
 #' jbrunstest(fit,index=2)
 #' jbplot_runstest(fit,verbose=FALSE)
@@ -767,7 +790,7 @@ jbplot_runstest <- function(jabba,index=NULL,mixing="less", output.dir=getwd(),a
         if(is.null(height)) height = 3.5
         for(i in 1:n.indices){
           Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-          if(as.png==TRUE){png(file = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+          if(as.png==TRUE){png(filename = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                                res = 200, units = "in")}
 
           if(add==FALSE){
@@ -797,7 +820,7 @@ jbplot_runstest <- function(jabba,index=NULL,mixing="less", output.dir=getwd(),a
     if(is.null(width)) width = 7
     if(is.null(height)) height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0)
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/ResRunsTests_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     if(add==FALSE) par(Par)
     for(i in 1:n.indices){
@@ -849,7 +872,7 @@ jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 
   years=jabba$yr
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/ProcDev_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/ProcDev_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
   ylim = c(min(-0.22,jabba$timeseries[,,"procB"]),max(0.22,jabba$timeseries[,,"procB"]))#range(proc.dev)*1.1
@@ -884,7 +907,7 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),ylabs=NUL
   for(i in 1:length(type)){
 
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
         res = 200, units = "in")}
     if(add==FALSE){par(Par)}
     if(verbose) cat(paste0("\n","><> jbplot_trj() - ", type[i]," trajectory  <><","\n"))
@@ -936,7 +959,7 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
   for(i in 1:length(type)){
     
     Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/prj",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/prj",type[i],"_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                          res = 200, units = "in")}
     if(add==FALSE){par(Par)}
     cat(paste0("\n","><> jbplot_prj() - ", type[i]," trajectory  <><","\n"))
@@ -983,6 +1006,7 @@ jbplot_prj <-  function(jabba, type = c("BB0","BBmsy","FFmsy"),CIs=TRUE,flim=6,o
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom graphics rect
 #' @export
 jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
   if(verbose) cat(paste0("\n","><> jbplot_spdyn() - SPt+1 = Bt+1-Bt+Ct vs B  <><","\n"))
@@ -1001,7 +1025,7 @@ jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width
   years = jabba$yr
   ylim=c(min(c(1.2*jabba$timeseries[-1,1,"SPt"],0)),max(c(max(jabba$timeseries[-1,1,"SPt"],na.rm=T)*1.05,max(MSY.sp*1.1))))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/SPdyn_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/SPdyn_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
 
@@ -1052,6 +1076,8 @@ jbplot_spdyn <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width
 #' @param width plot width
 #' @param height plot hight
 #' @param verbose silent option
+#' @importFrom graphics rect
+#' @importFrom grDevices rgb
 #' @export
 
 jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
@@ -1070,7 +1096,7 @@ jbplot_spphase <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,wid
   N = jabba$settings$N
   years = jabba$yr
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/SPphase_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/SPphase_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
@@ -1139,7 +1165,7 @@ jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=F
   kernelF <- gplots::ci2d(b,f,nbins=151,factor=1.5,ci.levels=c(0.50,0.80,0.75,0.90,0.95),show="none",col=1,xlab= ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))),ylab=expression(paste(B/B[MSY])))
 
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){ png(file = paste0(output.dir,"/Kobe_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){ png(filename = paste0(output.dir,"/Kobe_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
 
@@ -1210,6 +1236,7 @@ jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=F
 #' @param width plot width
 #' @param height plot hight
 #' @param verbose silent option
+#' @importFrom graphics points legend mtext text
 #' @export
 jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
 
@@ -1226,7 +1253,7 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 
 
   Par = list(mfrow=c(1,1),mai=c(0.2,0.15,0,.15),omi = c(0.3,0.25,0.2,0) + 0.1, mgp =c(3,1,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){ png(file = paste0(output.dir,"/Biplot_",jabba$assessment,"_",jabba$cenario,".png"), width = width, height = height,
+  if(as.png==TRUE){ png(filename = paste0(output.dir,"/Biplot_",jabba$assessment,"_",jabba$cenario,".png"), width = width, height = height,
       res = 200, units = "in")}
   if(add==FALSE) par(Par)
 
@@ -1328,6 +1355,8 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #' @param width plot width
 #' @param height plot height
 #' @param verbose silent option
+#' @importFrom graphics legend
+#' @importFrom grDevices gray grey
 #' @export
 jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width = 5, height = 3.5,verbose=TRUE){
   if(jabba$settings$b.pr[3]==0){
@@ -1335,7 +1364,7 @@ jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width
   } else {
   if(verbose) cat(paste0("\n","><> jbplot_bprior - biomass depletion prior vs posterior   <><","\n"))
   Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.1, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Bprior_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
+  if(as.png==TRUE){png(filename = paste0(output.dir,"/Bprior_",jabba$assessment,"_",jabba$scenario,".png"), width = width, height = height,
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
@@ -1365,6 +1394,7 @@ jbplot_bprior <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,width
 #' @param jabba output list from fit_jabba
 #' @param output.dir directory to save plots
 #' @param as.png save as png file of TRUE
+#' @param statusplot flag for kobe plot
 #' @param verbose silent option
 #' @export
 jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe",verbose=TRUE){
@@ -1410,10 +1440,17 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @export
 #' @examples 
 #' data(iccat)
-#' bet= iccat$bet
-#' jb = build_jabba(catch=bet$catch,cpue=bet$cpue,se=bet$se,assessment="BET",scenario = "Ref",model.type = "Pella",igamma = c(0.001,0.001),verbose=FALSE)
-#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
-#' hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
+#' bet <- iccat$bet
+#' jb <- build_jabba(catch=bet$catch,
+#'                  cpue=bet$cpue,
+#'                  se=bet$se,
+#'                  assessment="BET",
+#'                  scenario = "Ref",
+#'                  model.type = "Pella",
+#'                  igamma = c(0.001,0.001),
+#'                  verbose=FALSE)
+#' fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=FALSE)
+#' hc <- hindcast_jabba(jbinput=jb,fit=fit,peels=1:3)
 #' jbplot_retro(hc)
 #' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
 
@@ -1458,7 +1495,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
     if(is.null(height)) height = 3.5
     for(k in 1:length(type)){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Retro",hc$scenario ,"_",type[k],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/Retro",hc$scenario ,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
       
@@ -1519,7 +1556,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
     if(is.null(width)) width = 7
     if(is.null(height)) height = 8 
     Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Retro_",hc$scenario,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Retro_",hc$scenario,".png"), width = width, height = height,
                          res = 200, units = "in")}
     par(Par)
     for(k in 1:length(type)){
@@ -1599,6 +1636,7 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
 #'
 #' Compares B, F, BBmsy, FFmsy, BB0 and SP for various model scanarios that have to be saved as rdata 
 #' @param jabbas list() of JABBA model 1:n
+#' @param assessment Assessment Name
 #' @param type for single plots optional select type=c("B","F","BBmsy","FFmsy","BB0","SP")
 #' @param plotCIs Plot Credibilty Interval 
 #' @param ylabs yaxis labels for quants
@@ -1617,8 +1655,9 @@ jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecas
 #' @param legend.add show legend
 #' @param plot.cex cex setting in par()
 #' @param verbose if FALSE be silent
+#' 
 #' @export
-jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,ylabs=NULL,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
+jbplot_summary <- function(jabbas,assessment="jabba",type=c("B","F","BBmsy","FFmsy","BB0","SP"),plotCIs=TRUE,ylabs=NULL,prefix="Summary",save.summary=FALSE,output.dir=getwd(),as.png=FALSE,single.plots=add,add=FALSE,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",legend.cex=0.8,legend.add=TRUE,plot.cex=0.8,verbose=TRUE){
   
   if(!is.null(jabbas$settings)) jabbas = list(jabbas)
   if(as.png) add=FALSE
@@ -1678,7 +1717,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
     if(is.null(height)) height = 3.5
     for(k in 1:length(type)){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=plot.cex)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,"_",type[k],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/",prefix,"_",jbs$assessment,"_",type[k],".png"), width = width, height = height,
                            res = 200, units = "in")}
       
       if(!add) if(as.png==TRUE | k==1) par(Par)
@@ -1719,7 +1758,7 @@ jbplot_summary <- function(jabbas,type=c("B","F","BBmsy","FFmsy","BB0","SP"),plo
     if(is.null(width)) width = 7
     if(is.null(height)) height = 8 
     Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=plot.cex)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = width, height = height,
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = width, height = height,
                          res = 200, units = "in")}
     par(Par)
     for(k in 1:length(type)){
@@ -1818,18 +1857,20 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
   n.indices = length(indices)  
   if(single.plots==FALSE){  
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/hcxaval_",hc[[1]]$assessment,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/hcxaval_",hc[[1]]$assessment,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     if(add==F) par(Par)
   }  
   for(i in 1:length(indices)){
+    valid = NULL
     if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
+      valid=c(valid,paste(indices[i]))
       if(single.plots==TRUE){  
         if(is.null(width)) width = 5
         if(is.null(height)) height = 3.5
         
         Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-        if(as.png==TRUE){png(file = paste0(output.dir,"/hcxval_",hc$scenario,"_",indices[i],".png"), width = width, height = height,
+        if(as.png==TRUE){png(filename = paste0(output.dir,"/hcxval_",hc$scenario,"_",indices[i],".png"), width = width, height = height,
                              res = 200, units = "in")}
         if(add==F){
           if(as.png==TRUE | indices[i]==valid[1]) par(Par)
@@ -1934,11 +1975,13 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
 #' @param ylab option to change y-axis label
 #' @param xlab option to change x-axis label
 #' @param plot.cex graphic option
-#' @param indices names of indices to plot (default = "all")
+#' @param index names of indices to plot (default = "all")
 #' @param index.label show index name in plot
 #' @param add if TRUE par is not called to enable manual multiplots
 #' @param verbose commentary 
 #' @return Bayesin p values and n observation per index
+#' @importFrom graphics points legend mtext
+#' @importFrom grDevices grey
 #' @export
 jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(),as.png=FALSE,single.plots=add,width=NULL,height=NULL,ylab=expression(paste("Predicted D(",chi^2,")")),xlab=expression(paste("Realized D(",chi^2,")")),plot.cex=0.8,index=NULL,index.label=TRUE,add=FALSE,verbose=TRUE){
   
@@ -1972,7 +2015,7 @@ jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(
     if(is.null(height)) height = 5
     for(i in 1:n.indices){
       Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=plot.cex)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
+      if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits",jabba$assessment,"_",jabba$scenario,"_",indices[i],".png"), width = width, height = height,
                            res = 200, units = "in")}
       if(add==FALSE){
         if(as.png==TRUE | i==1) par(Par)
@@ -2003,7 +2046,7 @@ jbplot_PPC <- function(jabba,joint.ppc=FALSE,thin.plot = TRUE ,output.dir=getwd(
     if(is.null(width)) width = 7
     if(is.null(height)) height = ifelse(n.indices==1,7,ifelse(n.indices==2,4.,3.5))*round(n.indices/2+0.01,0)
     Par = list(mfrow=c(round(n.indices/2+0.01,0),ifelse(n.indices==1,1,2)),mai=c(0.35,0.15,0,.15),omi = c(0.2,0.25,0.2,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=plot.cex)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
+    if(as.png==TRUE){png(filename = paste0(output.dir,"/Fits_",jabba$assessment,"_",jabba$scenario,".png"), width = 7, height = ifelse(n.indices==1,5,ifelse(n.indices==2,3.,2.5))*round(n.indices/2+0.01,0),
                          res = 200, units = "in")}
     par(Par)
     

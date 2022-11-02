@@ -12,7 +12,6 @@
 #' @param init.K = NULL,
 #' @param init.r = NULL,
 #' @param init.q = NULL,# vector
-#' @param peels = NULL, # retro peel option
 #' @param quickmcmc option to run short mcmc
 #' @param verbose option show cat comments and progress
 #' @param par.quantile quantile(s) of parameter posterior, default median 0.5 
@@ -21,7 +20,11 @@
 #' @export
 #' @examples
 #' data(iccat)
-#' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox",verbose=FALSE)
+#' jbinput <- build_jabba(catch=iccat$bet$catch,
+#'                        cpue=iccat$bet$cpue,
+#'                        se=iccat$bet$se,
+#'                        model.type="Fox",
+#'                        verbose=FALSE)
 #' system.time(fit_jabba(jbinput,quickmcmc=TRUE,verbose=FALSE))
 #' system.time(mp_jabba(jbinput))
 

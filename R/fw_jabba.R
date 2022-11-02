@@ -4,6 +4,8 @@
 #' External forward projections in JABBA 
 #'
 #' @param jabba objects from fit_jabba() or list of fit_jabba() objects  
+#' @param nyears Number of years. default is 10
+#' @param imp.yr TODO DOCUMENT. NULL by default
 #' @param quant quantity to forecast  c("Catch","F")
 #' \itemize{
 #'   \item Catch  
@@ -16,7 +18,8 @@
 #'   \item abs (input values are taken as absolute values)
 #' }    
 #' @param initial value or vector Catch or F values, default takes mean over recent 3 yrs   
-#' @param imp.values vector Catch or F scenarios provide as absolute or ratios   
+#' @param imp.values vector Catch or F scenarios provide as absolute or ratios
+#' @param nsq TODO DOCUMENT   
 #' @param stochastic if FALSE, process error sigma.proc is set to zero 
 #' @param AR1 if TRUE, projection account auto correlation in the process devs 
 #' @param ndevs number years on the tail to set initial proc.error for forecasting  
@@ -25,6 +28,7 @@
 #' @param run option to assign a scenario name other than specified in build_jabba()
 #' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
+#' @importFrom stats aggregate rnorm median
 #' @export
 
 #{{{

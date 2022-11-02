@@ -3,7 +3,7 @@
 #'
 #' Plots plots JABBA ensemble models + projections - joint or by run  
 #' 
-#' @param kb objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj    
+#' @param prjc objects from fit_jabba(),jabba_fw(), list of fit_jabba() or fit_jabba()$kbtrj    
 #' @param subplots option choose from subplots 1:7 
 #' \itemize{
 #'   \item 1: Risk B < Bmsy  
@@ -13,9 +13,13 @@
 #' @param riskout if TRUE, produces the kb data.frame as output 
 #' @param bfrac biomass fraction of Bmsy or B0 (subplot 8), default 0.5Bmsy
 #' @param bref biomass fraction reference options c("bmsy","b0")
+#' @param years TODO DOCUMENTATION
 #' @param ylabs yaxis labels for quants
 #' @param ylab.bref option to only specify BBfrac plot ylab 
 #' final year of values to show for each model. By default it is set to the
+#' @param xlab xaxis label
+#' @param plot TODO DOCUMENTATION
+#' @param as.png TODO DOCUMENTATION
 #' @param col Optional vector of colors to be used for lines. Input NULL
 #' @param pch Optional vector of plot character values
 #' @param lty Optional vector of line types
@@ -26,6 +30,7 @@
 #' @param xlim = NULL range of years
 #' @param xaxs Choice of xaxs parameter (see ?par for more info)
 #' @param yaxs Choice of yaxs parameter (see ?par for more info)
+#' @param xylabs TODO DOCUMENTATION
 #' @param type Type parameter passed to points (default 'o' overplots points on
 #' top of lines)
 #' @param legend Add a legend?
@@ -37,7 +42,7 @@
 #' the legend display the model names in an order that is different than that
 #' which is represented in the summary input object.
 #' @param legendncol Number of columns for the legend.
-#' @param legendcex=1 Allows to adjust legend cex
+#' @param legendcex Defeult=1 Allows to adjust legend cex
 #' @param legendsp Space between legend labels
 #' @param pwidth Width of plot
 #' @param pheight Height of plot
@@ -55,8 +60,12 @@
 #' @param shadealpha Transparency adjustment used to make default shadecol
 #' @param new Create new empty plot window
 #' @param add surpresses par() to create multiplot figs
-#' @param run name for single models or joint ensembles
+#' @param single.plots TODO DOCUMENTATION. name for single models or joint ensembles
+#' @param fmax TODO DOCUMENTATION
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
+#' @importFrom grDevices graphics.off adjustcolor png dev.off
+#' @importFrom stats aggregate 
+#' @importFrom graphics lines abline axis box
 #' @export
 #' @examples
 #' data(iccat)
@@ -67,7 +76,7 @@
 #' # Compare
 #' jbplot_ensemble(fit1)
 #' # Do forecast
-#' prjc = fw_jabba(list(fit1,fit2),quant="Catch",type="abs",imp.values = seq(60,100,1)*1000)
+#' prjc = fw_jabba(list(fit1),quant="Catch",type="abs",imp.values = seq(60,100,1)*1000)
 #' jbplot_Crisk(prjc,subplots=1)
 #' jbplot_Crisk(prjc,subplots=2)
 #' jbplot_Crisk(prjc,subplots=3) # MSST as (1-0.5)*Bmsy with bfrac =0.5
@@ -168,7 +177,8 @@ jbplot_Crisk<- function(prjc,
   
   if(!single.plots){
   Par = list(mfrow=c(1,1),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/Risk_",jbs$assessment,".png"), width = 7, height = 6,
+  #if(as.png==TRUE){png(filename = paste0(plotdir,"/Risk_",jbs$assessment,".png"), width = 7, height = 6,
+  if(as.png==TRUE){png(filename = paste0(plotdir,"/Risk_","jbs$assessment",".png"), width = 7, height = 6,
                        res = 200, units = "in")}
   par(Par)
   }

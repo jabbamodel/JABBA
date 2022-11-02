@@ -48,8 +48,6 @@ Initial values}
 \item{quickmcmc}{option to run short mcmc}
 
 \item{verbose}{option show cat comments and progress}
-
-\item{peels}{= NULL, # retro peel option}
 }
 \value{
 A result list containing estimates of model input, settings and results
@@ -59,7 +57,11 @@ Fits JABBA model in JAGS and produce output object as list()
 }
 \examples{
 data(iccat)
-jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox",verbose=FALSE)
+jbinput <- build_jabba(catch=iccat$bet$catch,
+                       cpue=iccat$bet$cpue,
+                       se=iccat$bet$se,
+                       model.type="Fox",
+                       verbose=FALSE)
 system.time(fit_jabba(jbinput,quickmcmc=TRUE,verbose=FALSE))
 system.time(mp_jabba(jbinput))
 }

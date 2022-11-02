@@ -20,15 +20,19 @@
 #' @param save.all add complete posteriors to fitted object 
 #' @param output.dir path to save plot. default is getwd()
 #' @param quickmcmc option to run short mcmc
-#' @param seed default 123, set random by e.g. sample.int(999,1) 
+#' @param seed default 123, set random by e.g. sample.int(999,1)
+#' @param jagsdir JAGS Model output path 
 #' @param verbose option show cat comments and progress
 #' @return A result list containing estimates of model input, settings and results
 #' @export
+#' @importFrom stats rlnorm runif rbeta pnorm quantile qchisq sd median
+#' @importFrom utils write.csv
 #' @examples
 #' data(iccat)
 #' jbinput <- build_jabba(catch=iccat$bet$catch,cpue=iccat$bet$cpue,se=iccat$bet$se,model.type="Fox")
 #' bet1 = fit_jabba(jbinput,quickmcmc=TRUE,verbose=TRUE)
 #' jbplot_summary(bet1)
+#' 
 
 fit_jabba = function(jbinput,
                      # MCMC settings

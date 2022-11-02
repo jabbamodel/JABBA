@@ -19,6 +19,8 @@ jabba_plots(
 
 \item{as.png}{save as png file of TRUE}
 
+\item{statusplot}{flag for kobe plot}
+
 \item{verbose}{silent option}
 }
 \description{

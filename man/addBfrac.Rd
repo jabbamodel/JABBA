@@ -7,14 +7,16 @@
 addBfrac(kb, bfrac = 0.5, bref = c("bmsy", "b0"), quantiles = c(0.025, 0.975))
 }
 \arguments{
+\item{kb}{kb output}
+
+\item{bfrac}{fraction of Bmsy or B0}
+
+\item{bref}{defines biomass base "bmsy" or "b0"}
+
 \item{quantiles}{default is 95CIs as c(0.025,0.975)}
-
-\item{jabba}{bfrac fraction of Bmsy or B0}
-
-\item{base}{defines biomass base "bmsy" or "b0"}
 }
 \value{
-
+List with kb and bref.
 }
 \description{
 add biomass reference to kb ouput as fraction Bmsy or B0, e.g. for Blim or MSST

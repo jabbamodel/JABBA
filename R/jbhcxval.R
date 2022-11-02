@@ -1,31 +1,40 @@
-#{{{
 #' jbhcxval()
-#
+#' 
 #' additional hindcast options with external foreward projections 
 #'
-#' @param hc object (list of models) from hindcast_jabba() 
+#' @param hindcasts object (list of models) from hindcast_jabba() 
 #' @param stochastic if FALSE, process error sigma.proc is set to zero 
 #' @param AR1 if TRUE, projection account auto correlation in the process devs 
 #' @param rho if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs
 #' @param sigma.proc option to specify the process error other than the posterior estimate
 #' @param ndevs number years on the tail to set initial proc.error for forecasting  
 #' @param run option to assign a scenario name other than specified in build_jabba()
-#' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
 #' @export
+#' @importFrom utils tail
 #' @examples
 #' data(iccat)
-#' whm = iccat$whm
+#' whm <- iccat$whm
+#' 
 #' # ICCAT white marlin setup
-#' jb = build_jabba(catch=whm$catch,cpue=whm$cpue,se=whm$se,assessment="WHM",scenario = "BaseCase",model.type = "Pella",r.prior = c(0.181,0.18),BmsyK = 0.39,igamma = c(0.001,0.001))
-#' fit = fit_jabba(jb,quickmcmc=TRUE,verbose=TRUE)
-#' hc = hindcast_jabba(jbinput=jb,fit=fit,peels=1:5)
+#' jb <- build_jabba(catch=whm$catch, 
+#'                   cpue=whm$cpue,
+#'                   se=whm$se,
+#'                   assessment="WHM",
+#'                   scenario = "BaseCase",
+#'                   model.type = "Pella",
+#'                   r.prior = c(0.181,0.18),
+#'                   BmsyK = 0.39,
+#'                   igamma = c(0.001,0.001))
+#' fit <- fit_jabba(jb,quickmcmc=TRUE,verbose=TRUE)
+#' 
+#' # Hindcast
+#' hc <- hindcast_jabba(jbinput=jb,fit=fit,peels=1:5)
 #' jbplot_retro(hc)
 #' jbplot_hcxval(hc,index=c(8,11))
-#' hc.ar1 = jbhcxval(hc,AR1=TRUE) # do hindcasting with AR1
+#' hc.ar1 <- jbhcxval(hc,AR1=TRUE) # do hindcasting with AR1
 #' jbplot_hcxval(hc.ar1,index=c(8,11))
 
-# {{{
 jbhcxval <- function(hindcasts,
                      stochastic = c(TRUE, FALSE)[1],
                      AR1 = c(TRUE, FALSE)[1],
