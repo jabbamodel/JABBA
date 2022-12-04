@@ -19,20 +19,6 @@ fits = list(fit1,fit2)
 jbplot_summary(fits)
 kb = jbplot_ensemble(fit1,kbout=T)
 
-prjc = fw_jabba(fit2,nyears=10,imp.yr=2,imp.values = seq(0.01,5,0.1),quant="Catch",type="ratio",nsq=3,stochastic = T,AR1=T)
-
-
-fwr = fwr[fwr$type=="prj",] 
-fwr = fwr[fwr$year%in%c(ceiling(mean(unique(fwr$year))), max(unique(fwr$year))),]
-fwr = addBfrac(fwr)$kb
-fwr$riskBmsy = ifelse(fwr$stock<1,1,0)
-fwr$riskBfrac = ifelse(fwr$BBfrac<1,1,0)
-fwr$riskFmsy = ifelse(fwr$harvest>1,1,0)
-
-risk = aggregate(cbind(riskBmsy,riskFmsy,riskBfrac)~Catch+year,fwr,mean)
-
-plot(riskBmsy~Catch,risk[risk$year==2027,],ylim=c(0,1))
-plot(riskBfrac~Catch,riskCI[riskCI$year==2027,])
 
 # IOTC type Forecasting relative to current catch
 fw.io = fw_jabba(fit2,nyears=10,imp.yr=2,imp.values = seq(0.6,1.2,0.1),quant="Catch",type="ratio",nsq=3,stochastic = T)

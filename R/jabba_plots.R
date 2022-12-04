@@ -32,7 +32,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
   abundance =jabbainput$settings$model.type
   dat = normIndex(jabbainput$data$cpue)
   se = as.matrix(sqrt(jabbainput$jagsdata$SE2)[1:length(years),])
-  y = as.matrix(log(jabbainput$jagsdata$I)[1:length(years),])
+  y = as.matrix(log(as.matrix(dat[,-1]))[1:length(years),])
   nI = ncol(y) 
   if(is.null(cols)) cols = jabbainput$settings$cols
   Par = list(mfrow=c(1,1),mar = c(4, 4, 1, 1), mgp =c(2.5,1,0),mai = c(0.6, 0.6, 0.1, 0.1),mex=0.8, tck = -0.02,cex=plot.cex)
@@ -40,7 +40,7 @@ jbplot_indices <- function(jabbainput, output.dir=getwd(),as.png=FALSE,width=5,h
                        res = 200, units = "in")}
   if(add==FALSE) par(Par)
   
-  Ylim = c(0, max(exp(log(jabbainput$jagsdata$I)+sqrt(jabbainput$jagsdata$SE2)*1.05)  ,na.rm =T))
+  Ylim = c(0, max(exp(y+sqrt(jabbainput$jagsdata$SE2)*1.05)  ,na.rm =T))
   plot(years,years,type="n",xlim=c(min(years-1),max(years+2)),ylab=ylab,xlab=xlab,ylim=Ylim, frame = TRUE,xaxs="i",yaxs="i",xaxt="n")
   iv = c(-0.25,0.25)
   for(j in 1:nI){
