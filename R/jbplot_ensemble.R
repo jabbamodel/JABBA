@@ -59,6 +59,7 @@
 #' it will be the directory where the model was run.
 #' @param filenameprefix Additional text to append to PNG or PDF file names.
 #' It will be separated from default name by an underscore.
+#' @param single.plots if TRUE will plot subplots individually
 #' @param par list of graphics parameter values passed to par() function
 #' @param verbose Report progress to R GUI?
 #' @param shadecol uncertainty shading of hcxval horizon
@@ -69,6 +70,7 @@
 #' @author Mostly adopted from ss3diags::SSplotEnsemble
 #' @export
 #' @examples
+#' \dontrun{
 #' data(iccat)
 #' bet = iccat$bet 
 #' # Fit Fox and Schaefer
@@ -85,6 +87,9 @@
 #' jbplot_ensemble(prj)
 #' # Zoom in
 #' jbplot_ensemble(prj,xlim=c(2000,2027))
+#' # Plot only biomass
+#' jbplot_ensemble(list(fit1, fit2), subplots = 3, single.plots = TRUE)
+#' }
 jbplot_ensemble<- function(kb,
                         subplots=1:6,
                         joint=FALSE,
@@ -222,7 +227,7 @@ jbplot_ensemble<- function(kb,
   
   if(!single.plots){
   Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = 7, height = 8,
+  if(as.png==TRUE){png(file = paste0(plotdir,"/",filenameprefix,"_jabba_comparison.png"), width = 7, height = 8,
                        res = 200, units = "in")}
   par(Par)
   }
