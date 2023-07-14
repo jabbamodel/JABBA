@@ -42,8 +42,6 @@ Initial values}
 
 \item{init.values}{= FALSE,}
 
-\item{init.K}{= NULL,}
-
 \item{init.r}{= NULL,}
 
 \item{init.q}{= NULL,# vector}
@@ -67,6 +65,8 @@ Initial values}
 \item{seed}{default 123, set random by e.g. sample.int(999,1)}
 
 \item{verbose}{option show cat comments and progress}
+
+\item{initK}{= NULL,}
 }
 \value{
 A result list containing estimates of model input, settings and results

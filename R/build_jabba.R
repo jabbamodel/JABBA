@@ -162,7 +162,7 @@ build_jabba <- function(
       message(paste0("\n","><> Warnning: Replacing 0 Catch by small constant 0.0001 <><","\n","\n"))
     conv.catch[conv.catch< 0.001]=0
   }
-  if(length(which(is.na(conv.catch)))>0) stop("\n","\n","><> Missing Catch values currently not permitted (NAs should be 0) <><","\n","\n")
+  #if(length(which(is.na(conv.catch)))>0) stop("\n","\n","><> Missing Catch values currently not permitted (NAs should be 0) <><","\n","\n")
   
   # Build Catch input
   Catch=matrix(conv.catch,nrow=n.years,ncol=n.catches)

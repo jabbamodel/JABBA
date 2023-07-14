@@ -20,5 +20,5 @@ runs p value and 3 x sigma limits
 runs test is conducted with library(randtests)
 }
 \author{
-Henning Winker (JRC-EC) and Laurence Kell (Sea++)
+Henning Winker (GFCM) and Laurence Kell (Sea++)
 }

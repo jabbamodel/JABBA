@@ -9,7 +9,7 @@
 #' @param nc number of mcmc chains
 #' Initial values
 #' @param init.values = FALSE,
-#' @param init.K = NULL,
+#' @param initK = NULL,
 #' @param init.r = NULL,
 #' @param init.q = NULL,# vector
 #' @param peels = NULL, # retro peel option
@@ -226,13 +226,13 @@ fit_jabba = function(jbinput,
   yrdim = length(years)
   Stock_trj = array(data=NA,dim=c(yrdim,3,7),dimnames = list(years,c("mu","lci","uci"),c("B","F","BBmsy","FFmsy","BB0","procB","SPt")))
   for(i in 1:3){
-    Stock_trj[,i,] =  cbind(t(apply(posteriors$SB[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$H[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$BtoBmsy[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$HtoHmsy[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$P[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(apply(posteriors$Proc.Dev[,1:yrdim],2,quantile,c(0.5,0.025,0.975)))[,i],
-                            t(cbind(rep(0,3),apply(posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]+catch.temp[,-ncol(posteriors$SB)],2,quantile,c(0.5,0.025,0.975)))[,1:yrdim])[,i]
+    Stock_trj[,i,] =  cbind(t(apply(posteriors$SB[,1:yrdim],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,i],
+                            t(apply(posteriors$H[,1:yrdim],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,i],
+                            t(apply(posteriors$BtoBmsy[,1:yrdim],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,i],
+                            t(apply(posteriors$HtoHmsy[,1:yrdim],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,i],
+                            t(apply(posteriors$P[,1:yrdim],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,i],
+                            t(apply(posteriors$Proc.Dev[,1:yrdim],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,i],
+                            t(cbind(rep(0,3),apply(posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]+catch.temp[,-ncol(posteriors$SB)],2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))[,1:yrdim])[,i]
     )
     
   }

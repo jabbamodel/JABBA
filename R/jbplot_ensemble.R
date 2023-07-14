@@ -120,7 +120,8 @@ jbplot_ensemble<- function(kb,
                         ){ # plot different fits to a single index of abundance
      
     
- 
+
+     
   
   if(!is.null(kb$settings)){ 
     kb = kb$kbtrj

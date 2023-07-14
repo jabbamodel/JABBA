@@ -124,8 +124,9 @@ jabba2jags = function(jbinput, dir){
   for(t in 1:N){
       estC[t] ~ dlnorm(log(TC[t]),pow(CV.C[t],-2))
   }
+  
 
-",append=TRUE)} else {
+",append=TRUE)} else if (jbinput$settings$catch.error=="under"){
   cat("
   for(t in 1:N){
   cdev[t] ~ dnorm(0,pow(CV.C[t],-2))
@@ -133,6 +134,8 @@ jabba2jags = function(jbinput, dir){
   estC[t] <- exp(log(TC[t])+cpos[t]) 
   }
 ",append=TRUE)}  
+  
+if(jbinput$settings$catch.error!="fdev"){
   cat("
 
     #Process equation
@@ -159,7 +162,6 @@ jabba2jags = function(jbinput, dir){
     }
 
 
-
     # Process error deviation
     for(t in 1:N){
     Proc.Dev[t] <- log(P[t]*K)-log(exp(Pmean[t])*K)}
@@ -178,7 +180,7 @@ jabba2jags = function(jbinput, dir){
     for (t in 1:N)
     {
     
-    H[t] <- TC[t]/SB[t]
+    H[t] <- estC[t]/SB[t]
     HtoHmsy[t] <- H[t]/(Hmsy)
     }
 
@@ -191,8 +193,85 @@ jabba2jags = function(jbinput, dir){
     BtoBmsy[t] <- SB[t]/SBmsy
     }
 
-    ",append=TRUE)
+    ",append=TRUE)}
+ 
+  if(jbinput$settings$catch.error=="fdev"){ ### NOT ACTIVE
+    cat("
+    
+      frho ~ dnorm(0.5,pow(0.5,-2))T(0.01,0.9)
+      Hmean ~ dlnorm(log(0.05),0.0001) 
+      #df ~  dnorm(0,0.001)
+      #rho ~ dbeta(rho.pr[1],rho.pr[2])
+      #rho <- rho1/1.1
+      isigf2 ~ dgamma(0.001,0.001)
+      sigf2 <- pow(isigf2,-1)
+      sigf <- sqrt(sigf2)
+      fdev[1] ~ dnorm(0,isigf2)
+      for(t in 2:(N)){
+      fdev[t] ~ dnorm(frho*fdev[t-1],isigf2) # Add AR1 on r
+      }
+      for(t in 1:(N)){
+      H[t] <- Hmean*exp(fdev[t]-0.5*sigf2)
+      }
+      
+    #Process equation
+    Pmean[1] <- log(psi)
+    iPV[1] <- ifelse(1<(stI),10000,isigma2) # inverse process variance
+    P[1] ~ dlnorm(Pmean[1],iPV[1]) # set to small noise instead of isigma2
+    penB[1]  <- ifelse(P[1]<P_bound[1],log(K*P[1])-log(K*P_bound[1]),ifelse(P[1]>P_bound[2],log(K*P[1])-log(K*P_bound[2]),0)) # penalty if Pmean is outside viable biomass
+    penBK[1] <- 0
+    
+    # Process equation
+    for (t in 2:(N+1))
+    {
+    Pmean[t] <- ifelse(P[t-1] > Plim,
+    log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1)) - H[t-1]*P[t-1],0.001)),
+    log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1))*P[t-1]*slope.HS - H[t-1]*P[t-1],0.001)))
+    iPV[t] <- ifelse(t<(stI),10000,isigma2) # inverse process variance
+    P[t] ~ dlnorm(Pmean[t],iPV[t])
+    }
+    for (t in 2:N)
+    {
+    penB[t]  <- ifelse(P[t]<(P_bound[1]),log(K*P[t])-log(K*(P_bound[1])),ifelse(P[t]>P_bound[2],log(K*P[t])-log(K*(P_bound[2])),0)) # penalty if Pmean is outside viable biomass
+    # Depletion prior
+    penBK[t] <- ifelse(b.yr[t] < 1,0,log(ifelse(b.pr[4]<1,P[t],ifelse(b.pr[4]>1,HtoHmsy[t],BtoBmsy[t])))-log(b.pr[1]))
+    }
 
+    # Process error deviation
+    for(t in 1:N){
+    Proc.Dev[t] <- log(P[t]*K)-log(exp(Pmean[t])*K)}
+
+    # Enforce soft penalties on bounds for P
+    #for(t in 1:N){
+    #pen.P[t] ~ dnorm(penB[t],1000) # enforce penalty with CV = 0.1
+    #pen.bk[t] ~ dnorm(penBK[t],pow(b.pr[2],-2))
+    #}
+
+    Hmsy <- r*pow(m-1,-1)*(1-1/m)
+    SBmsy_K <- (m)^(-1/(m-1))
+    SBmsy <- SBmsy_K*K
+    MSY <- SBmsy*Hmsy
+    
+    
+    
+    for (t in 1:N)
+    {
+    meanC[t] <- log(H[t]*P[t]*K)
+    TC[t] ~ dlnorm(meanC[t],pow(CV.C[t],-2))
+    estC[t] <- exp(meanC[t])
+    
+    #H[t] <- estC[t]/SB[t]
+    HtoHmsy[t] <- H[t]/(Hmsy)
+    }
+
+    for (t in 1:(N+1)) # One step ahead biomass
+    {
+    SB[t] <- K*P[t]
+    BtoBmsy[t] <- SB[t]/SBmsy
+    }
+
+    ",append=TRUE)}
+  
   if(jbinput$settings$CatchOnly==FALSE){
     cat("
     # Observation equation in related to EB

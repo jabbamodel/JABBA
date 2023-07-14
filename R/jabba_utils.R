@@ -131,7 +131,7 @@ kobeJabbaProj<-function(x){
 #' @param mixing c("less","greater","two.sided"). Default less is checking for postive autocorrelation only    
 #' @return runs p value and 3 x sigma limits
 #' @export
-#' @author Henning Winker (JRC-EC) and Laurence Kell (Sea++)
+#' @author Henning Winker (GFCM) and Laurence Kell (Sea++)
 jbruns_sig3 <- function(x,type=NULL,mixing="less") {
   if(is.null(type)) type="resid"
   if(type=="resid"){
@@ -364,95 +364,147 @@ ss3col <- function(n,alpha=1){
 #' @return hc containing estimates of key joint results from all hindcast run 
 #' @export
 
-jbmase <- function(hc,naive.min=0.1,index=NULL,residuals=FALSE,verbose=TRUE){
+jbmase<-function (hc, naive.min = 0.1, index = NULL, residuals = FALSE, verbose = TRUE) {
   MASE = Residuals = NULL
-  d. = do.call(rbind,lapply(hc,function(x){
-    x$diags}))
-  
-  xmin= min(d.$year)
-  all.indices = unique(d.$name)  
-  if(is.null(index)) index = 1:length(all.indices)
-  # subset 
-  d. = d.[d.$name%in%all.indices[index],]
+  d. = do.call(rbind, lapply(hc, function(x) {
+    x$diags
+  }))
+  xmin = min(d.$year)
+  all.indices = unique(d.$name)
+  if (is.null(index)) 
+    index = 1:length(all.indices)
+  d. = d.[d.$name %in% all.indices[index], ]
   peels = unique(d.$retro.peels)
-  styr = max(hc[[1]]$yr)-max(peels)
+  styr = max(hc[[1]]$yr) - max(peels)
   years = min(d.$year):max(d.$year)
   yr = unique(d.$year)
-  endyrvec = rev(sort(years[length(years)-peels]))
-  
-  if(verbose)cat("\n","><> Only including indices that have years overlapping hind-cast horizan","\n")
-  # check in index
+  endyrvec = rev(sort(years[length(years) - peels]))
+  if (verbose) 
+    cat("\n", "><> Only including indices that have years overlapping hind-cast horizan", 
+        "\n")
   indices = unique(d.$name)
   valid = NULL
-  for(i in 1:length(indices)){
-    if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
-      valid=c(valid,paste(indices[i]))}
+  for (i in 1:length(indices)) {
+    if (nrow(d.[d.$name %in% indices[i] & d.$year > styr & 
+                d.$retro.peels %in% peels[1], ]) > 1) {
+      valid = c(valid, paste(indices[i]))
+    }
   }
-  if(verbose) cat("\n","><> Including indices:",valid,"\n")
-  n.indices = length(valid)  
-  for(i in 1:length(indices)){
-    if(nrow(d.[d.$name%in%indices[i] & d.$year>styr & d.$retro.peels%in%peels[1],])>1){ # Only run if overlap
-      xv = d.[d.$name%in%indices[i],]
+  if (verbose) 
+    cat("\n", "><> Including indices:", valid, "\n")
+  n.indices = length(valid)
+  for (i in 1:length(indices)) {
+    if (nrow(d.[d.$name %in% indices[i] & d.$year > styr & 
+                d.$retro.peels %in% peels[1], ]) > 1) {
+      xv = d.[d.$name %in% indices[i], ]
       yr = unique(xv$year)
       yr.eval <- sort(endyrvec)
-      yr.obs <- yr.eval%in%yr
-      pe.eval = which(yr.eval%in%yr)[-1]
-      if(length(which(yr.eval%in%yr))-length(pe.eval)<1){
+      yr.obs <- yr.eval %in% yr
+      pe.eval = which(yr.eval %in% yr)[-1]
+      if (length(which(yr.eval %in% yr)) - length(pe.eval) < 
+          1) {
         pe.eval = pe.eval[-1]
-      } 
-      npe <- length(pe.eval)  # number of prediction errors
-      obs.eval <- rep(NA,length(yr.eval))
-      obs.eval[yr.eval%in%yr] = xv$obs[xv$retro.peels==min(xv$retro.peels)][yr%in%yr.eval]
-      if(is.na(obs.eval[1]))
-        nhc = length(endyrvec)-1
+      }
+      npe <- length(pe.eval)
+      obs.eval <- rep(NA, length(yr.eval))
+      obs.eval[yr.eval %in% yr] = xv$obs[xv$retro.peels == 
+                                           min(xv$retro.peels)][yr %in% yr.eval]
+      if (is.na(obs.eval[1])) 
+        nhc = length(endyrvec) - 1
+      py = xv$year[xv$retro.peels == min(xv$retro.peels) & 
+                     xv$year > styr - xmin]
+      obs = xv$obs[xv$retro.peels == min(xv$retro.peels) & 
+                     xv$year > styr - xmin]
+      if (verbose) 
+        cat(paste("\n", "Computing MASE with", ifelse(npe < 
+                                                        (length(endyrvec) - 1), "only", "all"), npe, 
+                  "of", length(endyrvec) - 1, " prediction residuals for Index", 
+                  xv$name[1]), "\n")
+      if (verbose & npe < (length(endyrvec) - 1)) 
+        cat(paste("\n", "Warning:  Unequal spacing of naive predictions residuals may influence the interpretation of MASE", 
+                  "\n", "\n"))
+      naive.eval = log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)== F])]) - log(obs.eval[is.na(obs.eval) == F][-1])
+      naive.obs  = log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)== F])])
+      naive.hat  = log(obs.eval[is.na(obs.eval) == F][-1])
+      nhc = length(endyrvec) - 1
       
-      py = xv$year[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
-      obs =xv$obs[xv$retro.peels==min(xv$retro.peels) & xv$year>styr-xmin]
-      
-      if(verbose) cat(paste("\n","Computing MASE with",ifelse(npe<(length(endyrvec)-1),"only","all"),
-                            npe,"of",length(endyrvec)-1," prediction residuals for Index",xv$name[1]),"\n")
-      if(verbose & npe<(length(endyrvec)-1))cat(paste("\n","Warning:  Unequal spacing of naive predictions residuals may influence the interpretation of MASE","\n","\n"))
-      
-      naive.eval=log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)==F])])-log(obs.eval[is.na(obs.eval)==F][-1])
-      nhc = length(endyrvec)-1
-      pred.resid = NULL
-      for(j in 1:(length(peels)-1)){
-        if(endyrvec[1:length( naive.eval)][j] %in% xv$year){
-          
+      pred.resid=NULL;pred.obs=NULL;pred.hat=NULL
+      for (j in 1:(length(peels) - 1)) {
+        if (endyrvec[1:length(naive.eval)][j] %in% xv$year) {
           x <- min(py):max(yr.eval)
-          x <- x[1:(length(x)-peels[j])]
-          x = x[x%in%unique(xv$year)]
-          y <- xv[xv$retro.peels==peels[j+1] & xv$year%in%x,]$hat
-          pred.resid = c(pred.resid,log(y[length(x)])-log(obs[length(x)])) # add log() for v1.1
-        }}
-      
-      pred.resid = pred.resid[1:length( naive.eval)]
-      maepr =  mean(abs(pred.resid))
-      if(is.na(obs.eval[1])) obs.eval[1] =  rev(obs[obs%in%obs.eval==F])[1] 
+          x <- x[1:(length(x) - peels[j])]
+          x = x[x %in% unique(xv$year)]
+          y <- xv[xv$retro.peels == peels[j + 1] & xv$year %in% 
+                    x, ]$hat
+          pred.resid = c(pred.resid,log(y[length(x)]) - log(obs[length(x)]))
+          pred.obs   = c(pred.obs,  log(y[length(x)]))
+          pred.hat   = c(pred.hat,  log(obs[length(x)]))
+        }
+      }
+      pred.resid = pred.resid[1:length(naive.eval)]
+      maepr = mean(abs(pred.resid))
+      if (is.na(obs.eval[1])) 
+        obs.eval[1] = rev(obs[obs %in% obs.eval == F])[1]
       scaler = mean(abs(naive.eval))
-      scaler.adj = mean(pmax(abs(naive.eval),naive.min))
+      scaler.adj = mean(pmax(abs(naive.eval), naive.min))
       res.i = NULL
-      res.i = data.frame(Index=unique(xv$name)[1],Year=yr.eval[pe.eval],Pred.Res=pred.resid,Naive.Res=naive.eval,n.eval=npe) 
+      res.i = data.frame(Index    =unique(xv$name)[1], Year      =yr.eval[pe.eval],
+                         Pred.Res =pred.resid,         Naive.Res =naive.eval,  n.eval = npe,
+                         Pred.obs =pred.obs,           Pred.hat  =pred.hat,
+                         Naive.obs=naive.obs,          Naive.hat =naive.hat)
       MASE.i = NULL
-      MASE.i = data.frame(Index=unique(xv$name)[1], MASE=maepr/scaler,MASE.adj=maepr/scaler.adj,MAE.PR=maepr,MAE.base=scaler,n.eval=npe)
-      Residuals = rbind(Residuals,res.i)  
-    } else{
-      xv = d.[d.$name%in%indices[i],]
-      if(verbose) cat(paste0("\n","No observations in evaluation years to compute prediction residuals for Index ",xv $name[1]),"\n")
-      MASE.i = NULL
-      MASE.i = data.frame(Index=unique(xv$name)[1], MASE=NA,MASE.adj=NA,MAE.PR=NA,MAE.base=NA,n.eval=0)  
+      MASE.i = data.frame(Index = unique(xv$name)[1], MASE = maepr/scaler, 
+                          MASE.adj = maepr/scaler.adj, MAE.PR = maepr, 
+                          MAE.base = scaler, n.eval = npe)
+      Residuals = rbind(Residuals, res.i)
     }
-    MASE = rbind(MASE,MASE.i)
-    
-  } # end of index loop
-  jstats = apply(abs(Residuals[c("Pred.Res","Naive.Res")]),2,mean)
-  joint = data.frame(Index="joint",
-                     MASE=jstats[1]/jstats[2],MAE.PR=jstats[1],MAE.base=jstats[2],
-                     MASE.adj=jstats[1]/pmax(jstats[2],naive.min),n.eval=nrow(Residuals))  
-  MASE = rbind(MASE,joint)
+    else {
+      xv = d.[d.$name %in% indices[i], ]
+      if (verbose) 
+        cat(paste0("\n", "No observations in evaluation years to compute prediction residuals for Index ", 
+                   xv$name[1]), "\n")
+      MASE.i = NULL
+      MASE.i = data.frame(Index = unique(xv$name)[1], MASE = NA, 
+                          MASE.adj = NA, MAE.PR = NA, MAE.base = NA, n.eval = 0)
+    }
+    MASE = rbind(MASE, MASE.i)
+  }
+  jstats = apply(abs(Residuals[c("Pred.Res", "Naive.Res")]), 
+                 2, mean)
+  joint = data.frame(Index = "joint", MASE = jstats[1]/jstats[2], 
+                     MAE.PR = jstats[1], MAE.base = jstats[2], MASE.adj = jstats[1]/pmax(jstats[2], 
+                                                                                         naive.min), n.eval = nrow(Residuals))
+  MASE = rbind(MASE, joint)
   rownames(MASE) <- 1:nrow(MASE)
-  if(!residuals) return(MASE)
+  
+  if (!residuals) 
+    return(MASE)
+  
+  rsdl=t(hc[[1]]$residuals)[dim(hc[[1]]$residuals)[2]-((length(hc)-2):0),]
+  if (is.matrix(rsdl))
+    rsdl=reshape2::melt(data.frame(Year=dimnames(rsdl)[[1]],rsdl),id="Year")
+  else{
+    rsdl=data.frame(Year=names(rsdl),Index=rsdl)
+    names(rsdl)[2]=names(hc[[1]][["inputseries"]]$cpue)[2]
+    rsdl=reshape2::melt(rsdl,id="Year")}
+  names(rsdl)=c("Year","Index","Model.Res")
+  Residuals=merge(Residuals,rsdl)
+  
+  rsdl=t(hc[[1]]$std.residuals)[dim(hc[[1]]$std.residuals)[2]-((length(hc)-2):0),]
+  if (is.matrix(rsdl))
+    rsdl=reshape::melt(data.frame(Year=dimnames(rsdl)[[1]],rsdl),id="Year")
+  else{
+    rsdl=data.frame(Year=names(rsdl),Index=rsdl)
+    names(rsdl)[2]=names(hc[[1]][["inputseries"]]$cpue)[2]
+    rsdl=reshape::melt(rsdl,id="Year")}
+  names(rsdl)=c("Year","Index","Model.StdRes")
+  Residuals=merge(Residuals,rsdl)
+  out = list()
+  out$mase = MASE
+  out$resids = Residuals
+  return(out)
 }
+
 
 
 #' zage()
