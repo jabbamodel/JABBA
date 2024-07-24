@@ -126,8 +126,8 @@ jbleslie <- function(bio){
   nage = length(bio$age)
   age = bio$age
   if(is.null(bio$fec)){
-    spr0 = jbspr0(bio,byage=FALSE)/2
-    spr0_a = jbspr0(bio,byage=TRUE)/2
+    spr0 = jbspr0(bio,byage=FALSE)
+    spr0_a = jbspr0(bio,byage=TRUE)
   # Reproductive output Rs for bonyfish
   rs = 4*bio$h/(spr0*(1-bio$h))
   wm = bio$Wa[,1]*bio$Mat
