@@ -160,6 +160,8 @@ It will be separated from default name by an underscore.}
 
 \item{add}{surpresses par() to create multiplot figs}
 
+\item{single.plots}{if TRUE will plot subplots individually}
+
 \item{run}{name for single models or joint ensembles}
 
 \item{legendcex=1}{Allows to adjust legend cex}
@@ -168,6 +170,7 @@ It will be separated from default name by an underscore.}
 Plots plots JABBA ensemble models + projections - joint or by run
 }
 \examples{
+\dontrun{
 data(iccat)
 bet = iccat$bet 
 # Fit Fox and Schaefer
@@ -184,6 +187,9 @@ prj = fw_jabba(list(fit1),quant="Catch",type="abs",imp.values = seq(60,100,1)*10
 jbplot_ensemble(prj)
 # Zoom in
 jbplot_ensemble(prj,xlim=c(2000,2027))
+# Plot only biomass
+jbplot_ensemble(list(fit1, fit2), subplots = 3, single.plots = TRUE)
+}
 }
 \author{
 Mostly adopted from ss3diags::SSplotEnsemble
