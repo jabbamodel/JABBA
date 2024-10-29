@@ -1,6 +1,6 @@
 Package: JABBA
 Title: Just Another Bayesian Biomass Assessment
-Version: 2.3.0
+Version: 2.3.1
 Authors@R: 
     c(person(given = "Henning",
            family = "Winker",
@@ -28,4 +28,4 @@ Suggests:
 License: EUPL
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2

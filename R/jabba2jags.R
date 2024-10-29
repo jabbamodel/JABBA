@@ -393,7 +393,7 @@ if(jbinput$settings$catch.error!="fdev"){
       qA[i] ~ dlnorm(0,pow(qA.cv,-2))T(qA_bounds[1],qA_bounds[2])
       }  
       for(t in 1:N){
-      Ax[t] <- -log(1-H[t])
+      Ax[t] <- -log(1-min(H[t],0.99))
       }
       ",append=TRUE)}
      
