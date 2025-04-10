@@ -428,17 +428,19 @@ jbmase<-function (hc, naive.min = 0.1, index = NULL, residuals = FALSE, verbose 
       naive.hat  = log(obs.eval[is.na(obs.eval) == F][-1])
       nhc = length(endyrvec) - 1
       
-      pred.resid=NULL;pred.obs=NULL;pred.hat=NULL
+      pred.resid=pred.obs=pred.hat=hcyr=NULL #rep(NA,(length(peels) - 1))
       for (j in 1:(length(peels) - 1)) {
-        if (endyrvec[1:length(naive.eval)][j] %in% xv$year) {
+        if (endyrvec[j] %in% xv$year) {
           x <- min(py):max(yr.eval)
-          x <- x[1:(length(x) - peels[j])]
-          x = x[x %in% unique(xv$year)]
-          y <- xv[xv$retro.peels == peels[j + 1] & xv$year %in% 
-                    x, ]$hat
-          pred.resid = c(pred.resid,log(y[length(x)]) - log(obs[length(x)]))
-          pred.obs   = c(pred.obs,  log(y[length(x)]))
-          pred.hat   = c(pred.hat,  log(obs[length(x)]))
+          x <- x[1:(length(x) - (j-1))]
+          #x = x[x %in% unique(xv$year)]
+          y <- tail(xv[xv$retro.peels == peels[j + 1] & xv$year==max(x),]$hat,1)
+          yobs <- tail(xv[xv$retro.peels == peels[j + 1]& xv$year==max(x),]$obs,1)
+          pred.resid = c(pred.resid,log(y) - log(yobs))
+          pred.obs   = c(pred.obs, log(yobs))
+          pred.hat   = c(pred.hat,log(y))
+          hcyr   = c(hcyr, max(x))
+          
         }
       }
       pred.resid = pred.resid[1:length(naive.eval)]

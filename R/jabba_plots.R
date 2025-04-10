@@ -1869,12 +1869,12 @@ jbplot_hcxval <- function(hc,index=NULL,naive.min=0.1,mase.adj=FALSE, output.dir
       
       naive.eval=log(obs.eval[is.na(obs.eval)==F][-length(obs.eval[is.na(obs.eval)==F])])-log(obs.eval[is.na(obs.eval)==F][-1])
       nhc = length(endyrvec)-1
-      points(rev(yr.eval[-1])[1:length( naive.eval)][is.na(naive.eval)==F],rev(obs.eval[-1])[1:length( naive.eval)][is.na(naive.eval)==F],pch=21,cex=1.6,bg=((cols[1:(length(peels)-1)]))[is.na(naive.eval)==F])
+      points(rev(yr.eval[is.na(obs.eval)==F][-1]),rev(obs.eval[is.na(obs.eval)==F][-1]),pch=21,cex=1.6,bg=(cols[is.na(rev(obs.eval))==F]))
       
       
       pred.resid = NULL
       for(j in 1:(length(peels)-1)){
-        if(endyrvec[1:length( naive.eval)][j] %in% xv$year){
+        if(endyrvec[j] %in% xv$year){
           
           x <- min(py):max(yr.eval)
           x <- x[1:(length(x)-peels[j])]
