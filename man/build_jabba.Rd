@@ -27,6 +27,8 @@ build_jabba(
   b.prior = c(FALSE, 0.3, NA, c("bk", "bbmsy", "ffmsy")[1]),
   BmsyK = 0.4,
   shape.CV = 0.3,
+  q1.prior = NULL,
+  q1.dist = c("range", "lnorm"),
   sets.q = 1:(ncol(cpue) - 1),
   sigma.est = TRUE,
   sets.var = 1:(ncol(cpue) - 1),
@@ -97,7 +99,11 @@ PRIORS}
 
 \item{BmsyK}{= 0.4, # Inflection point of the surplus production curve, requires Pella-Tomlinson (model = 3 | model 4)}
 
-\item{shape.CV}{= 0.3, # CV of the shape m parameters, if estimated with Pella-Tomlinson (Model 4)
+\item{shape.CV}{= 0.3, # CV of the shape m parameters, if estimated with Pella-Tomlinson (Model 4)}
+
+\item{q1.prior}{option to specify q1 prior on 1st index as bounds or logn c(mu,CV)}
+
+\item{q1.dist}{= c("range",lnorm")
 VARIANCE options}
 
 \item{sets.q}{= 1:(ncol(cpue)-1), # assigns catchability q to different CPUE indices. Default is each index a seperate q}

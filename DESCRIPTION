@@ -1,12 +1,11 @@
 Package: JABBA
 Title: Just Another Bayesian Biomass Assessment
-Version: 2.3.1
+Version: 2.3.2
 Authors@R: 
     c(person(given = "Henning",
            family = "Winker",
            role = c("aut", "cre"),
            email = "henning.winker@gmail.com"),
-    person(given = "Felipe",
            family = "Carvalho",
            role = c("aut")),
     person(given = "Maia",

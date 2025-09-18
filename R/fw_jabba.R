@@ -16,7 +16,9 @@
 #'   \item abs (input values are taken as absolute values)
 #' }    
 #' @param initial value or vector Catch or F values, default takes mean over recent 3 yrs   
-#' @param imp.values vector Catch or F scenarios provide as absolute or ratios   
+#' @param imp.yr management implementation year in number of years after last data year   
+#' @param imp.values vector Catch or F scenarios provide as absolute or ratios 
+#' @param nyears number of forecast years  
 #' @param stochastic if FALSE, process error sigma.proc is set to zero 
 #' @param AR1 if TRUE, projection account auto correlation in the process devs 
 #' @param ndevs number years on the tail to set initial proc.error for forecasting  
@@ -28,11 +30,13 @@
 #' @export
 
 #{{{
-fw_jabba <- function(jabba,nyears = 10, imp.yr = NULL,
+fw_jabba <- function(jabba,
                      quant = c("Catch","F")[2],
                      type = c("ratio","msy","abs")[2],
                      initial = NULL,
+                     imp.yr = NULL,
                      imp.values = seq(0.8,1.2,0.1),
+                     nyears = 10,
                      nsq = 3,
                      stochastic = c(TRUE, FALSE)[1],
                      AR1 = c(TRUE, FALSE)[2],

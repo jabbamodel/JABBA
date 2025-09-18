@@ -25,6 +25,8 @@
 #' @param b.prior = c(FALSE,0.3,NA,c("bk","bbmy","ffmsy")[1]), # depletion prior set as d.prior = c(mean,cv,yr,type=c("bk","bbmsy"))
 #' @param BmsyK = 0.4, # Inflection point of the surplus production curve, requires Pella-Tomlinson (model = 3 | model 4)
 #' @param shape.CV = 0.3, # CV of the shape m parameters, if estimated with Pella-Tomlinson (Model 4)
+#' @param q1.prior option to specify q1 prior on 1st index as bounds or logn c(mu,CV)
+#' @param q1.dist = c("range",lnorm")
 #' VARIANCE options
 #' @param igamma = c(3,0.01), # prior for process error variance, default informative igamma ~ mean 0.07, CV 0.4
 #' @param sets.q = 1:(ncol(cpue)-1), # assigns catchability q to different CPUE indices. Default is each index a seperate q
@@ -76,6 +78,8 @@ build_jabba <- function(
   b.prior = c(FALSE,0.3,NA,c("bk","bbmsy","ffmsy")[1]), # depletion prior set as b.prior = c(mean,cv,yr,type=c("bk","bbmsy","ffmsy))
   BmsyK = 0.4, # Inflection point of the surplus production curve, requires Pella-Tomlinson (model = 3 | model 4)
   shape.CV = 0.3, # CV of the shape m parameters, if estimated with Pella-Tomlinson (Model 4)
+  q1.prior = NULL,
+  q1.dist = c("range","lnorm"),
   sets.q = 1:(ncol(cpue)-1), # assigns catchability q to different CPUE indices. Default is each index a seperate q
   sigma.est = TRUE, # Estimate additional observation variance
   sets.var = 1:(ncol(cpue)-1), # estimate individual additional variance
@@ -332,7 +336,22 @@ build_jabba <- function(
     log.K = log(K.prior[1])#-0.5*sd.K^2
   }
   
+  #----------------------------------------------------
+  # Prepare q1 prior
+  #----------------------------------------------------
   
+  if(is.null(q1.prior)) q1.pr = q_bounds 
+  
+  if(!is.null(q1.prior)& q1.dist[1]=="lnorm"){
+    CV.q1 = q1.prior[2]
+    sd.q1=sqrt(log(CV.q1^2+1))
+    log.q1 = log(q1.prior[1])-0.5*sd.q1^2
+    q1.pr = plot_lnorm(exp(log.q1),CV.q1,Prior="q1")
+  } 
+  
+  if(!is.null(q1.prior) & q1.dist[1]=="range"){
+  q1.pr = q1.prior
+  }  
   
   
   # Get input priors
@@ -429,7 +448,7 @@ build_jabba <- function(
   
   
   # JABBA input data
-  surplus.dat = list(N=n.years, TC = TC,I=CPUE,SE2=se2,r.pr=r.pr,psi.pr=psi.pr,K.pr = K.pr,
+  surplus.dat = list(N=n.years, TC = TC,I=CPUE,SE2=se2,r.pr=r.pr,psi.pr=psi.pr,K.pr = K.pr,q1.pr=q1.pr,
                      nq=nq,nI = nI,nvar=nvar,sigma.fixed=ifelse(sigma.proc==TRUE,0,sigma.proc),
                      sets.var=sets.var, sets.q=sets.q,Plim=Plim,slope.HS=slope.HS,
                      nTAC=nTAC,pyrs=pyrs,TAC=TAC,igamma = igamma,stI=stI,pen.P = rep(0,n.years) ,pen.bk = rep(0,n.years),proc.pen=0,K.pen = 0,
@@ -487,6 +506,7 @@ build_jabba <- function(
   jbinput$settings$BmsyK = BmsyK 
   jbinput$settings$psi.dist = psi.dist
   jbinput$settings$psi.prior.raw = psi.prior
+  jbinput$settings$q1.dist = q1.dist[1]
   jbinput$settings$SE.I = SE.I
   jbinput$settings$sigma.proc = sigma.proc
   jbinput$settings$sigma.est= sigma.est

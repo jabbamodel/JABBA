@@ -15,11 +15,6 @@ jabba2jags = function(jbinput, dir){
     # Prior specifications
     eps <- 0.0000000000000000000000000000000001 # small constant
 
-    #Catchability coefficients
-    for(i in 1:nq)
-    {
-    q[i] ~ dunif(q_bounds[1],q_bounds[2])
-    }
 
     # Process variance prior
     isigma2.est ~ dgamma(igamma[1],igamma[2])
@@ -32,7 +27,46 @@ jabba2jags = function(jbinput, dir){
 
     ")
   
-  if(jbinput$settings$model.id==4){
+ 
+  if(jbinput$settings$q1.dist=="range"){
+    cat("
+    
+    q[1] ~ dunif(q1.pr[1],q1.pr[2])
+    
+    ",append=TRUE)} else {
+      cat("
+    
+    q[1] ~ dlnorm(log(q1.pr[1]),pow(q1.pr[2],-2))
+    
+    ",append=TRUE)
+    }
+
+   
+  
+  if(jbinput$jagsdata$nq>1){
+    cat("
+    
+  #Catchability coefficients
+  for(i in 2:nq)
+  {
+    q[i] ~ dunif(q_bounds[1],q_bounds[2])
+  }
+  
+  ",append=TRUE)
+  } else {
+    cat("
+    
+    nqq <- nq
+    bq1 <- q_bounds[1]
+    bq2 <- q_bounds[2]
+    
+    ",append=TRUE)
+  }
+    
+ 
+  
+ 
+   if(jbinput$settings$model.id==4){
     cat("
       # Shape m prior
       m ~ dlnorm(log(mu.m),pow(m.CV,-2))

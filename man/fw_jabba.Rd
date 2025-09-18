@@ -7,12 +7,12 @@ External forward projections in JABBA}
 \usage{
 fw_jabba(
   jabba,
-  nyears = 10,
-  imp.yr = NULL,
   quant = c("Catch", "F")[2],
   type = c("ratio", "msy", "abs")[2],
   initial = NULL,
+  imp.yr = NULL,
   imp.values = seq(0.8, 1.2, 0.1),
+  nyears = 10,
   nsq = 3,
   stochastic = c(TRUE, FALSE)[1],
   AR1 = c(TRUE, FALSE)[2],
@@ -41,7 +41,11 @@ fw_jabba(
 
 \item{initial}{value or vector Catch or F values, default takes mean over recent 3 yrs}
 
+\item{imp.yr}{management implementation year in number of years after last data year}
+
 \item{imp.values}{vector Catch or F scenarios provide as absolute or ratios}
+
+\item{nyears}{number of forecast years}
 
 \item{stochastic}{if FALSE, process error sigma.proc is set to zero}
 
