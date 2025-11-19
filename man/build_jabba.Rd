@@ -39,6 +39,7 @@ build_jabba(
   qA.cv = 0.1,
   sets.varA = 1:(ncol(auxiliary) - 1),
   sigma.proc = TRUE,
+  proc.dyn = FALSE,
   proc.dev.all = TRUE,
   igamma = c(4, 0.01),
   projection = FALSE,
@@ -124,6 +125,8 @@ VARIANCE options}
 
 \item{sigma.proc}{=  TRUE, # TRUE: Estimate process error, else set to value}
 
+\item{proc.dyn}{= FALSE, if TRUE dynamic process variance increasing at low Bmsy}
+
 \item{proc.dev.all}{= TRUE, # TRUE: All year, year = starting year}
 
 \item{igamma}{= c(3,0.01), # prior for process error variance, default informative igamma ~ mean 0.07, CV 0.4}
@@ -138,7 +141,7 @@ VARIANCE options}
 
 \item{pyrs}{= NULL, # Set number of projections years}
 
-\item{P_bound}{= c(0.02,1.3),  # Soft penalty bounds for b/k}
+\item{P_bound}{= c(0.005,1.3),  # Soft penalty bounds for b/k}
 
 \item{sigmaobs_bound}{= 1, # Adds an upper bound to the observation variance}
 

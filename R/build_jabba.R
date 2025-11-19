@@ -37,13 +37,14 @@
 #' @param auxiliary.sigma # TRUE/FALSE 
 #' @param qA.cv precision on lognormal prior for e.g. qA*Z (not applicable to effort) 
 #' @param sigma.proc =  TRUE, # TRUE: Estimate process error, else set to value
+#' @param proc.dyn = FALSE, if TRUE dynamic process variance increasing at low Bmsy 
 #' @param proc.dev.all = TRUE, # TRUE: All year, year = starting year
 #' @param projection = FALSE, # Switch on by Projection = TRUE
 #' @param TACs = NULL
 #' @param TACint =  NULL, # default avg last 3 years
 #' @param imp.yr = NULL, # default last year plus ONE
 #' @param pyrs = NULL, # Set number of projections years
-#' @param P_bound = c(0.02,1.3),  # Soft penalty bounds for b/k
+#' @param P_bound = c(0.005,1.3),  # Soft penalty bounds for b/k
 #' @param sigmaobs_bound = 1, # Adds an upper bound to the observation variance
 #' @param sigmaproc_bound = 0.2, # Adds an upper bound to the process variance
 #' @param q_bounds= c(10^-30,1000), # Defines lower and upper bounds for q
@@ -90,6 +91,7 @@ build_jabba <- function(
   qA.cv = 0.1,  # adjusts precision qA for Z, F, ffmsy or bbmsy  
   sets.varA = 1:(ncol(auxiliary)-1), # estimate individual additional variance
   sigma.proc =  TRUE, # TRUE: Estimate observation error, else set to value
+  proc.dyn = FALSE, # Make process error dynamically increasing as b/bmsy decreases 
   proc.dev.all = TRUE, # TRUE: All year, year = starting year
   igamma = c(4,0.01), # informative mean 0.05, CV 0.4 from original paper
   projection = FALSE, # Switch on by Projection = TRUE
@@ -509,6 +511,7 @@ build_jabba <- function(
   jbinput$settings$q1.dist = q1.dist[1]
   jbinput$settings$SE.I = SE.I
   jbinput$settings$sigma.proc = sigma.proc
+  jbinput$settings$proc.dyn = proc.dyn
   jbinput$settings$sigma.est= sigma.est
   jbinput$settings$model.id = model
   jbinput$settings$model.type = mod.names

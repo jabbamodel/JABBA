@@ -169,6 +169,29 @@ jabba2jags = function(jbinput, dir){
   }
 ",append=TRUE)}  
   
+  
+  
+  
+  if(jbinput$settings$proc.dyn==TRUE){
+    cat("
+    
+    # rm sqrt()
+    for(t in 1:(N)){
+    iprocdyn[t] <- (BtoBmsy[t] / (1 + BtoBmsy[t] / 100))
+    }
+    
+    ",append=TRUE)} else {
+      cat("
+    
+    for(t in 1:(N+1)){
+    iprocdyn[t] <- 1
+    }
+    
+    ",append=TRUE)
+    }
+  
+  
+  
 if(jbinput$settings$catch.error!="fdev"){
   cat("
 
@@ -186,7 +209,7 @@ if(jbinput$settings$catch.error!="fdev"){
     log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1)) - estC[t-1]/K,0.001)),
     log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1))*P[t-1]*slope.HS - estC[t-1]/K,0.001)))
     iPV[t] <- ifelse(t<(stI),10000,isigma2) # inverse process variance
-    P[t] ~ dlnorm(Pmean[t],iPV[t])
+    P[t] ~ dlnorm(Pmean[t],iPV[t]*iprocdyn[t-1])
     }
     for (t in 2:N)
     {
@@ -261,7 +284,7 @@ if(jbinput$settings$catch.error!="fdev"){
     Pmean[t] <- ifelse(P[t-1] > Plim,
     log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1)) - H[t-1]*P[t-1],0.001)),
     log(max(P[t-1] +  r/(m-1)*P[t-1]*(1-pow(P[t-1],m-1))*P[t-1]*slope.HS - H[t-1]*P[t-1],0.001)))
-    iPV[t] <- ifelse(t<(stI),10000,isigma2) # inverse process variance
+    iPV[t] <- ifelse(t<(stI),10000,isigma2*iprocdyn[t-1]) # inverse process variance
     P[t] ~ dlnorm(Pmean[t],iPV[t])
     }
     for (t in 2:N)
