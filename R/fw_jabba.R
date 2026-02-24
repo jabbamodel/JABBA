@@ -85,6 +85,7 @@ fw_jabba <- function(jabba,
     if(is.null(initial)){
       initial= status.quo
     }}
+  
   if(quant=="F"){
     status.quo = mean(do.call(c,lapply(jabba,function(x){
       mean(x$timeseries[(n-2):n,1,2])})))
@@ -220,3 +221,312 @@ fw_jabba <- function(jabba,
   
 } 
 # }}} End of function
+
+
+
+
+#{{{
+#' fw_jabba_ctrl()
+#
+#' External forward projections in JABBA 
+#'
+#' @param jabba objects from fit_jabba() or list of fit_jabba() objects  
+#' @param fwdctrl control table - overwrites quants, years, values
+#' @param quant quantity to forecast  c("Catch","F")
+#' \itemize{
+#'   \item Catch (absolute Catch)  
+#'   \item F (absolute F)
+#'   \item Fmsy (relative to Fmsy)
+#'   \item Fsq (relative to status quo F)   
+#'   \item Csq (relative to status quo Catch) 
+#' }    
+#' @param initial value or vector Catch or F values, default takes mean over recent 3 yrs   
+#' @param imp.yr management implementation year in number of years after last data year   
+#' @param imp.values vector Catch or F scenarios provide as absolute or ratios 
+#' @param nyears number of forecast years  
+#' @param stochastic if FALSE, process error sigma.proc is set to zero 
+#' @param AR1 if TRUE, projection account auto correlation in the process devs 
+#' @param ndevs number years on the tail to set initial proc.error for forecasting  
+#' @param rho if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs
+#' @param sigma.proc option to specify the process error other than the posterior estimate
+#' @param run option to assign a scenario name other than specified in build_jabba()
+#' @param thin option to thin the posterior at rates > 1
+#' @return data.frame of kobe posterior model + forecast scenarios
+#' @export
+
+#{{{
+fw_jabba_ctrl <- function(jabba,
+                      fwdctrl = NULL,
+                      quant = c("Catch","F","Fmsy","Fsq","Csq")[3],
+                      initial = NULL,
+                      imp.yr = NULL,
+                      imp.values = seq(0.8,1.2,0.1),
+                      nyears = 5,
+                      nsq = 3,
+                      stochastic = c(TRUE, FALSE)[1],
+                      AR1 = c(TRUE, FALSE)[2],
+                      ndevs = 1,
+                      sigma.proc = NULL,
+                      rho = NULL,
+                      run = NULL,
+                      thin=1){
+
+  if(!is.null(jabba$settings)){
+    jabba=list(jabba)
+    if(is.null(run)) run = jabba[[1]]$scenario
+  } else {
+    if(is.null(run)) run = "joint"
+  }
+  
+  
+  if(is.null(jabba[[1]]$kbtrj)) stop("Use option fit_jabba(...,save.trj=TRUE) to enable forecasting")
+  thinning = seq(1,length(jabba[[1]]$pars_posterior$K),thin)
+  year= jabba[[1]]$yr
+  yrend = max( year)
+  n = length(year)
+  pars = do.call(rbind,lapply(jabba,function(x){
+    y = x$pars_posterior[thinning,-c(grep("q",names(x$pars_posterior)))]
+    y
+  }))
+  
+  rho.est = mean(do.call(cbind,lapply(jabba,function(x){
+    y =   as.numeric(x$timeseries[,"mu","procB"])[which(apply(x$settings$I,1,sum,na.rm=T)>0)[1]:length(year)]
+    stats::cor(y [-length(y )],y[-1])
+  })))
+  
+  trj = do.call(rbind,lapply(jabba,function(x){
+    y = x$kbtrj
+    y = y[y$iter%in%thinning,]
+    y$run = run
+    y
+  }))
+  
+  inits = data.frame(trj[trj$year==yrend,])
+  if(ndevs>1){
+    devyr=yrend-((1:ndevs)-1)
+    inits$Bdev = aggregate(Bdev~iter,trj[trj$year%in%devyr,],mean)$Bdev
+  }
+  
+  
+  # Get quants
+  k = pars[["K"]]
+  r = pars[["r"]]
+  m = pars[["m"]]
+  if(is.null(sigma.proc)){
+    sigma = sqrt(pars$sigma2)} else {
+      sigma = sigma.proc
+    }
+  iters = length(k) 
+  
+  if(AR1){
+    if(is.null(rho)) rho = rho.est
+  }
+  if(!AR1){
+    rho=0  
+  }
+  if(stochastic){
+    if(is.null(sigma.proc)) sigma=sqrt(pars$sigma2)
+  }
+  if(!stochastic){
+    sigma = 0 
+  }
+  
+  
+  if(!is.null(fwdctrl)){
+      fw.ls <- fwdctrl
+      if(!class(fw.ls)=="list"){
+        fw.ls <- list(fwdctrl)
+      }
+      nyears = length(fw.ls[[1]]$year)
+      if(is.null(names(fw.ls))){
+      fw.ls = lapply(fw.ls,function(x){
+        if(tail(x$quant,1)=="F"){
+          out = paste0("F=",round(tail(x$value,1),2))
+        }   
+        if(tail(x$quant,1)=="Catch"){
+          out = paste0("C=",round(tail(x$value,1),1))
+        }
+        if(tail(x$quant,1)=="Fmsy"){
+          out = paste0(round(tail(x$value,1),2),"Fmsy")
+        }
+        if(tail(x$quant,1)=="Fsq"){
+          out = paste0(round(tail(x$value,1),2),"% Fsq")
+        }
+        if(tail(x$quant,1)=="Csq"){
+          out = paste0(round(tail(x$value,1),2),"% Csq")
+        }
+        x$run = out
+        return(x)
+      })
+      
+      runs =do.call(c,lapply(fw.ls,function(x){
+        tail(x$run,1)
+      }))  
+      
+      }
+  } # End of fwdctrl
+    
+  
+  
+  
+  # get management quants
+  fmsy = r/(m-1)*(1-1/m)
+  shape = (m)^(-1/(m-1))
+  bmsy= shape*k
+  msy= bmsy*fmsy 
+  pyears = c(year[n],year[n]+(1:nyears))  
+  iters = length(k) 
+  P = devs = B = H =  matrix(NA,ncol = nyears+1, nrow = iters)
+  C = matrix(NA,ncol = nyears+1, nrow = iters)
+  C[,1] =inits$Catch
+  devs[,1]= inits$Bdev
+  for(i in 2:ncol(P)){
+    if(rho>0) devs[,i] = rho * devs[,i - 1] + sqrt(1 - rho^2) * rnorm(iters,0,sigma)
+    if(rho==0) devs[,i] = rnorm(iters,0,sigma)
+    
+  }
+  
+  P[,1] = inits$BB0
+  B[,1] = inits$B
+  H[,1] = pmax(inits$H,0.001)
+  
+  Csq = mean(do.call(c,lapply(jabba,function(x){
+    mean(x$catch[(n-nsq):n])})))
+  
+  Fsq = mean(do.call(c,lapply(jabba,function(x){
+    mean(x$timeseries[(n-nsq):n,1,2])})))
+  
+  # {{{Needed without fwdctrl
+  if(is.null(fwdctrl)){
+  
+  if(quant%in%c("Catch","Csq")){
+    status.quo = mean(do.call(c,lapply(jabba,function(x){
+      mean(x$catch[(n-nsq):n])})))
+    
+    if(is.null(initial)){
+      initial= status.quo
+    }}
+  
+    if(quant%in%c("F","Fmsy","Fsq")){
+    status.quo = mean(do.call(c,lapply(jabba,function(x){
+      mean(x$timeseries[(n-nsq):n,1,2])})))
+    
+    if(is.null(initial)){
+      initial= status.quo
+    }}
+  
+  
+  # check length of initial values
+  if(is.null(imp.yr)) imp.yr = length(initial)+1 
+  if(length(initial)==1) initial = rep(initial,(max(1,imp.yr-1)))
+  if(!length(initial)==(max(1,imp.yr-1))) stop("Missmatch between initial value vector and imp.yr")
+  
+  
+  # Create list of forecast values
+  if(imp.yr<=nyears){
+    if(quant%in%c("Csq")){
+      vals = imp.values*status.quo
+      runs = paste0(round(100*imp.values,0),"% Csq")
+    }
+    if(quant%in%c("Fsq")){
+      vals = imp.values*status.quo
+      runs = paste0(round(100*imp.values,0),"% Fsq")
+    }
+    if(quant=="Fmsy"){
+        vals = c(imp.values*median(fmsy))
+        runs = c(paste0(round(imp.values,2),"Fmsy"))
+    }  
+    
+    if(quant=="F"){
+        vals =  imp.values 
+        runs = paste0("F=",round(vals,2))
+    }
+    if(quant=="Catch"){
+        vals =  imp.values 
+        runs = paste0("C",round(vals,2))
+        if(max(vals)>=100000) runs = paste0("C",round(vals/1000,1))
+    }
+  } else {
+      vals = 0
+      runs = "Forecast"
+    }
+  
+  } #}}} end is.null(fwdctrl)
+  
+  
+  kb = NULL
+  
+  if(is.null(fwdctrl)){
+  fw.ls = split(data.frame(runs,vals),seq(length(runs)))
+  names(fw.ls) = runs
+  
+  fy = (yrend+1):(yrend+nyears)
+  iy = fy[(1:nyears)>=imp.yr] 
+  if(quant%in%c("Fmsy","F","Fsq")){
+    df <- data.frame(year=fy,val=NA,quant="F",run=NA)
+    quant="F"
+  } else {
+    df <- data.frame(year=fy,val=NA,quant="Catch",run=NA)
+    quant="Catch"
+    
+  }
+  df$val[1:length(initial)] = initial
+  
+  fw.ls =lapply(fw.ls,function(x){
+    y = df
+    y[y$year%in%iy,]$val[] <- x$vals
+    y$run[] = x$runs
+    y
+  })
+  }
+  
+  
+  kobe = do.call(rbind,lapply(fw.ls,function(x){ 
+    
+    #if(imp.yr<=nyears){
+    #  if(quant=="Catch") C[,(imp.yr+1):ncol(C)][] = pmax(x[[2]],0.001)
+    #  if(quant=="F") H[,(imp.yr+1):ncol(C)][] = pmax(x[[2]],0.001)
+    #}
+    kb = data.frame(year=pyears[1],run=x$run[1],type="fit",iter=1:iters,
+                    stock=B[,1]/bmsy,harvest=H[,1]/fmsy,B=B[,1],H=H[,1],
+                    Bdev=devs[,1],Catch=C[,1],BB0=P[,1])
+    
+    for(i in 2:ncol(P)){
+      P[,i] <- pmax((P[,i-1]+  r/(m-1)*P[,i-1]*(1-P[,i-1]^(m-1)) - C[,i-1]/k),0.005)*exp(devs[,i])
+      B[,i] = P[,i]*k
+      if(x$quant[i-1]%in%"Catch"){
+        C[,i] = x$val[i-1]
+        H[,i] = pmax(C[,i],0.001)/B[,i]#,fmax*median(fmsy)) # fmax constraint
+      } 
+      if(x$quant[i-1]%in%"F"){
+        H[,i] = x$val[i-1]
+        C[,i] = pmax(H[,i],0.0001)*B[,i]
+      }  
+      if(x$quant[i-1]%in%"Fmsy"){
+        H[,i] = x$val[i-1]*median(fmsy)
+        C[,i] = pmax(H[,i],0.0001)*B[,i]
+      }
+      if(x$quant[i-1]%in%"Csq"){
+        C[,i] = x$val[i-1]*Csq
+        H[,i] = pmax(C[,i],0.001)/B[,i]#,fmax*median(fmsy)) # fmax constraint
+      }
+      if(x$quant[i-1]%in%"Fsq"){
+        C[,i] = x$val[i-1]*Csq
+        H[,i] = pmax(C[,i],0.001)/B[,i]#,fmax*median(fmsy)) # fmax constraint
+      }
+      
+      kb = rbind(kb,data.frame(year=pyears[i],run=x$run[i-1],type="prj",iter=1:iters,
+                               stock=B[,i]/bmsy,harvest=H[,i]/fmsy,B=B[,i],H=H[,i],
+                               Bdev=devs[,i],Catch=C[,i],BB0=P[,i]))
+    }
+    kb
+  }))
+  
+  kbtrj = rbind(trj,kobe)
+  rownames(kbtrj) = 1:nrow(kbtrj) 
+  kbtrj$run = factor( kbtrj$run,levels=unique( kbtrj$run)) 
+  return(kbtrj)
+  
+} 
+# }}} End of function
+

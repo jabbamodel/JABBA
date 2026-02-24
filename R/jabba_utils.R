@@ -566,3 +566,35 @@ addBfrac <- function(kb, bfrac=0.5, bref = c("bmsy","b0"),quantiles = c(0.025,0.
 }
 
 
+#' jb_hockeystick()
+#'
+#' F-based Hockey-Stick Harvest Control rule 
+#' @param fwd output jabba_forward_ctrl()
+#' @param fyr forecast year for evaluating B/Bmsy (e.g. 1,2,3)
+#' @param btrigger b as ratio of B/Bmsy, if b below btrigger F is reduced
+#' @param fmsy target ratio of F/Fmsy (default =1)
+#' @param bmin Option for de facto fishing closure (e.g. bmin = blim) description
+#' @param fmin F/Fmsy below bim
+#' @return ratio F/Fmsy  
+#' @export
+
+jb_hockeystick <- function(fwd,fyr=3, btrigger=0.5, fmsy=1, bmin=0,fmin=0.001,uncertainty=F){
+  fwd = fwd[fwd$type%in%"prj",]
+  yr = unique(fwd$year)[fyr]
+  fwd = fwd[fwd$year%in%yr,]
+  runs = unique(fwd$run)
+  b = do.call(c,lapply(runs,function(x){
+    if(uncertainty){
+      (fwd[fwd$run%in%x,]$stock)
+    } else {
+      median(fwd[fwd$run%in%x,]$stock)
+    }
+  }))
+  #BELOW lim
+  out <- c(ifelse(b <= bmin, fmin,ifelse(b< btrigger,
+                                         (b - bmin) * ((fmsy - fmin) / 
+                                                         (btrigger - bmin)) + fmin,fmsy)))
+  if(uncertainty) out = mean(out)
+  return(out)
+}
+
