@@ -338,13 +338,13 @@ jbplot_ensemble<- function(kb,
     if(quant == "BBfrac") abline(h=1,lty=2,col=bref.col)
     
     if(reflines){
-      if(quant == "B") abline(h=median(kb$B/kb$stock),lty=2,col=1) 
-      if(quant == "B" & !is.null(bfrac)) abline(h=median(kb$Bref),lty=2,col=bref.col)
+      #if(quant == "B") abline(h=median(kb$B/kb$stock),lty=2,col=1) 
+      #if(quant == "B" & !is.null(bfrac)) abline(h=median(kb$Bref),lty=2,col=bref.col)
       if(quant == "stock" & !is.null(bfrac)) abline(h=median(kb$Bref/(kb$B/kb$stock)),lty=2,col=bref.col) 
-      if(quant == "stock" & !is.null(bfrac)) abline(h=median(kb$Bref/(kb$B/kb$stock)),lty=2,col=bref.col)
-      if(quant == "H") abline(h=median(kb$H/kb$harvest),lty=2,col=1) 
-      if(quant == "BB0") abline(h=median((kb$B/kb$stock)/(kb$B/kb$BB0)),lty=2,col=1) 
-      if(quant == "BB0" & !is.null(bfrac)) abline(h=median(kb$Bref/(kb$B/kb$BB0)),lty=2,col=bref.col) 
+      #if(quant == "stock" & !is.null(bfrac)) abline(h=median(kb$Bref/(kb$B/kb$stock)),lty=2,col=bref.col)
+      #if(quant == "H") abline(h=median(kb$H/kb$harvest),lty=2,col=1) 
+      #if(quant == "BB0") abline(h=median((kb$B/kb$stock)/(kb$B/kb$BB0)),lty=2,col=1) 
+      #if(quant == "BB0" & !is.null(bfrac)) abline(h=median(kb$Bref/(kb$B/kb$BB0)),lty=2,col=bref.col) 
     }
     
     if(single.plots | quants[s]==quants[1]){

@@ -338,6 +338,14 @@ fw_jabba_ctrl <- function(jabba,
         fw.ls <- list(fwdctrl)
       }
       nyears = length(fw.ls[[1]]$year)
+      if(!is.null(names(fw.ls))){
+      runs = names(fw.ls)
+      fw.ls <- Map(function(x,y){
+        x$runs = y
+        x
+      },x=fw.ls,y=runs)
+      
+      }
       if(is.null(names(fw.ls))){
       fw.ls = lapply(fw.ls,function(x){
         if(tail(x$quant,1)=="F"){
@@ -450,7 +458,6 @@ fw_jabba_ctrl <- function(jabba,
       vals = 0
       runs = "Forecast"
     }
-  
   } #}}} end is.null(fwdctrl)
   
   
