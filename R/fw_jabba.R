@@ -25,6 +25,7 @@
 #' @param rho if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs
 #' @param sigma.proc option to specify the process error other than the posterior estimate
 #' @param run option to assign a scenario name other than specified in build_jabba()
+#' @param seed default 123
 #' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
 #' @export
@@ -55,6 +56,7 @@ fw_jabba <- function(jabba,
     if(is.null(run)) run = "joint"
   }
   
+  if(!is.null(seed)) set.seed(seed)
   
   if(is.null(jabba[[1]]$kbtrj)) stop("Use option fit_jabba(...,save.trj=TRUE) to enable forecasting")
   thinning = seq(1,length(jabba[[1]]$pars_posterior$K),thin)
@@ -250,6 +252,7 @@ fw_jabba <- function(jabba,
 #' @param rho if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs
 #' @param sigma.proc option to specify the process error other than the posterior estimate
 #' @param run option to assign a scenario name other than specified in build_jabba()
+#' @param seed default 123
 #' @param thin option to thin the posterior at rates > 1
 #' @return data.frame of kobe posterior model + forecast scenarios
 #' @export
@@ -269,6 +272,7 @@ fw_jabba_ctrl <- function(jabba,
                       sigma.proc = NULL,
                       rho = NULL,
                       run = NULL,
+                      seed=123,
                       thin=1){
 
   if(!is.null(jabba$settings)){
@@ -278,7 +282,8 @@ fw_jabba_ctrl <- function(jabba,
     if(is.null(run)) run = "joint"
   }
   
-  
+  if(!is.null(seed)) set.seed(seed)
+    
   if(is.null(jabba[[1]]$kbtrj)) stop("Use option fit_jabba(...,save.trj=TRUE) to enable forecasting")
   thinning = seq(1,length(jabba[[1]]$pars_posterior$K),thin)
   year= jabba[[1]]$yr

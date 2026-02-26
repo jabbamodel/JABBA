@@ -20,6 +20,7 @@ fw_jabba_ctrl(
   sigma.proc = NULL,
   rho = NULL,
   run = NULL,
+  seed = 123,
   thin = 1
 )
 }
@@ -56,6 +57,8 @@ fw_jabba_ctrl(
 \item{rho}{if AR1 = TRUE, the autocorrelation coefficient is estimated from the proc devs}
 
 \item{run}{option to assign a scenario name other than specified in build_jabba()}
+
+\item{seed}{default 123}
 
 \item{thin}{option to thin the posterior at rates > 1}
 }

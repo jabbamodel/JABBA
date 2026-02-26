@@ -60,6 +60,8 @@ fw_jabba(
 \item{run}{option to assign a scenario name other than specified in build_jabba()}
 
 \item{thin}{option to thin the posterior at rates > 1}
+
+\item{seed}{default 123}
 }
 \value{
 data.frame of kobe posterior model + forecast scenarios
