@@ -1406,6 +1406,8 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' @param cols option to add colour palette 
 #' @param legend.loc location of legend
 #' @param verbose if FALSE be silent
+#' @param rhoout if TRUE, produces the rho data.frame as output 
+#' @param plot if TRUE, produces the plots
 #' @return Mohn's rho statistic for several quantaties
 #' @export
 #' @examples 
@@ -1417,181 +1419,165 @@ jabba_plots = function(jabba,output.dir = getwd(),as.png=TRUE,statusplot ="kobe"
 #' jbplot_retro(hc)
 #' jbplot_retro(hc,forecast=TRUE) # with retro forecasting
 
-jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,ylabs=NULL,
-                         add=F,output.dir=getwd(),as.png=FALSE,single.plots=add,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE){
+jbplot_retro <- function(hc,type=c("B","F","BBmsy","FFmsy","procB","SP"),forecast=FALSE,ylabs=NULL,add=F,output.dir=getwd(),as.png=FALSE,
+                         single.plots=add,width=NULL,height=NULL,xlim=NULL,cols=NULL,legend.loc="topright",verbose=TRUE,rhoout=TRUE,plot=TRUE){
   
-  hc.ls = hc 
+  hc.ls = hc
   
   peels = as.numeric(do.call(c,lapply(hc.ls,function(x){x$diags$retro.peels[1]})))
   Ref = hc.ls[[1]]
-  hc = list(scenario = Ref$scenario, yr=Ref$yr,catch=Ref$catch,peels=NULL,timeseries = NULL,refpts=NULL,pfunc=NULL,diags=NULL,settings=Ref$settings)
-  for(i in 1:length(peels)){
-    hc.ls[[i]]$pfunc$level = peels[i] 
+  hc = list(scenario = Ref$scenario, yr = Ref$yr, catch = Ref$catch, peels = NULL, timeseries = NULL, refpts = NULL, pfunc = NULL, diags = NULL, settings = Ref$settings)
+  for (i in 1:length(peels)) {
+    hc.ls[[i]]$pfunc$level = peels[i]
     hc.ls[[i]]$refpts$level = peels[i]
-    hc$timeseries$mu = rbind(hc$timeseries$mu,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"mu",])) 
-    hc$timeseries$lci = rbind(hc$timeseries$lci,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"lci",])) 
-    hc$timeseries$uci = rbind(hc$timeseries$uci,data.frame(factor=hc.ls[[i]]$diags[1,1],level=peels[i],hc.ls[[i]]$timeseries[,"uci",])) 
-    hc$diags = rbind(hc$diags,hc.ls[[i]]$diags)
-    hc$refpts= rbind(hc$refpts,hc.ls[[i]]$refpts[1,])
-    hc$pfunc= rbind(hc$pfunc ,hc.ls[[i]]$pfunc)
+    hc$timeseries$mu = rbind(hc$timeseries$mu, data.frame(factor = hc.ls[[i]]$diags[1, 1], level = peels[i], hc.ls[[i]]$timeseries[, "mu", ]))
+    hc$timeseries$lci = rbind(hc$timeseries$lci, data.frame(factor = hc.ls[[i]]$diags[1, 1], level = peels[i], hc.ls[[i]]$timeseries[, "lci", ]))
+    hc$timeseries$uci = rbind(hc$timeseries$uci, data.frame(factor = hc.ls[[i]]$diags[1, 1], level = peels[i], hc.ls[[i]]$timeseries[, "uci", ]))
+    hc$diags = rbind(hc$diags, hc.ls[[i]]$diags)
+    hc$refpts = rbind(hc$refpts, hc.ls[[i]]$refpts[1, ])
+    hc$pfunc = rbind(hc$pfunc, hc.ls[[i]]$pfunc)
   }
-  
-  
-  if(verbose)cat(paste0("\n","><> jbplot_retro() - retrospective analysis <><","\n"))
-  if(add) single.plots=TRUE
-  if(single.plots==F) type=c("B","F","BBmsy","FFmsy","procB","SP")
-  
-  if(is.null(ylabs)) ylabs = c(paste("Biomass",hc$settings$catch.metric),"Fishing mortality F",expression(B/B[MSY]),expression(F/F[MSY]),expression(B/B[0]),"Process Deviations",paste("Surplus Production",hc$settings$catch.metric))
+
+  if (verbose) cat(paste0("\n", "><> jbplot_retro() - retrospective analysis <><", "\n"))
+  if (add) single.plots = TRUE
+  if (single.plots == F) type = c("B", "F", "BBmsy", "FFmsy", "procB", "SP")
+  if (is.null(ylabs)) ylabs = c(paste("Biomass",hc$settings$catch.metric),"Fishing mortality F",expression(B/B[MSY]),expression(F/F[MSY]),expression(B/B[0]),"Process Deviations",paste("Surplus Production",hc$settings$catch.metric))
   retros = unique(peels)
-  runs= hc$timeseries$mu$level
-  years= hc$yr
+  runs = hc$timeseries$mu$level
+  years = hc$yr
   nyrs = length(years)
-  if(is.null(cols)) cols = c("black",ss3col(length(peels)-1))
-  if(is.null(xlim)){xlim = range(years)}
-  FRP.rho = c("B","F", "Bmsy", "Fmsy", "procB","MSY")  
-  rho = data.frame(mat.or.vec(length(retros)-1,length(FRP.rho)))
+  if (is.null(cols)) cols = c("black", ss3col(length(peels) - 1))
+  if (is.null(xlim)) {xlim = range(years)}
+  FRP.rho = c("B", "F", "Bmsy", "Fmsy", "procB", "MSY")
+  rho = data.frame(mat.or.vec(length(retros) - 1, length(FRP.rho)))
   colnames(rho) = FRP.rho
   fcrho = rho
-  
-  if(single.plots==TRUE){
-    if(is.null(width)) width = 5
-    if(is.null(height)) height = 3.5
-    for(k in 1:length(type)){
-      Par = list(mfrow=c(1,1),mar = c(3.5, 3.5, 0.5, 0.1), mgp =c(2.,0.5,0), tck = -0.02,cex=0.8)
-      if(as.png==TRUE){png(file = paste0(output.dir,"/Retro",hc$scenario ,"_",type[k],".png"), width = width, height = height,
-                           res = 200, units = "in")}
-      
-      
-      if(as.png==TRUE | add==FALSE) par(Par)
-      
-      j = which(c("B","F","BBmsy","FFmsy","BB0","procB","SP")%in%type[k])
-      
-      
-      if(type[k]%in%c("B","F","BBmsy","FFmsy","procB")){
-        y = hc$timeseries$mu[,j+2]
-        ref = hc$timeseries$mu[runs%in%retros[1],j+2]
-        ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
-        yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
-        if(type[k]=="procB") ylim=c(-max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])
-                                    ,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
-        if(!type[k]=="procB") ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
-        
-        plot(years,years,type="n",ylim=ylim,ylab=ifelse(length(ylabs)>1,ylabs[j],ylabs),xlab="Year",xlim=xlim)
-        polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
-        for(i in 1:length(retros)){
-          lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
-          if(forecast){
-            lines(years[(nyrs-retros[i]):(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs-retros[i]):(nyrs+1-retros[i])],col= cols[i],lwd=1,lty=2)
-            points(years[(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs+1-retros[i])],pch=16,col= cols[i],cex=0.8)
-          }
-            
-          if(i>1){
-            rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
-            fcrho[i-1,k] = (y[runs%in%retros[i]][(nyrs+1-retros[i])]-ref[(nyrs+1-retros[i])])/ref[(nyrs+1-retros[i])]
-            if(type[k]=="procB"){
-              rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
-              fcrho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs+1-retros[i])])-exp(ref[(nyrs+1-retros[i])]))/exp(ref[(nyrs+1-retros[i])])
+
+  for (k in 1:length(type)) {
+    j = which(c("B", "F", "BBmsy", "FFmsy", "BB0", "procB", "SP") %in% type[k])
+    if (type[k] %in% c("B", "F", "BBmsy", "FFmsy", "procB")) {
+      y = hc$timeseries$mu[, j + 2]
+      ref = hc$timeseries$mu[runs %in% retros[1], j + 2]
+      ylc = hc$timeseries$lci[runs %in% retros[1], j + 2]
+      yuc = hc$timeseries$uci[runs %in% retros[1], j + 2]
+      for (i in 1:length(retros)) {
+        if (i > 1) {
+          rho[i - 1, k] = (y[runs %in% retros[i]][(nyrs - retros[i])] - ref[(nyrs - retros[i])])/ref[(nyrs - retros[i])]
+          fcrho[i - 1, k] = (y[runs %in% retros[i]][(nyrs + 1 - retros[i])] - ref[(nyrs + 1 - retros[i])])/ref[(nyrs + 1 - retros[i])]
+          if (type[k] == "procB") {
+            rho[i - 1, k] = (exp(y[runs %in% retros[i]][(nyrs - retros[i])]) - exp(ref[(nyrs - retros[i])]))/exp(ref[(nyrs - retros[i])])
+            if (single.plots == TRUE) {
+              fcrho[i - 1, k] = (exp(y[runs %in% retros[i]][(nyrs + 1 - retros[i])]) - exp(ref[(nyrs + 1 - retros[i])]))/exp(ref[(nyrs + 1 - retros[i])])
+            }
+            else {
+              fcrho[i - 1, k] = (exp(y[runs %in% retros[i]][(nyrs - retros[i])]) - exp(ref[(nyrs + 1 - retros[i])]))/exp(ref[(nyrs + 1 - retros[i])])
             }
           }
         }
-        if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-        if(type[k]%in%c("procB")) abline(h=0,lty=2)
-      } 
-      else {
-        # Plot SP
-        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.12)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ifelse(length(ylabs)>1,ylabs[j],ylabs),xlab=ylabs[1])
-        for(i in 1:length(retros)){
-          lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
-          points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
-          if(i>1){
-            rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
-            fcrho[i-1,6] = NA
-          }
-        }}
-      if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1.5,length(retros))))
-      if(!forecast) legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
-      if(forecast)legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))~"("~.(round(mean(fcrho[,k]),2))~")") ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
-      
-      
-      if(as.png==TRUE) dev.off()
-    } # End type loop
-  } else { # Multi plot
-    if(is.null(width)) width = 7
-    if(is.null(height)) height = 8 
-    Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-    if(as.png==TRUE){png(file = paste0(output.dir,"/Retro_",hc$scenario,".png"), width = width, height = height,
-                         res = 200, units = "in")}
-    par(Par)
-    for(k in 1:length(type)){
-      
-      j = which(c("B","F","BBmsy","FFmsy","BB0","procB","SP")%in%type[k])
-      
-      
-      if(type[k]%in%c("B","F","BBmsy","FFmsy","procB")){
-        y = hc$timeseries$mu[,j+2]
-        ref = hc$timeseries$mu[runs%in%retros[1],j+2]
-        ylc = hc$timeseries$lci[runs%in%retros[1],j+2]
-        yuc = hc$timeseries$uci[runs%in%retros[1],j+2]
-        if(type[k]=="procB") ylim=c(-max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]])
-                                    ,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
-        if(!type[k]=="procB") ylim=c(0,max(y[years>=xlim[1] & years<=xlim[2]],yuc[years>=xlim[1] & years<=xlim[2]]))
-        
-        plot(years,years,type="n",ylim=ylim,ylab=ylabs[j],xlab="Year",xlim=xlim)
-        polygon(c(years,rev(years)),c(ylc,rev(yuc)),col="grey",border="grey")
-        for(i in 1:length(retros)){
-          lines(years[1:(nyrs-retros[i])],y[runs%in%retros[i]][1:(nyrs-retros[i])],col= cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
-          if(forecast){
-            lines(years[(nyrs-retros[i]):(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs-retros[i]):(nyrs+1-retros[i])],col= cols[i],lwd=1,lty=2)
-            points(years[(nyrs+1-retros[i])],y[runs%in%retros[i]][(nyrs+1-retros[i])],pch=16,col= cols[i],cex=0.8)
-          }
-          if(i>1){
-            rho[i-1,k] =  (y[runs%in%retros[i]][(nyrs-retros[i])]-ref[(nyrs-retros[i])])/ref[(nyrs-retros[i])]
-            fcrho[i-1,k] = (y[runs%in%retros[i]][(nyrs+1-retros[i])]-ref[(nyrs+1-retros[i])])/ref[(nyrs+1-retros[i])]
-            if(type[k]=="procB"){
-              rho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs-retros[i])]))/exp(ref[(nyrs-retros[i])])
-              fcrho[i-1,k] =  (exp(y[runs%in%retros[i]][(nyrs-retros[i])])-exp(ref[(nyrs+1-retros[i])]))/exp(ref[(nyrs+1-retros[i])])
-            }
-          }
-        }
-        if(type[k]%in%c("BBmsy","FFmsy")) abline(h=1,lty=2)
-        if(type[k]%in%c("procB")) abline(h=0,lty=2)
-        if(single.plots==TRUE | k==1 )  legend(legend.loc,paste(years[nyrs-retros]),col=cols,bty="n",cex=0.7,pt.cex=0.7,lwd=c(2,rep(1.5,length(retros))))
-        if(!forecast) legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
-        if(forecast)legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))~"("~.(round(mean(fcrho[,k]),2))~")") ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
-        
-      }  else {
-        # Plot SP
-        plot(years,years,type="n",ylim=c(0,max(hc$pfunc$SP*1.15)),xlim=c(0,max(hc$pfunc$SB_i)),ylab=ylabs[j],xlab=ylabs[1])
-        for(i in 1:length(retros)){
-          lines(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]],hc$pfunc$SP[hc$pfunc$level%in%retros[i]],col=cols[i],lwd=ifelse(i==1,2,1.5),lty=1)
-          points(mean(hc$pfunc$SB_i[hc$pfunc$level%in%retros[i]][hc$pfunc$SP[hc$pfunc$level%in%retros[i]]==max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]])]),max(hc$pfunc$SP[hc$pfunc$level%in%retros[i]]),col=cols[i],pch=16,cex=1.2)
-          if(i>1){
-            rho[i-1,6] =  (hc$refpts$msy[hc$refpts$level==retros[i]]-hc$refpts$msy[hc$refpts$level==retros[1]])/hc$refpts$msy[hc$refpts$level==retros[1]]
-            fcrho[i-1,6] = NA
-          }      
-        }
-        legend("top",legend=bquote(rho == .(round(mean(rho[,k]),2))) ,bty="n",x.intersp=-0.2,y.intersp=-0.3,cex=0.8)
-        
       }
-      
-      
     }
-    if(as.png==TRUE) dev.off()
+    else {
+      for (i in 1:length(retros)) {
+        if (i > 1) {
+          rho[i - 1, 6] = (hc$refpts$msy[hc$refpts$level == retros[i]] - hc$refpts$msy[hc$refpts$level == retros[1]])/hc$refpts$msy[hc$refpts$level == retros[1]]
+          fcrho[i - 1, 6] = NA
+        }
+      }
+    }
   }
-  rho = rbind(rho,apply(rho,2,mean))
-  rownames(rho) = c(rev(years)[retros[-1]],"rho.mu")
-  
-  fcrho = rbind(fcrho,apply(fcrho,2,mean))
-  rownames(fcrho) = c(rev(years)[retros[-1]],"forecastrho.mu")
-  if(forecast){
+  if (plot) {
+    if (single.plots == TRUE) {
+      if (is.null(width)) width = 5
+      if (is.null(height)) height = 3.5
+      for (k in 1:length(type)) {
+        Par = list(mfrow = c(1, 1), mar = c(3.5, 3.5, 0.5, 0.1), mgp = c(2, 0.5, 0), tck = -0.02, cex = 0.8)
+        if (as.png == TRUE) {
+          png(file = paste0(output.dir, "/Retro", hc$scenario, "_", type[k], ".png"), width = width, height = height, res = 200, units = "in")
+        }
+        if (as.png == TRUE | add == FALSE) par(Par)
+        if (type[k] %in% c("B", "F", "BBmsy", "FFmsy", "procB")) {
+          if (type[k] == "procB") ylim = c(-max(y[years >= xlim[1] & years <= xlim[2]], yuc[years >= xlim[1] & years <= xlim[2]]), 
+                                            max(y[years >= xlim[1] & years <= xlim[2]], yuc[years >= xlim[1] & years <= xlim[2]]))
+          if (!type[k] == "procB") ylim = c(0, max(y[years >= xlim[1] & years <= xlim[2]], yuc[years >= xlim[1] & years <= xlim[2]]))
+          plot(years, years, type = "n", ylim = ylim, ylab = ifelse(length(ylabs) > 1, ylabs[j], ylabs), xlab = "Year", xlim = xlim)
+          polygon(c(years, rev(years)), c(ylc, rev(yuc)), col = "grey", border = "grey")
+          for (i in 1:length(retros)) {
+            lines(years[1:(nyrs - retros[i])], y[runs %in% retros[i]][1:(nyrs - retros[i])], col = cols[i], lwd = ifelse(i == 1, 2, 1.5), lty = 1)
+            if (forecast) {
+              lines(years[(nyrs - retros[i]):(nyrs + 1 - retros[i])], y[runs %in% retros[i]][(nyrs - retros[i]):(nyrs + 1 - retros[i])], col = cols[i], lwd = 1, lty = 2)
+              points(years[(nyrs + 1 - retros[i])], y[runs %in% retros[i]][(nyrs + 1 - retros[i])], pch = 16, col = cols[i], cex = 0.8)
+            }
+          }
+          if (type[k] %in% c("BBmsy", "FFmsy")) abline(h = 1, lty = 2)
+          if (type[k] %in% c("procB")) abline(h = 0, lty = 2)
+        }
+        else {
+          plot(years, years, type = "n", ylim = c(0, max(hc$pfunc$SP * 1.12)), xlim = c(0, max(hc$pfunc$SB_i)), ylab = ifelse(length(ylabs) > 1, ylabs[j], ylabs), xlab = ylabs[1])
+          for (i in 1:length(retros)) {
+            lines(hc$pfunc$SB_i[hc$pfunc$level %in% retros[i]], hc$pfunc$SP[hc$pfunc$level %in% retros[i]], col = cols[i], lwd = ifelse(i == 1, 2, 1.5), lty = 1)
+            points(mean(hc$pfunc$SB_i[hc$pfunc$level %in% retros[i]][hc$pfunc$SP[hc$pfunc$level %in% retros[i]] == max(hc$pfunc$SP[hc$pfunc$level %in% retros[i]])]), 
+                    max(hc$pfunc$SP[hc$pfunc$level %in% retros[i]]), col = cols[i], pch = 16, cex = 1.2)
+          }
+        }
+        if (single.plots == TRUE | k == 1) legend(legend.loc, paste(years[nyrs - retros]), col = cols, bty = "n", cex = 0.7, pt.cex = 0.7, lwd = c(2, rep(1.5, length(retros))))
+        if (!forecast) legend("top", legend = bquote(rho == .(round(mean(rho[, k]), 2))), bty = "n", x.intersp = -0.2, y.intersp = -0.3, cex = 0.8)
+        if (forecast) legend("top", legend = bquote(rho == .(round(mean(rho[, k]), 2)) ~ "(" ~ .(round(mean(fcrho[, k]), 2)) ~ ")"), bty = "n", x.intersp = -0.2, y.intersp = -0.3, cex = 0.8)
+      }
+    }
+      else {
+        if (is.null(width)) width = 7
+        if (is.null(height)) height = 8
+        Par = list(mfrow = c(3, 2), mai = c(0.45, 0.49, 0.1, 0.15), omi = c(0.15, 0.15, 0.1, 0) + 0.1, mgp = c(2, 0.5, 0), tck = -0.02, cex = 0.8)
+        if (as.png == TRUE) {png(file = paste0(output.dir, "/Retro_", hc$scenario, ".png"), width = width, height = height, res = 200, units = "in")}
+        par(Par)
+        for (k in 1:length(type)) {
+          if (type[k] %in% c("B", "F", "BBmsy", "FFmsy", "procB")) {
+            if (type[k] == "procB") ylim = c(-max(y[years >= xlim[1] & years <= xlim[2]], yuc[years >= xlim[1] & years <= xlim[2]]), 
+                                              max(y[years >= xlim[1] & years <= xlim[2]], yuc[years >= xlim[1] & years <= xlim[2]]))
+            if (!type[k] == "procB") ylim = c(0, max(y[years >= xlim[1] & years <= xlim[2]], yuc[years >= xlim[1] & years <= xlim[2]]))
+            plot(years, years, type = "n", ylim = ylim, ylab = ylabs[j], xlab = "Year", xlim = xlim)
+            polygon(c(years, rev(years)), c(ylc, rev(yuc)), col = "grey", border = "grey")
+            for (i in 1:length(retros)) {
+              lines(years[1:(nyrs - retros[i])], y[runs %in% retros[i]][1:(nyrs - retros[i])], col = cols[i], lwd = ifelse(i == 1, 2, 1.5), lty = 1)
+              if (forecast) {
+                lines(years[(nyrs - retros[i]):(nyrs + 1 - retros[i])], y[runs %in% retros[i]][(nyrs - retros[i]):(nyrs + 1 - retros[i])], col = cols[i], lwd = 1, lty = 2)
+                points(years[(nyrs + 1 - retros[i])], y[runs %in% retros[i]][(nyrs + 1 - retros[i])], pch = 16, col = cols[i], cex = 0.8)
+              }
+            }
+            if (type[k] %in% c("BBmsy", "FFmsy")) abline(h = 1, lty = 2)
+            if (type[k] %in% c("procB")) abline(h = 0, lty = 2)
+            if (single.plots == TRUE | k == 1) legend(legend.loc, paste(years[nyrs - retros]), col = cols, bty = "n", cex = 0.7, pt.cex = 0.7, lwd = c(2, rep(1.5, length(retros))))
+            if (!forecast) legend("top", legend = bquote(rho == .(round(mean(rho[, k]), 2))), bty = "n", x.intersp = -0.2, y.intersp = -0.3, cex = 0.8)
+            if (forecast) legend("top", legend = bquote(rho == .(round(mean(rho[, k]), 2)) ~ "(" ~ .(round(mean(fcrho[, k]), 2)) ~ ")"), bty = "n", x.intersp = -0.2, y.intersp = -0.3, cex = 0.8)
+          }
+          else {
+            plot(years, years, type = "n", ylim = c(0, max(hc$pfunc$SP * 1.15)), xlim = c(0, max(hc$pfunc$SB_i)), ylab = ylabs[j], xlab = ylabs[1])
+            for (i in 1:length(retros)) {
+              lines(hc$pfunc$SB_i[hc$pfunc$level %in% retros[i]], hc$pfunc$SP[hc$pfunc$level %in% retros[i]], col = cols[i], lwd = ifelse(i == 1, 2, 1.5), lty = 1)
+              points(mean(hc$pfunc$SB_i[hc$pfunc$level %in% retros[i]][hc$pfunc$SP[hc$pfunc$level %in% retros[i]] == max(hc$pfunc$SP[hc$pfunc$level %in% retros[i]])]), 
+                      max(hc$pfunc$SP[hc$pfunc$level %in% retros[i]]), col = cols[i], pch = 16, cex = 1.2)
+            }
+            legend("top", legend = bquote(rho == .(round(mean(rho[, k]), 2))), bty = "n", x.intersp = -0.2, y.intersp = -0.3, cex = 0.8)
+          }
+        }
+      }
+      if (as.png == TRUE) 
+        dev.off()
+  }
+  rho = rbind(rho, apply(rho, 2, mean))
+  rownames(rho) = c(rev(years)[retros[-1]], "rho.mu")
+  fcrho = rbind(fcrho, apply(fcrho, 2, mean))
+  rownames(fcrho) = c(rev(years)[retros[-1]], "forecastrho.mu")
+  if (forecast) {
     out = list()
     out$Mohns.rho = rho
     out$Forecast.rho = fcrho
-  } else {
+  }
+  else {
     out = rho
   }
-    
-  if(verbose) return(out)
+  if (rhoout) 
+    return(out)
 } # end of Retrospective Plot
 
 
