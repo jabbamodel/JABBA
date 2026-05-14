@@ -90,11 +90,15 @@ fit_jabba = function(jbinput,
   # a, b pars for beta prior
   ab = get_beta(max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05),CV=0.05/max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05))
   
-  qbound = jbinput$jagsdata$q_bounds
+  # ><> Catch Scale
+  mucatch <- mean(jbd$TC,na.rm=T)
+  normcatch <- jbd$TC/mucatch
+  
+  qbound = jbd$q_bounds*mucatch
   
   # Initial starting values (new Eq)
   if(init.values==FALSE){
-    inits = function(){list(K= rlnorm(1,log(jbd$K.pr[1])-0.5*0.3^2,0.3),r = rlnorm(1,log(jbd$r.pr[1]),jbd$r.pr[2]) ,
+    inits = function(){list(K= rlnorm(1,log(jbd$K.pr[1]*mucatch)-0.5*0.3^2,0.3),r = rlnorm(1,log(jbd$r.pr[1]),jbd$r.pr[2]) ,
                             q = pmin(pmax(qbound[1]*1.05,runif(jbd$nq,min(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T),mean(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T))),qbound[2]*0.95)
                             ,psi=rbeta(1,ab[1],ab[2]),isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
   }else {

@@ -75,6 +75,8 @@ jbio <- function(amin = 0,amax = 10,nsexes=2,nseas=1,Loo = c(80,65),k=c(0.2,0.25
   return(stk)
 }
 
+
+
 #' spr0() 
 #'
 #' Function to compute spr0

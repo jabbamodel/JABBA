@@ -40,6 +40,8 @@ bet1 = fit_jabba(jbinput1,quickmcmc = TRUE) # quick run
 
 head(bet1$kobe)
 
+
+
 # Make individual plots
 jbplot_catch(bet1)
 jbplot_catcherror(bet1)
