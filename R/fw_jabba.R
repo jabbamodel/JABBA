@@ -45,7 +45,7 @@ fw_jabba <- function(jabba,
                      sigma.proc = NULL,
                      rho = NULL,
                      run = NULL,
-                     thin=1){
+                     thin=1,seed=123){
   
   #TODO add hcr options (e.g. ICES style)
     

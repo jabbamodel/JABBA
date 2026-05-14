@@ -5,16 +5,14 @@
 # devtools:: install_github("jabbamodel/JABBA")
 
 library(JABBA)
-File = "C:/Work/Research/GitHub/JABBApkg_testing/example" # LINK to your folder of choice here
+
 
 #><>><>><>><>><>><>><>><>><>><>><>
 # Bigeye Tuna ICCAT
 #><>><>><>><>><>><>><>><>><>><>><>
 
 assessment = "BETiccat"
-output.dir = file.path(File,assessment)
-dir.create(output.dir,showWarnings = F)
-setwd(output.dir)
+
 #------------------------------------------------------
 # Simple example fit JABBA to Catch and CPUE with SEs
 #-------------------------------------------------------
@@ -95,9 +93,9 @@ bet.full = fit_jabba(jbinput2,nc=3)
 bet.full$pars 
 jbplot_mcmc(bet.full)
 
-# get quantaties
+# get quantities
 bet.full$estimates
-# FLR data.frame trajectories
+# data.frame trajectories
 bet.full$flqs
 # fits
 bet.full$diags
@@ -239,10 +237,12 @@ jbinput5 = build_jabba(catch=bet$catch,model.type = "Fox",
 
 
 # Fit JABBA
-bet5 = fit_jabba(jbinput5,save.jabba=TRUE,output.dir=output.dir)
+bet5 = fit_jabba(jbinput5)
 
 # Check depletion prior vs posterior
 jbplot_bprior(bet5)
+# check prior =-posteriors
+jbplot_ppdist(bet5)
 # Compare
 jbplot_summary(list(bet2,bet5))
 
@@ -256,9 +256,6 @@ swos = iccat$swos
 
 assessment = "SWOSiccat"
 scenario = "Base"
-output.dir = file.path(File,assessment)
-dir.create(output.dir,showWarnings = F)
-setwd(output.dir)
 
 # Compile JABBA JAGS model and input object
 jbswos = build_jabba(catch=swos$catch,cpue=normIndex(swos$cpue),se=swos$se,assessment=assessment,scenario = scenario,
@@ -276,7 +273,7 @@ jbswos = build_jabba(catch=swos$catch,cpue=normIndex(swos$cpue),se=swos$se,asses
 jbplot_indices(jbswos)
 
 # fit JABBA
-fit.swos = fit_jabba(jbswos,save.jabba=TRUE,output.dir=output.dir)
+fit.swos = fit_jabba(jbswos)
 
 jbplot_cpuefits(fit.swos)
 jbplot_logfits(fit.swos)
