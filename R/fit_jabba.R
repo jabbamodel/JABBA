@@ -174,11 +174,11 @@ fit_jabba = function(jbinput,
   # run some mcmc convergence tests
   par.dat= data.frame(posteriors[params[c(1:7)]])
   
-  geweke = coda::geweke.diag(data.frame(par.dat))
+  geweke = coda::geweke.diag(log(data.frame(par.dat)))
   pvalues <- 2*pnorm(-abs(geweke$z))
   pvalues
   
-  heidle = coda::heidel.diag(data.frame(par.dat))
+  heidle = coda::heidel.diag(log(data.frame(par.dat)))
   
   # postrior means + 95% BCIs
   man.dat = data.frame(posteriors[params[8:10]],bmsyk=as.numeric(posteriors$SBmsy)/as.numeric(posteriors$K))
