@@ -91,30 +91,89 @@ fit_jabba = function(jbinput,
   ab = get_beta(max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05),CV=0.05/max(min(jbinput$settings$psi.prior.raw[1],0.95),0.05))
   
   # ><> Catch Scale
-  mucatch <- mean(jbd$TC,na.rm=T)
-  normcatch <- jbd$TC/mucatch
+  # Internal JAGS units:
+  #   TC*  = TC / mucatch
+  #   K*   = K / mucatch
+  #   B*   = B / mucatch
+  #   MSY* = MSY / mucatch
+  #   q*   = q * mucatch
   
-  qbound = jbd$q_bounds*mucatch
+  TC.raw <- jbd$TC
+  mucatch <- mean(TC.raw, na.rm = TRUE)
   
-  # Initial starting values (new Eq)
-  if(init.values==FALSE){
-    inits = function(){list(K= rlnorm(1,log(jbd$K.pr[1]*mucatch)-0.5*0.3^2,0.3),r = rlnorm(1,log(jbd$r.pr[1]),jbd$r.pr[2]) ,
-                            q = pmin(pmax(qbound[1]*1.05,runif(jbd$nq,min(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T),mean(jbd$I,na.rm=T)/max(jbd$TC,na.rm=T))),qbound[2]*0.95)
-                            ,psi=rbeta(1,ab[1],ab[2]),isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
-  }else {
-    
-    if(is.null(init.K))
-      stop("\n","\n","><> Provide init.K guess for option init.values=TRUE  <><","\n","\n")
-    if(is.null(init.r))
-      stop("\n","\n","><> Provide init.r guess for option init.values=TRUE  <><","\n","\n")
-    if(is.null(init.q))
-      stop("\n","\n","><> Provide init.q vector guess for option init.values=TRUE  <><","\n","\n")
-    if(length(init.q)!= jbinput$jagsdata$nq)
-      stop("\n","\n","><> init.q vector must match length of estimable q's, length(unique(sets.q))   <><","\n","\n")
-    inits = function(){ list(K= init.K,r=init.r,q = init.q,psi=rbeta(1,ab[1],ab[2]), isigma2.est=runif(1,20,100), itau2=runif(jbd$nvar,80,200))}
+  if(!is.finite(mucatch) || mucatch <= 0) {
+    stop("Catch scaling failed: mucatch is not finite or <= 0")
   }
   
+  # Catch passed to JAGS
+  jbd$TC <- TC.raw / mucatch
   
+  # K prior mean must also be on internal biomass scale
+  jbd$K.pr[1] <- jbd$K.pr[1] / mucatch
+  
+  # q is inverse biomass scale
+  qbound <- jbd$q_bounds * mucatch
+  
+  # Projection TACs must be scaled for JAGS, but keep jbinput unchanged for output labels
+  if(isTRUE(jbinput$settings$projection) && !is.null(jbd$TAC)) {
+    jbd$TAC <- jbd$TAC / mucatch
+  }
+  
+  # Initial starting values
+  if(init.values == FALSE) {
+    
+    inits <- function() {
+      list(
+        K = rlnorm(
+          1,
+          log(jbd$K.pr[1]) - 0.5 * 0.3^2,
+          0.3
+        ),
+        r = rlnorm(
+          1,
+          log(jbd$r.pr[1]),
+          jbd$r.pr[2]
+        ),
+        q = pmin(
+          pmax(
+            qbound[1] * 1.05,
+            runif(
+              jbd$nq,
+              min(jbd$I, na.rm = TRUE) / max(jbd$TC, na.rm = TRUE),
+              mean(jbd$I, na.rm = TRUE) / max(jbd$TC, na.rm = TRUE)
+            )
+          ),
+          qbound[2] * 0.95
+        ),
+        psi = rbeta(1, ab[1], ab[2]),
+        isigma2.est = runif(1, 20, 100),
+        itau2 = runif(jbd$nvar, 80, 200)
+      )
+    }
+    
+  } else {
+    
+    if(is.null(init.K))
+      stop("\n\n><> Provide init.K guess for option init.values=TRUE  <><\n\n")
+    if(is.null(init.r))
+      stop("\n\n><> Provide init.r guess for option init.values=TRUE  <><\n\n")
+    if(is.null(init.q))
+      stop("\n\n><> Provide init.q vector guess for option init.values=TRUE  <><\n\n")
+    if(length(init.q) != jbinput$jagsdata$nq)
+      stop("\n\n><> init.q vector must match length of estimable q's <><\n\n")
+    
+    # User-supplied inits are assumed to be in original units
+    inits <- function() {
+      list(
+        K = init.K / mucatch,
+        r = init.r,
+        q = init.q * mucatch,
+        psi = rbeta(1, ab[1], ab[2]),
+        isigma2.est = runif(1, 20, 100),
+        itau2 = runif(jbd$nvar, 80, 200)
+      )
+    }
+  }
   
   out = output.dir
   if(file.exists(out)==FALSE) stop("\n","\n","><> output.dir does not exist <><","\n","\n")
@@ -165,7 +224,20 @@ fit_jabba = function(jbinput,
   if(verbose)
     message(paste0("\n","><> Produce results output of ",settings$model.type," model for ",settings$assessment," ",settings$scenario," <><","\n"))
   
+  # ><> Rescale posterior quantities back to original units
   
+  # Biomass / capacity scale
+  if(!is.null(posteriors$K))      posteriors$K      <- posteriors$K * mucatch
+  if(!is.null(posteriors$SB))     posteriors$SB     <- posteriors$SB * mucatch
+  if(!is.null(posteriors$SBmsy))  posteriors$SBmsy  <- posteriors$SBmsy * mucatch
+  
+  # Catch / production scale
+  if(!is.null(posteriors$MSY))    posteriors$MSY    <- posteriors$MSY * mucatch
+  if(!is.null(posteriors$estC))   posteriors$estC   <- posteriors$estC * mucatch
+  
+  # q is inverse biomass scale
+  if(!is.null(posteriors$q))      posteriors$q      <- posteriors$q / mucatch
+  if(!is.null(posteriors$qA))     posteriors$qA     <- posteriors$qA / mucatch
   
   #-----------------------------------------------------------
   # <><<><<><<><<><<><<>< Outputs ><>><>><>><>><>><>><>><>><>
