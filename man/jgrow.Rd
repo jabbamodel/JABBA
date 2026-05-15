@@ -2,7 +2,7 @@
 % Please edit documentation in R/selex.R
 \name{jgrow}
 \alias{jgrow}
-\title{jgrow()}
+\title{Compute length-at-age from a growth model}
 \usage{
 jgrow(
   param = list(Linf = 80, k = 0.2, t0 = -0.5),
@@ -12,33 +12,55 @@ jgrow(
 )
 }
 \arguments{
-\item{param}{list with growth parameters:
+\item{param}{A list of growth parameters. For \code{model = "vb"}, this should
+contain:
 \itemize{
-  \item \code{Linf}: asymptotic length
-  \item \code{k}: growth coefficient
-  \item \code{t0}: theoretical age at zero length
-  \item \code{L0}: length at age 0, optional alternative to \code{t0}
-}}
+  \item \code{Linf}: asymptotic length.
+  \item \code{k}: von Bertalanffy growth coefficient.
+  \item \code{t0}: theoretical age at zero length.
+  \item \code{L0}: optional length at age zero, used as an alternative to
+    \code{t0} when provided.
+}
+Parameters may be scalar or sex-specific vectors of length \code{nsexes}.}
 
-\item{age}{vector of ages}
+\item{age}{Numeric vector of ages. Default is \code{0:20}.}
 
-\item{nsexes}{number of sexes}
+\item{nsexes}{Integer. Number of sexes. Default is \code{1}.}
 
-\item{model}{growth model c("vb","schnute")}
+\item{model}{Character. Growth model to use. Currently \code{"vb"} is
+implemented; \code{"schnute"} is reserved for future use.}
 }
 \value{
-list with age, nsexes, La, model and param
+A list with elements:
+\describe{
+  \item{\code{age}}{Vector of ages.}
+  \item{\code{nsexes}}{Number of sexes.}
+  \item{\code{La}}{Matrix of expected length-at-age with dimensions
+  age by sex.}
+  \item{\code{model}}{Growth model used.}
+  \item{\code{param}}{Input growth parameters.}
+}
 }
 \description{
-Computes length-at-age from a growth model
+Computes expected length-at-age for one or more sexes using a specified
+growth model. The current implementation supports the von Bertalanffy
+growth model, with optional support for specifying length at age zero
+through \code{L0} instead of \code{t0}.
 }
 \examples{
 pars <- list(
- Linf   = c(80,65),
-  k     = c(0.2,0.25),
-  t0     = c(-0.5,-0.7)
+  Linf = c(80, 65),
+  k    = c(0.2, 0.25),
+  t0   = c(-0.5, -0.7)
 )
-g <- jgrow(pars, model = "vb")
+
+g <- jgrow(
+  param = pars,
+  age = 0:20,
+  nsexes = 2,
+  model = "vb"
+)
+
 head(g$La)
 
 }

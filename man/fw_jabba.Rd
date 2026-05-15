@@ -20,7 +20,8 @@ fw_jabba(
   sigma.proc = NULL,
   rho = NULL,
   run = NULL,
-  thin = 1
+  thin = 1,
+  seed = 123
 )
 }
 \arguments{

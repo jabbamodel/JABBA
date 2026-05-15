@@ -97,7 +97,7 @@ stk <- jbio(
 head(stk$La)
 
 g <- jgrow(list(age = 0:20, nsexes = 2,
-                Linf = c(80,65), K = c(0.2,0.25), t0 = c(-0.5,-0.7)))
+                Linf = c(80,65), k = c(0.2,0.25), t0 = c(-0.5,-0.7)))
 stk2 <- jbio(grow = g, aW = 0.01, bW = 3.04,
              mat = c(40,45,0), M = c(0.3,0.4), h = 0.7)
 }
