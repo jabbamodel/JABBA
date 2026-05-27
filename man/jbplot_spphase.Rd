@@ -11,7 +11,9 @@ jbplot_spphase(
   add = FALSE,
   width = 5,
   height = 4.5,
-  verbose = TRUE
+  verbose = TRUE,
+  ylab = "Yield",
+  rel = FALSE
 )
 }
 \arguments{
@@ -19,15 +21,19 @@ jbplot_spphase(
 
 \item{output.dir}{directory to save plots}
 
-\item{as.png}{save as png file of TRUE}
+\item{as.png}{save as png file if TRUE}
 
-\item{add}{if true don't call par() to allow construction of multiplots}
+\item{add}{if TRUE don't call par() to allow construction of multiplots}
 
 \item{width}{plot width}
 
-\item{height}{plot hight}
+\item{height}{plot height}
 
 \item{verbose}{silent option}
+
+\item{ylab}{y-axis label}
+
+\item{rel}{if TRUE, plot x-axis B/K and y-axis Catch/MSY}
 }
 \description{
 plots the production function + Catch vs biomass and color-coded kobe phases

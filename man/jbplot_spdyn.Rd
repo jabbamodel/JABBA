@@ -11,24 +11,38 @@ jbplot_spdyn(
   add = FALSE,
   width = 5,
   height = 4.5,
+  rel = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{jabba}{output list from fit_jabba}
+\item{jabba}{output list from \code{fit_jabba}}
 
 \item{output.dir}{directory to save plots}
 
-\item{as.png}{save as png file of TRUE}
+\item{as.png}{save as png file if TRUE}
 
-\item{add}{if true don't call par() to allow construction of multiplots}
+\item{add}{if TRUE don't call \code{par()} to allow construction of multiplots}
 
 \item{width}{plot width}
 
 \item{height}{plot height}
 
+\item{rel}{if TRUE, plot x-axis as B/K and y-axis as SP/MSY}
+
 \item{verbose}{silent option}
 }
 \description{
-plots the production vs biomass (Walters et al 2008) and color-coded kobe phases
+Plots surplus production vs biomass following Walters et al. (2008).
+}
+\details{
+This function shows the expected surplus production curve and the predicted
+annual surplus production implied by the fitted biomass trajectory:
+
+\deqn{
+  SP_t = B_{t+1} - B_t + C_t
+}
+
+If \code{rel = TRUE}, the plot is shown in relative units with biomass scaled
+by carrying capacity and surplus production scaled by MSY.
 }
