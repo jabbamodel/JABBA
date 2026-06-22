@@ -72,6 +72,7 @@ fit_jabba = function(jbinput,
   
   if(jbinput$settings$projection==TRUE) save.trj=TRUE
   
+  
   #write jabba model
   jabba2jags(jbinput, tmpath)
   
@@ -111,13 +112,19 @@ fit_jabba = function(jbinput,
   # K prior mean must also be on internal biomass scale
   jbd$K.pr[1] <- jbd$K.pr[1] / mucatch
   
-  # q is inverse biomass scale
-  qbound <- jbd$q_bounds * mucatch
+  # K bounds, if present, must also be on internal biomass scale
+  if(!is.null(jbd$K_bounds)) jbd$K_bounds <- jbd$K_bounds / mucatch
+  if(!is.null(jbd$K.bounds)) jbd$K.bounds <- jbd$K.bounds / mucatch
+  
+  # q is inverse biomass scale, so q_internal = q_original * mucatch
+  jbd$q_bounds <- jbd$q_bounds * mucatch
+  qbound <- jbd$q_bounds
   
   # Projection TACs must be scaled for JAGS, but keep jbinput unchanged for output labels
   if(isTRUE(jbinput$settings$projection) && !is.null(jbd$TAC)) {
     jbd$TAC <- jbd$TAC / mucatch
   }
+  
   
   # Initial starting values
   if(init.values == FALSE) {
@@ -175,10 +182,14 @@ fit_jabba = function(jbinput,
     }
   }
   
+  
+ 
+  
+  
   out = output.dir
   if(file.exists(out)==FALSE) stop("\n","\n","><> output.dir does not exist <><","\n","\n")
   
-  
+
   # retrospecitive peel
   years = jbinput$data$yr
   if(is.null(peels)) peels = 0
@@ -195,6 +206,7 @@ fit_jabba = function(jbinput,
   # update
   # jabba model building conditions
   params = jbinput$settings$params
+  
   
   
   ptm <- proc.time()

@@ -170,26 +170,41 @@ jabba2jags = function(jbinput, dir){
 ",append=TRUE)}  
   
   
-  
-  
   if(jbinput$settings$proc.dyn==TRUE){
     cat("
-    
-    # rm sqrt()
+
+    # Dynamic process-error scaling from pesim workflow
+    # relsig = sigma.proc(B/Bmsy) / sigma.proc(Bmsy)
+    # iprocdyn is an inverse-variance multiplier:
+    #   iprocdyn = 1 / relsig^2
+    #
+    # Function:
+    #   raw(x) = a_pe + (1 - a_pe) / (1 + (x / c_pe)^d_pe)
+    #   relsig(x) = raw(x) / raw(1)
+    #
+    # Therefore relsig = 1 at B/Bmsy = 1 and iprocdyn = 1 at B/Bmsy = 1.
+
+    a_pe <- 0.104
+    c_pe <- 0.163
+    d_pe <- 0.851
+
+    relsig.ref <- a_pe + (1 - a_pe) / (1 + pow(1 / c_pe, d_pe))
+
     for(t in 1:(N)){
-    iprocdyn[t] <- (BtoBmsy[t] / (1 + BtoBmsy[t] / 100))
+      relsig.raw[t] <- a_pe + (1 - a_pe) / (1 + pow(BtoBmsy[t] / c_pe, d_pe))
+      relsig[t]     <- relsig.raw[t] / relsig.ref
+      iprocdyn[t]   <- pow(relsig[t], -2)
     }
-    
+
     ",append=TRUE)} else {
       cat("
-    
+
     for(t in 1:(N+1)){
-    iprocdyn[t] <- 1
+      iprocdyn[t] <- 1
     }
-    
+
     ",append=TRUE)
     }
-  
   
   
 if(jbinput$settings$catch.error!="fdev"){

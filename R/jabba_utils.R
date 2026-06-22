@@ -598,3 +598,172 @@ jb_hockeystick <- function(fwd,fyr=3, btrigger=0.5, fmsy=1, bmin=0,fmin=0.001,un
   return(out)
 }
 
+#' Convert Bmsy/K to the JABBA Pella-Tomlinson shape parameter m
+#'
+#' Computes the production-curve shape parameter \code{m} implied by a
+#' specified ratio \code{Bmsy/K} under the JABBA Pella-Tomlinson
+#' formulation:
+#'
+#' \deqn{B_{MSY}/K = m^{-1/(m-1)}}.
+#'
+#' The Fox limit is obtained as \code{m -> 1}, where
+#' \code{Bmsy/K = exp(-1)}. The Schaefer case is \code{m = 2}, where
+#' \code{Bmsy/K = 0.5}.
+#'
+#' @param BmsyK Numeric vector. Biomass at MSY relative to carrying capacity,
+#'   \code{Bmsy/K}. Values should be in \code{(0, 1)}.
+#' @param tol Numeric. Tolerance used to identify the Fox limit,
+#'   \code{BmsyK = exp(-1)}.
+#' @param lower Numeric. Lower search bound for \code{m}. The default is just
+#'   above 1 and therefore returns the \code{m > 1} solution.
+#' @param upper Numeric. Upper search bound for \code{m}.
+#'
+#' @return Numeric vector of JABBA Pella-Tomlinson shape parameters \code{m}.
+#'
+#' @details
+#' Under the JABBA formulation, the surplus production function is written as
+#'
+#' \deqn{SP(B) = \frac{r}{m-1} B \left[1 - \left(\frac{B}{K}\right)^{m-1}\right]}.
+#'
+#' This function inverts the analytical relationship between \code{Bmsy/K}
+#' and \code{m}. By default, only the \code{m > 1} branch is returned, which is
+#' usually the practical JABBA branch for Schaefer-like and Fox-like cases.
+#'
+#' @references
+#' Winker, H., Carvalho, F., Kapur, M. 2018. JABBA: Just Another Bayesian
+#' Biomass Assessment. Fisheries Research 204: 275-288.
+#'
+#' @examples
+#' m_from_bmsyk(0.5)       # Schaefer: m = 2
+#' m_from_bmsyk(exp(-1))   # Fox limit: m = 1
+#' m_from_bmsyk(0.4)
+#'
+#' @export
+m_from_bmsyk <- function(BmsyK, tol = 1e-8,
+                         lower = 1 + 1e-8, upper = 100) {
+  
+  if(any(!is.finite(BmsyK))) {
+    stop("BmsyK must contain only finite values.")
+  }
+  
+  if(any(BmsyK <= 0 | BmsyK >= 1)) {
+    stop("BmsyK must be in the open interval (0, 1).")
+  }
+  
+  out <- rep(NA_real_, length(BmsyK))
+  
+  for(i in seq_along(BmsyK)) {
+    
+    x <- BmsyK[i]
+    
+    # Fox limit
+    if(abs(x - exp(-1)) < tol) {
+      out[i] <- 1
+      next
+    }
+    
+    # Schaefer exact shortcut
+    if(abs(x - 0.5) < tol) {
+      out[i] <- 2
+      next
+    }
+    
+    fn <- function(m) {
+      m^(-1 / (m - 1)) - x
+    }
+    
+    f.lower <- fn(lower)
+    f.upper <- fn(upper)
+    
+    if(f.lower * f.upper > 0) {
+      stop(
+        "Could not bracket root for BmsyK = ", x,
+        ". Try changing lower/upper or check whether BmsyK is compatible with m > 1."
+      )
+    }
+    
+    out[i] <- uniroot(fn, lower = lower, upper = upper, tol = tol)$root
+  }
+  
+  out
+}
+
+
+#' Convert Fmsy and Bmsy/K to the JABBA intrinsic growth parameter r
+#'
+#' Computes the JABBA Pella-Tomlinson intrinsic growth parameter \code{r}
+#' from \code{Fmsy} and \code{Bmsy/K}. Under the JABBA formulation:
+#'
+#' \deqn{F_{MSY} = \frac{r}{m}},
+#'
+#' hence:
+#'
+#' \deqn{r = F_{MSY} m}.
+#'
+#' The shape parameter \code{m} is obtained from \code{Bmsy/K} using
+#' \code{\link{m_from_bmsyk}}.
+#'
+#' @param Fmsy Numeric vector. Fishing mortality or harvest rate at MSY.
+#' @param BmsyK Numeric vector. Biomass at MSY relative to carrying capacity,
+#'   \code{Bmsy/K}.
+#' @param return_df Logical. If \code{TRUE}, return a data.frame with
+#'   \code{Fmsy}, \code{BmsyK}, \code{m}, and \code{r}. If \code{FALSE}, return
+#'   only the numeric vector \code{r}.
+#' @param ... Additional arguments passed to \code{\link{m_from_bmsyk}},
+#'   such as \code{tol}, \code{lower}, or \code{upper}.
+#'
+#' @return If \code{return_df = TRUE}, a data.frame with columns
+#'   \code{Fmsy}, \code{BmsyK}, \code{m}, and \code{r}. Otherwise, a numeric
+#'   vector of \code{r}.
+#'
+#' @details
+#' This is useful when translating an externally derived \code{Fmsy} prior
+#' into a JABBA-compatible \code{r} prior while preserving the intended
+#' \code{Fmsy} under a specified production-curve shape.
+#'
+#' @references
+#' Winker, H., Carvalho, F., Kapur, M. 2018. JABBA: Just Another Bayesian
+#' Biomass Assessment. Fisheries Research 204: 275-288.
+#'
+#' Kokkalis, A. et al. 2024. Good practices for surplus production models.
+#' Fisheries Research 275: 107010.
+#'
+#' @examples
+#' r_from_fmsy_bmsyk(Fmsy = 0.2, BmsyK = 0.5)
+#' r_from_fmsy_bmsyk(Fmsy = 0.2, BmsyK = exp(-1))
+#' r_from_fmsy_bmsyk(Fmsy = 0.2, BmsyK = 0.4)
+#'
+#' # Return only r
+#' r_from_fmsy_bmsyk(Fmsy = 0.2, BmsyK = 0.4, return_df = FALSE)
+#'
+#' @export
+r_from_fmsy_bmsyk <- function(Fmsy, BmsyK, return_df = TRUE, ...) {
+  
+  if(any(!is.finite(Fmsy))) {
+    stop("Fmsy must contain only finite values.")
+  }
+  
+  if(any(Fmsy <= 0)) {
+    stop("Fmsy must be positive.")
+  }
+  
+  n <- max(length(Fmsy), length(BmsyK))
+  
+  Fmsy <- rep(Fmsy, length.out = n)
+  BmsyK <- rep(BmsyK, length.out = n)
+  
+  m <- m_from_bmsyk(BmsyK, ...)
+  
+  r <- Fmsy * m
+  
+  if(return_df) {
+    return(data.frame(
+      Fmsy = Fmsy,
+      BmsyK = BmsyK,
+      m = m,
+      r = r
+    ))
+  }
+  
+  r
+}

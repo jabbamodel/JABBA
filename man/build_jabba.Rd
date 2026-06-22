@@ -50,9 +50,9 @@ build_jabba(
   P_bound = c(0.02, 1.3),
   sigmaobs_bound = 1,
   sigmaproc_bound = 0.2,
-  q_bounds = c(10^-30, 1000),
-  K_bounds = c(0.01, 10^10),
-  qA_bounds = c(10^-30, 1000),
+  q_bounds = c(10^-30, 100^10),
+  K_bounds = c(0.01, 100^10),
+  qA_bounds = c(10^-30, 1000^10),
   harvest.label = c("Hmsy", "Fmsy")[2],
   catch.metric = "(t)",
   verbose = TRUE
@@ -157,7 +157,7 @@ VARIANCE options}
 
 \item{auxiliary, se}{optional input standard errors on auxilary data}
 
-\item{q_bounds=}{c(10^-30,1000), # Defines lower and upper bounds for q}
+\item{q_bounds=}{c(10^-30,10^10), # Defines lower and upper bounds for q}
 
 \item{K_bounds=}{c(0.01,10^10), # Defines lower and upper bounds for K}
 }

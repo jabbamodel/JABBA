@@ -285,6 +285,7 @@ jbpar(mfrow=c(1,2),plot.cex = 0.7)
 jbplot_spphase(fit.swos,add=T)
 jbplot_kobe(fit.swos,add=T)
 
+jbplot_summary(fit.swos)
 # Project
 # ICCAT Style
 Ccur = 10056
