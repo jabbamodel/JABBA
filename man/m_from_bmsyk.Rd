@@ -4,51 +4,51 @@
 \alias{m_from_bmsyk}
 \title{Convert Bmsy/K to the JABBA Pella-Tomlinson shape parameter m}
 \usage{
-m_from_bmsyk(BmsyK, tol = 1e-08, lower = 1 + 1e-08, upper = 100)
+m_from_bmsyk(
+  BmsyK,
+  tol = 1e-08,
+  branch = c("auto", "low", "high"),
+  m_lower = 1e-08,
+  m_upper = 100
+)
 }
 \arguments{
 \item{BmsyK}{Numeric vector. Biomass at MSY relative to carrying capacity,
-\code{Bmsy/K}. Values should be in \code{(0, 1)}.}
+\code{Bmsy/K}. Values must be in \code{(0, 1)}.}
 
-\item{tol}{Numeric. Tolerance used to identify the Fox limit,
-\code{BmsyK = exp(-1)}.}
+\item{tol}{Numeric. Tolerance used to identify the Fox and Schaefer limits.}
 
-\item{lower}{Numeric. Lower search bound for \code{m}. The default is just
-above 1 and therefore returns the \code{m > 1} solution.}
+\item{branch}{Character. Branch to use. The default \code{"auto"} chooses
+\code{m < 1} for \code{BmsyK < exp(-1)} and \code{m > 1} for
+\code{BmsyK > exp(-1)}.}
 
-\item{upper}{Numeric. Upper search bound for \code{m}.}
+\item{m_lower}{Numeric. Lower bound for the \code{m < 1} search.}
+
+\item{m_upper}{Numeric. Upper bound for the \code{m > 1} search.}
 }
 \value{
-Numeric vector of JABBA Pella-Tomlinson shape parameters \code{m}.
+Numeric vector of Pella-Tomlinson shape parameters \code{m}.
 }
 \description{
-Computes the production-curve shape parameter \code{m} implied by a
-specified ratio \code{Bmsy/K} under the JABBA Pella-Tomlinson
-formulation:
+Computes the production-curve shape parameter \code{m} implied by a given
+value of \code{Bmsy/K} under the JABBA Pella-Tomlinson formulation:
 }
 \details{
 \deqn{B_{MSY}/K = m^{-1/(m-1)}}.
 
-The Fox limit is obtained as \code{m -> 1}, where
-\code{Bmsy/K = exp(-1)}. The Schaefer case is \code{m = 2}, where
-\code{Bmsy/K = 0.5}.
+The function supports both branches:
 
-
-Under the JABBA formulation, the surplus production function is written as
-
-\deqn{SP(B) = \frac{r}{m-1} B \left[1 - \left(\frac{B}{K}\right)^{m-1}\right]}.
-
-This function inverts the analytical relationship between \code{Bmsy/K}
-and \code{m}. By default, only the \code{m > 1} branch is returned, which is
-usually the practical JABBA branch for Schaefer-like and Fox-like cases.
+\itemize{
+  \item \code{BmsyK < exp(-1)} gives \code{m < 1}
+  \item \code{BmsyK = exp(-1)} gives the Fox limit \code{m = 1}
+  \item \code{BmsyK > exp(-1)} gives \code{m > 1}
+}
 }
 \examples{
 m_from_bmsyk(0.5)       # Schaefer: m = 2
 m_from_bmsyk(exp(-1))   # Fox limit: m = 1
-m_from_bmsyk(0.4)
+m_from_bmsyk(0.4)       # m > 1
+m_from_bmsyk(0.35)      # m < 1
+m_from_bmsyk(0.30)      # m < 1
 
-}
-\references{
-Winker, H., Carvalho, F., Kapur, M. 2018. JABBA: Just Another Bayesian
-Biomass Assessment. Fisheries Research 204: 275-288.
 }

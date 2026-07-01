@@ -170,6 +170,8 @@ jabba2jags = function(jbinput, dir){
 ",append=TRUE)}  
   
   
+  
+  
   if(jbinput$settings$proc.dyn==TRUE){
     cat("
 
@@ -184,9 +186,17 @@ jabba2jags = function(jbinput, dir){
     #
     # Therefore relsig = 1 at B/Bmsy = 1 and iprocdyn = 1 at B/Bmsy = 1.
 
-    a_pe <- 0.104
-    c_pe <- 0.163
-    d_pe <- 0.851
+   #a_pe <- 0.11
+   #c_pe <- 0.35
+   #d_pe <- 2.10
+   
+   # Emperical ices data
+   #a         c         d 
+   # 0.1249331 0.2328993 1.5986955 
+   a_pe <- 0.125
+   c_pe <- 0.233
+   d_pe <- 1.599
+   
 
     relsig.ref <- a_pe + (1 - a_pe) / (1 + pow(1 / c_pe, d_pe))
 
