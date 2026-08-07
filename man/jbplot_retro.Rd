@@ -18,7 +18,9 @@ jbplot_retro(
   xlim = NULL,
   cols = NULL,
   legend.loc = "topright",
-  verbose = TRUE
+  verbose = TRUE,
+  rhoout = TRUE,
+  plot = TRUE
 )
 }
 \arguments{
@@ -49,6 +51,10 @@ jbplot_retro(
 \item{legend.loc}{location of legend}
 
 \item{verbose}{if FALSE be silent}
+
+\item{rhoout}{if TRUE, produces the rho data.frame as output}
+
+\item{plot}{if TRUE, produces the plots}
 }
 \value{
 Mohn's rho statistic for several quantaties
