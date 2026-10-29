@@ -37,7 +37,38 @@
 #' @param auxiliary.sigma # TRUE/FALSE 
 #' @param qA.cv precision on lognormal prior for e.g. qA*Z (not applicable to effort) 
 #' @param sigma.proc =  TRUE, # TRUE: Estimate process error, else set to value
-#' @param proc.dyn = FALSE, if TRUE dynamic process variance increasing at low Bmsy 
+#' @param proc.dyn = FALSE, if TRUE dynamic process variance increasing at low B/Bmsy (multiplicative ICES curve)
+#' @param proc.floor = NULL, c(sig.msy, k): recruitment-driven process error floor, sd_rec(x) = sig.msy * x^-k with x = B/Bmsy.
+#'        If given, total process variance is sd_rec(x)^2 + sigma2, where sigma2 (sigma.proc) is the estimated additive component.
+#'        See proc_floor() for life-history defaults. Overrides proc.dyn.
+#' @param proc.k.prior = NULL, c(mean, sd) or c(mean, sd, lower, upper): if given with proc.floor, k is estimated with a
+#'        truncated normal prior (default bounds -0.5, 2) instead of fixed at proc.floor[2]. Combine with sigma.proc = small
+#'        value (e.g. 0.001) to fix the process error level at the floor and estimate only the depletion dependence.
+#' @param proc.xfix = NULL, optional fixed B/Bmsy series (length = number of years, e.g. from a step-1 fit) driving the
+#'        floor instead of the estimated B/Bmsy; removes the feedback by which states can 'buy' process variance
+#' @param index.ebsb = NULL, Selex module: EB/SB = f(SB/SB0) ratio curve(s) c(u1,u2,u3,P1,P2), e.g. \code{make_ebsb()$pars}
+#'        or \code{fit_ebsb()$pars}. A single curve, or a named list / data.frame with one curve per selectivity (fleet).
+#'        The state is then spawning biomass; index i is modelled as q * SB * (EB/SB)_c(P) with curve c = ebsb.index[i]
+#' @param ebsb.index = NULL, curve assigned to each index (names or numbers; 0 or "SB" = spawning biomass index).
+#'        Default: the curve whose name occurs in the index name (e.g. "A1.S2" -> "S2"), otherwise the first curve
+#' @param ebsb.catch = NULL, curve assigned to each catch column. Default: matching names, otherwise the first curve.
+#'        Removals from SB are sum_f C_f / (EB/SB)_f(P)
+#' @param ebsb.ref = NULL, reference catch allocation among curves for MSY, Hmsy and projections (vector of shares
+#'        by curve); default: mean allocation of the last 3 years
+#' @param ebsb.removal = TRUE, with index.ebsb: catches remove C / (EB/SB)(P) from spawning biomass, i.e. the harvest rate
+#'        on exploitable biomass H = C/EB is applied to SB (selectivity before maturity removes less SB per tonne caught).
+#'        Projections remove TAC with the reference allocation (ebsb.ref)
+#' @param proc.biascor = FALSE, if TRUE the lognormal process error is mean-unbiased: log P[t] ~ N(Pmean[t] - var_t/2, var_t),
+#'        with var_t the (possibly depletion-dependent) process variance, so that the production function describes expected
+#'        rather than median production (consistent with bias-corrected recruitment deviations in age-structured models)
+#' @param proc.xlim = c(0.2,3), range of B/Bmsy over which the floor varies (held constant outside)
+#' @param proc.lowb = NULL, fixed coefficient c of the low-biomass production correction: the expected log process
+#'        deviation is c * min(log(B/Bmsy), 0), i.e. realised production below the deterministic curve when B < Bmsy.
+#' @param proc.lowb.prior = NULL, c(mean, sd[, upper]) to estimate c with a truncated normal prior on [0, upper] (default upper 1).
+#' @param proc.lowb.xmin = 0.1, B/Bmsy below which the correction is held constant
+#' @param proc.lag = 0, lag in years (e.g. age at 50% maturity) of the depletion driving surplus production,
+#'        P[t+1] = P[t] + f(P[t-proc.lag]) - C[t]/K, as in DB-SRA (Dick & MacCall 2011). Years before the
+#'        start of the series use P[1]. Projections use the lagged historical or projected state.
 #' @param proc.dev.all = TRUE, # TRUE: All year, year = starting year
 #' @param projection = FALSE, # Switch on by Projection = TRUE
 #' @param TACs = NULL
@@ -92,6 +123,20 @@ build_jabba <- function(
   sets.varA = 1:(ncol(auxiliary)-1), # estimate individual additional variance
   sigma.proc =  TRUE, # TRUE: Estimate observation error, else set to value
   proc.dyn = FALSE, # Make process error dynamically increasing as b/bmsy decreases 
+  proc.floor = NULL, # c(sig.msy,k) recruitment-driven process error floor + estimated additive sigma
+  proc.k.prior = NULL, # c(mean, sd[, lower, upper]) to estimate k of the floor
+  proc.xlim = c(0.2,3), # B/Bmsy range for floor
+  proc.xfix = NULL, # fixed B/Bmsy series driving the floor (two-step)
+  proc.lag = 0, # lag (years) of depletion driving production (DB-SRA style)
+  index.ebsb = NULL, # c(u1,u2,u3,P1,P2): EB/SB ratio curve from make_ebsb(); index ~ q*SB*EBSB(P)
+  ebsb.removal = TRUE, # with index.ebsb: catch removes C/(EB/SB) from SB, i.e. harvest rate on EB applied to SB
+  ebsb.index = NULL, # curve per index (names/numbers, 0 = SB)
+  ebsb.catch = NULL, # curve per catch column
+  ebsb.ref = NULL, # reference allocation among curves (MSY, projections)
+  proc.biascor = FALSE, # TRUE: lognormal process error with mean-unbiased correction, log mean = Pmean - 0.5*var_t (var_t dynamic in floor mode)
+  proc.lowb = NULL, # fixed c of low-B production correction c*min(log(B/Bmsy),0)
+  proc.lowb.prior = NULL, # c(mean, sd[, upper]) to estimate c
+  proc.lowb.xmin = 0.1, # B/Bmsy floor for the low-B correction
   proc.dev.all = TRUE, # TRUE: All year, year = starting year
   igamma = c(4,0.01), # informative mean 0.05, CV 0.4 from original paper
   projection = FALSE, # Switch on by Projection = TRUE
@@ -172,6 +217,7 @@ build_jabba <- function(
   
   # Build Catch input
   Catch=matrix(conv.catch,nrow=n.years,ncol=n.catches)
+  Catch.fleet = Catch # catch by fleet (used by the Selex module)
   if(ncol(Catch)>1){
     if(verbose)
       message(paste0("\n","><> Aggrigating multiple catch colums (assumed by fleet) to a single total catch column <><","\n","\n"))
@@ -461,6 +507,78 @@ build_jabba <- function(
   # PARAMETERS TO MONITOR
   params <- c("K","r", "q", "psi","sigma2", "tau2","m","Hmsy","SBmsy", "MSY", "BtoBmsy","HtoHmsy","CPUE","Ihat","Proc.Dev","P","SB","H","prP","prBtoBmsy","prHtoHmsy","TOE")
   
+  # Dynamic process error options
+  proc.mode = "const"
+  if(isTRUE(proc.dyn)) proc.mode = "dyn"
+  if(!is.null(proc.floor)){
+    if(length(proc.floor)!=2 || any(!is.finite(proc.floor)) || proc.floor[1]<=0) stop("proc.floor must be c(sig.msy>0, k)")
+    proc.mode = "floor"
+    surplus.dat$pe.floor = as.numeric(proc.floor)
+    surplus.dat$pe.xlim = as.numeric(proc.xlim)
+    if(!is.null(proc.xfix)){
+      if(length(proc.xfix)!=n.years || any(!is.finite(proc.xfix)) || any(proc.xfix<=0)) stop("proc.xfix must be a positive vector with one value per year")
+      surplus.dat$pe.xfix = as.numeric(proc.xfix)
+    }
+  }
+  if(!is.null(index.ebsb)){
+    eb = ebsb_matrix(index.ebsb)                       # curves x 5, row names = curve names
+    ncur = nrow(eb); cn = rownames(eb)
+    match.curve = function(x, nm, what){
+      if(is.null(x)){
+        id = sapply(nm, function(z){ h = which(sapply(cn, function(cc) grepl(cc, z, fixed=TRUE))); if(length(h)) h[which.max(nchar(cn[h]))] else 1 })
+      } else {
+        x = rep(x, length.out=length(nm))
+        id = sapply(x, function(z) if(is.na(z) || identical(as.character(z),"SB") || identical(as.character(z),"0")) 0 else if(is.numeric(z)) z else match(z, cn))
+        if(any(is.na(id))) stop(paste0("ebsb.",what," does not match the curve names: ", paste(cn, collapse=", ")))
+      }
+      as.integer(id)
+    }
+    ci = match.curve(ebsb.index, indices, "index")
+    cc = match.curve(ebsb.catch, catches, "catch"); cc[cc==0] = 1
+    # catch shares by curve (years x curves)
+    cw = sapply(seq_len(ncur), function(j) rowSums(Catch.fleet[, cc==j, drop=FALSE], na.rm=TRUE))
+    cw = matrix(cw, nrow=n.years)
+    tot = rowSums(cw); cw = cw/ifelse(tot>0, tot, 1)
+    for(t in seq_len(n.years)) if(tot[t]<=0) cw[t,] = if(t>1) cw[t-1,] else rep(1/ncur, ncur)
+    if(is.null(ebsb.ref)) ebsb.ref = colMeans(cw[max(1,n.years-2):n.years,,drop=FALSE])
+    ebsb.ref = rep(ebsb.ref, length.out=ncur); ebsb.ref = ebsb.ref/sum(ebsb.ref)
+    # curve 0 (SB index) is appended as an extra row with ratio 1
+    surplus.dat$ebsbm = rbind(eb, SB=c(1,1,1,0,1)); surplus.dat$ncur = ncur
+    surplus.dat$ebsbci = ifelse(ci==0, ncur+1, ci); surplus.dat$ebsbcw = cw; surplus.dat$ebsbref = ebsb.ref
+  }
+  proc.k.est = FALSE
+  if(!is.null(proc.k.prior)){
+    if(proc.mode!="floor") stop("proc.k.prior requires proc.floor")
+    kp = as.numeric(proc.k.prior); if(length(kp)==2) kp = c(kp, -0.5, 2)
+    if(length(kp)!=4 || kp[2]<=0 || kp[3]>=kp[4]) stop("proc.k.prior must be c(mean, sd>0[, lower<upper])")
+    surplus.dat$pe.kpr = kp; proc.k.est = TRUE
+  }
+  if(proc.mode!="const") params = c(params,"procsd")
+  if(proc.k.est) params = c(params,"kpe")
+  if(!is.null(index.ebsb)) params = c(params,"ebsbr")
+  if(!is.null(index.ebsb) & isTRUE(ebsb.removal)) params = c(params,"ebsbr.msy")
+  
+  # Lagged production
+  proc.lag = as.integer(round(proc.lag))
+  if(proc.lag<0) stop("proc.lag must be >= 0")
+  surplus.dat$lagidx = pmax(1:n.years - proc.lag, 1)
+  # projections: lagged state index into the combined series c(P[1:N], prP[1:pyrs]) for projection years 2..pyrs
+  if(proc.lag>0 & projection==TRUE) surplus.dat$prlagidx = pmax(n.years + 1:pyrs - 1 - proc.lag, 1)
+  
+  # Low-biomass production correction
+  proc.lowb.mode = "none"
+  if(!is.null(proc.lowb) & !is.null(proc.lowb.prior)) stop("give either proc.lowb (fixed) or proc.lowb.prior (estimated), not both")
+  if(!is.null(proc.lowb)){
+    if(length(proc.lowb)!=1 || proc.lowb<0) stop("proc.lowb must be a single value >= 0")
+    proc.lowb.mode = "fixed"; surplus.dat$pe.lowb = c(as.numeric(proc.lowb), 0)
+  }
+  if(!is.null(proc.lowb.prior)){
+    lp = as.numeric(proc.lowb.prior); if(length(lp)==2) lp = c(lp, 1)
+    if(length(lp)!=3 || lp[2]<=0 || lp[3]<=0) stop("proc.lowb.prior must be c(mean, sd>0[, upper>0])")
+    proc.lowb.mode = "est"; surplus.dat$pe.lowb = lp; params = c(params, "cpe")
+  }
+  if(proc.lowb.mode!="none") surplus.dat$pe.lowbx = proc.lowb.xmin
+  
   
   #-----------------------------------------------
   # If shape parameter is estimated (Model =4)
@@ -511,7 +629,21 @@ build_jabba <- function(
   jbinput$settings$q1.dist = q1.dist[1]
   jbinput$settings$SE.I = SE.I
   jbinput$settings$sigma.proc = sigma.proc
-  jbinput$settings$proc.dyn = proc.dyn
+  jbinput$settings$proc.dyn = proc.mode=="dyn"
+  jbinput$settings$proc.mode = proc.mode
+  jbinput$settings$proc.floor = proc.floor
+  jbinput$settings$proc.k.est = proc.k.est
+  jbinput$settings$proc.k.prior = proc.k.prior
+  jbinput$settings$proc.xlim = proc.xlim
+  jbinput$settings$proc.xfix.on = !is.null(proc.xfix) & proc.mode=="floor"
+  jbinput$settings$proc.lag = proc.lag
+  jbinput$settings$index.ebsb.on = !is.null(index.ebsb)
+  if(!is.null(index.ebsb)) jbinput$settings$ebsb.setup = list(curves=eb, index=setNames(ci, indices), catch=setNames(cc, catches), share=cw, ref=ebsb.ref)
+  jbinput$settings$ebsb.removal = !is.null(index.ebsb) & isTRUE(ebsb.removal)
+  jbinput$settings$proc.biascor = isTRUE(proc.biascor)
+  jbinput$settings$proc.lowb.mode = proc.lowb.mode
+  jbinput$settings$proc.lowb = proc.lowb
+  jbinput$settings$proc.lowb.prior = proc.lowb.prior
   jbinput$settings$sigma.est= sigma.est
   jbinput$settings$model.id = model
   jbinput$settings$model.type = mod.names

@@ -880,6 +880,7 @@ jbplot_procdev <- function(jabba, output.dir=getwd(),as.png=FALSE,add=FALSE,widt
 #' @param verbose silent option
 #' @export
 jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),ylabs=NULL,output.dir=getwd(),as.png=FALSE,add=FALSE,mfrow=c(1,1),width=5,height=3.5,verbose=TRUE){
+  ylabs.in = ylabs
 
   for(i in 1:length(type)){
 
@@ -891,6 +892,7 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),ylabs=NUL
 
     j = which(c("B","F","BBmsy","FFmsy","BB0")%in%type[i])
     if(is.null(ylabs)) ylabs = c(paste("Biomass",jabba$settings$catch.metric),ifelse(jabba$settings$harvest.label=="Fmsy","Fishing mortality F","Harvest rate H"),expression(B/B[MSY]),ifelse(jabba$settings$harvest.label=="Fmsy",expression(F/F[MSY]),expression(H/h[MSY])),expression(B/B[0]))
+    if(isTRUE(jabba$settings$index.ebsb.on) & is.null(ylabs.in)) ylabs = c(paste("Spawning biomass",jabba$settings$catch.metric),"Harvest rate on EB",expression(SB/SB[MSY]),ifelse(jabba$settings$harvest.label=="Fmsy",expression(F/F[MSY]),expression(H/h[MSY])),expression(SB/SB[0]))
     
     trj = jabba$timeseries[,,paste(type[i])]
     years = jabba$yr
@@ -903,7 +905,7 @@ jbplot_trj <-  function(jabba, type = c("B","F","BBmsy","FFmsy","BB0"),ylabs=NUL
     if(type[i]=="B") lines(years,rep(jabba$refpts$bmsy[1],length(years)),lty=5)
     if(type[i]=="F") lines(years,rep(jabba$refpts$fmsy[1],length(years)),lty=5)
     if(type[i]%in%c("BBmsy","FFmsy") ) lines(years,rep(1,length(years)),lty=5)
-    if(type[i]=="B") text((max(years)-min(years))/30+years[1],jabba$refpts$bmsy[1]*1.11,expression(paste(B[MSY])))
+    if(type[i]=="B") text((max(years)-min(years))/30+years[1],jabba$refpts$bmsy[1]*1.11,if(isTRUE(jabba$settings$index.ebsb.on)) expression(paste(SB[MSY])) else expression(paste(B[MSY])))
     if(type[i]=="F") text((max(years)-min(years))/30+years[1],jabba$refpts$fmsy[1]*1.11,ifelse(jabba$settings$harvest.label=="Fmsy",expression(F[MSY]),expression(H[MSY])))
     if(type[i]=="BB0"){
       lines(years,rep(jabba$refpts$bmsy[1]/jabba$refpts$k[1],length(years)),lty=5)
@@ -1495,7 +1497,7 @@ jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=F
 
   #Create plot
   if(is.null(ylab)) ylab=ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY])))
-  if(is.null(xlab)) xlab=expression(paste(B/B[MSY]))
+  if(is.null(xlab)) xlab=if(isTRUE(jabba$settings$index.ebsb.on)) expression(paste(SB/SB[MSY])) else expression(paste(B/B[MSY]))
   
   plot(1000,1000,type="b", xlim=c(0,max(1/(jabba$refpts$bmsy/jabba$refpts$k)[1],mu.b[,1]) +0.05), ylim=c(0,max(mu.f[,1],quantile(f,0.85),2.)),lty=3,ylab=ylab,xlab=xlab,xaxs="i",yaxs="i")
   c1 <- c(-1,100)
@@ -1562,6 +1564,7 @@ jbplot_kobe <-  function(jabba ,ylab=NULL,xlab=NULL, output.dir=getwd(),as.png=F
 #' @param verbose silent option
 #' @export
 jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,width=5,height=4.5,verbose=TRUE){
+  blab = if(isTRUE(jabba$settings$index.ebsb.on)) expression(paste(SB/SB[MSY])) else expression(paste(B/B[MSY]))
 
   if(verbose) cat(paste0("\n","><> jbplot_biplot() - Stock Status Plot  <><","\n"))
   mu.f = jabba$timeseries[,,"FFmsy"]
@@ -1581,7 +1584,7 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
   if(add==FALSE) par(Par)
 
   #Create plot
-  plot(1000,1000,type="b", ylim=c(0,max(1/(jabba$refpts$bmsy/jabba$refpts$k)[1],mu.b[,1]) +0.05), xlim=c(0,max(mu.f[,1],quantile(f,0.85),2.)),lty=3,xlab=ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))),ylab=expression(paste(B/B[MSY])),xaxs="i",yaxs="i")
+  plot(1000,1000,type="b", ylim=c(0,max(1/(jabba$refpts$bmsy/jabba$refpts$k)[1],mu.b[,1]) +0.05), xlim=c(0,max(mu.f[,1],quantile(f,0.85),2.)),lty=3,xlab=ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))),ylab=blab,xaxs="i",yaxs="i")
 
   # and fill areas using the polygon function
   fint = seq(0.001,100,0.01)
@@ -1656,7 +1659,7 @@ jbplot_biplot <-  function(jabba ,output.dir=getwd(),as.png=FALSE,add=FALSE,widt
   perYellow = round(length(Zone[Zone==0])/length(Zone)*100,1)
   perRed = round(length(Zone[Zone==-0.15])/length(Zone)*100,1)
 
-  mtext(expression(paste(B/B[MSY])), side=2, outer=TRUE, at=0.5,line=1,cex=0.9)
+  mtext(blab, side=2, outer=TRUE, at=0.5,line=1,cex=0.9)
   mtext(ifelse(jabba$settings$harvest.label=="Fmsy",expression(paste(F/F[MSY])),expression(paste(H/H[MSY]))), side=1, outer=TRUE, at=0.5,line=1,cex=0.9)
 
   text(0.65,2.4,paste0(perGreen,"%"))

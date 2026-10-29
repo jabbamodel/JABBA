@@ -40,6 +40,20 @@ build_jabba(
   sets.varA = 1:(ncol(auxiliary) - 1),
   sigma.proc = TRUE,
   proc.dyn = FALSE,
+  proc.floor = NULL,
+  proc.k.prior = NULL,
+  proc.xlim = c(0.2, 3),
+  proc.xfix = NULL,
+  proc.lag = 0,
+  index.ebsb = NULL,
+  ebsb.removal = TRUE,
+  ebsb.index = NULL,
+  ebsb.catch = NULL,
+  ebsb.ref = NULL,
+  proc.biascor = FALSE,
+  proc.lowb = NULL,
+  proc.lowb.prior = NULL,
+  proc.lowb.xmin = 0.1,
   proc.dev.all = TRUE,
   igamma = c(4, 0.01),
   projection = FALSE,
@@ -125,7 +139,52 @@ VARIANCE options}
 
 \item{sigma.proc}{=  TRUE, # TRUE: Estimate process error, else set to value}
 
-\item{proc.dyn}{= FALSE, if TRUE dynamic process variance increasing at low Bmsy}
+\item{proc.dyn}{= FALSE, if TRUE dynamic process variance increasing at low B/Bmsy (multiplicative ICES curve)}
+
+\item{proc.floor}{= NULL, c(sig.msy, k): recruitment-driven process error floor, sd_rec(x) = sig.msy * x^-k with x = B/Bmsy.
+If given, total process variance is sd_rec(x)^2 + sigma2, where sigma2 (sigma.proc) is the estimated additive component.
+See proc_floor() for life-history defaults. Overrides proc.dyn.}
+
+\item{proc.k.prior}{= NULL, c(mean, sd) or c(mean, sd, lower, upper): if given with proc.floor, k is estimated with a
+truncated normal prior (default bounds -0.5, 2) instead of fixed at proc.floor[2]. Combine with sigma.proc = small
+value (e.g. 0.001) to fix the process error level at the floor and estimate only the depletion dependence.}
+
+\item{proc.xlim}{= c(0.2,3), range of B/Bmsy over which the floor varies (held constant outside)}
+
+\item{proc.xfix}{= NULL, optional fixed B/Bmsy series (length = number of years, e.g. from a step-1 fit) driving the
+floor instead of the estimated B/Bmsy; removes the feedback by which states can 'buy' process variance}
+
+\item{proc.lag}{= 0, lag in years (e.g. age at 50% maturity) of the depletion driving surplus production,
+P[t+1] = P[t] + f(P[t-proc.lag]) - C[t]/K, as in DB-SRA (Dick & MacCall 2011). Years before the
+start of the series use P[1]. Projections use the lagged historical or projected state.}
+
+\item{index.ebsb}{= NULL, Selex module: EB/SB = f(SB/SB0) ratio curve(s) c(u1,u2,u3,P1,P2), e.g. \code{make_ebsb()$pars}
+or \code{fit_ebsb()$pars}. A single curve, or a named list / data.frame with one curve per selectivity (fleet).
+The state is then spawning biomass; index i is modelled as q * SB * (EB/SB)_c(P) with curve c = ebsb.index[i]}
+
+\item{ebsb.removal}{= TRUE, with index.ebsb: catches remove C / (EB/SB)(P) from spawning biomass, i.e. the harvest rate
+on exploitable biomass H = C/EB is applied to SB (selectivity before maturity removes less SB per tonne caught).
+Projections remove TAC with the reference allocation (ebsb.ref)}
+
+\item{ebsb.index}{= NULL, curve assigned to each index (names or numbers; 0 or "SB" = spawning biomass index).
+Default: the curve whose name occurs in the index name (e.g. "A1.S2" -> "S2"), otherwise the first curve}
+
+\item{ebsb.catch}{= NULL, curve assigned to each catch column. Default: matching names, otherwise the first curve.
+Removals from SB are sum_f C_f / (EB/SB)_f(P)}
+
+\item{ebsb.ref}{= NULL, reference catch allocation among curves for MSY, Hmsy and projections (vector of shares
+by curve); default: mean allocation of the last 3 years}
+
+\item{proc.biascor}{= FALSE, if TRUE the lognormal process error is mean-unbiased: log P[t] ~ N(Pmean[t] - var_t/2, var_t),
+with var_t the (possibly depletion-dependent) process variance, so that the production function describes expected
+rather than median production (consistent with bias-corrected recruitment deviations in age-structured models)}
+
+\item{proc.lowb}{= NULL, fixed coefficient c of the low-biomass production correction: the expected log process
+deviation is c * min(log(B/Bmsy), 0), i.e. realised production below the deterministic curve when B < Bmsy.}
+
+\item{proc.lowb.prior}{= NULL, c(mean, sd[, upper]) to estimate c with a truncated normal prior on [0, upper] (default upper 1).}
+
+\item{proc.lowb.xmin}{= 0.1, B/Bmsy below which the correction is held constant}
 
 \item{proc.dev.all}{= TRUE, # TRUE: All year, year = starting year}
 

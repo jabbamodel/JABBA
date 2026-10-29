@@ -123,6 +123,9 @@ jbplot_ensemble<- function(kb,
 
      
   
+  # Selex fits: status is spawning biomass and the harvest rate acts on exploitable biomass
+  is.selex = function(x) isTRUE(x$settings$index.ebsb.on)
+  selex.on = if(!is.null(kb$settings)) is.selex(kb) else if(is.list(kb) && !is.data.frame(kb)) any(sapply(kb, is.selex)) else FALSE
   if(!is.null(kb$settings)){ 
     kb = kb$kbtrj
   }      
@@ -172,6 +175,11 @@ jbplot_ensemble<- function(kb,
     if(!is.null(ylab.bref)) bflab = ylab.bref
     ylab.default = TRUE
     ylabs =  c(expression(B/B[MSY]),expression(F/F[MSY]),"Biomass (t)","Fishing Mortality","Process Deviation","Catch (t)",expression(B/B[0]), bflab)
+    if(selex.on){
+      if(!is.null(bfrac) & bref[1]=="bmsy" & is.null(ylab.bref)) bflab = bquote(SB / ~(.(bfrac)~SB[MSY]))
+      if(!is.null(bfrac) & bref[1]=="b0" & is.null(ylab.bref)) bflab = bquote(SB / ~(.(bfrac)~SB[0]))
+      ylabs = c(expression(SB/SB[MSY]),expression(F/F[MSY]),"Spawning biomass (t)","Harvest rate (on EB)","Process Deviation","Catch (t)",expression(SB/SB[0]), bflab)
+    }
   } else {
     ylab.default = FALSE
   }
@@ -223,7 +231,7 @@ jbplot_ensemble<- function(kb,
   
   if(!single.plots){
   Par = list(mfrow=c(3,2),mai=c(0.45,0.49,0.1,.15),omi = c(0.15,0.15,0.1,0) + 0.1,mgp=c(2,0.5,0), tck = -0.02,cex=0.8)
-  if(as.png==TRUE){png(file = paste0(output.dir,"/",prefix,"_",jbs$assessment,".png"), width = 7, height = 8,
+  if(as.png==TRUE){png(file = file.path(plotdir, paste0(filenameprefix,"ModelComp_ensemble.png")), width = 7, height = 8,
                        res = 200, units = "in")}
   par(Par)
   }
@@ -383,6 +391,7 @@ jbplot_ensemble<- function(kb,
     quant=quants[s]
     plot_quants(quant)   
     }
+    if(print & !single.plots) dev.off()
     if(kbout) return(kb)
   } # endplot
 

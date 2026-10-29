@@ -515,6 +515,35 @@ fit_jabba = function(jbinput,
   
   
   #-------------------------------
+  # Selex (index.ebsb): state = spawning biomass, EB = SB*(EB/SB)(P)
+  #-------------------------------
+  selex.out = NULL
+  if(!is.null(posteriors$ebsbr)){
+    rho = posteriors$ebsbr[,1:yrdim,drop=FALSE]
+    setup = jbinput$settings$ebsb.setup
+    PmsyK = as.numeric(posteriors$SBmsy/posteriors$K)
+    rho.msy = if(!is.null(posteriors$ebsbr.msy)) as.numeric(posteriors$ebsbr.msy) else
+      ebsb_eff(PmsyK, setup$curves, setup$ref)
+    q3 = function(x) t(apply(x,2,quantile,c(0.5,0.025,0.975),na.rm=TRUE))
+    EB = posteriors$SB[,1:yrdim]*rho
+    EBtoEBmsy = posteriors$BtoBmsy[,1:yrdim]*rho/rho.msy
+    # status of each selectivity's exploitable biomass: EB_c/EB_c,msy = SB/SBmsy * rho_c(P)/rho_c(Pmsy)
+    Pd = posteriors$P[,1:yrdim,drop=FALSE]
+    EBc = array(NA, dim=c(yrdim,3,nrow(setup$curves)), dimnames=list(years,c("mu","lci","uci"),rownames(setup$curves)))
+    for(c in seq_len(nrow(setup$curves))) EBc[,,c] = q3(posteriors$BtoBmsy[,1:yrdim]*ebsb_ratio(Pd,setup$curves[c,])/ebsb_ratio(PmsyK,setup$curves[c,]))
+    selex.out = list(ebsb = setup$curves, setup = setup, removal = isTRUE(jbinput$settings$ebsb.removal), EBc.EBcmsy = EBc,
+                     rho.msy = quantile(rho.msy,c(0.5,0.025,0.975)),
+                     timeseries = array(c(q3(rho),q3(EB),q3(EBtoEBmsy)),dim=c(yrdim,3,3),
+                                        dimnames=list(years,c("mu","lci","uci"),c("EBSB","EB","EBBmsy"))))
+    if(isTRUE(jbinput$settings$ebsb.removal)){
+      # surplus production in catch units: (SB[t+1]-SB[t]+C[t]/rho[t])*rho[t]
+      dSB = posteriors$SB[,-1]-posteriors$SB[,-ncol(posteriors$SB)]
+      spc = (dSB[,1:(yrdim-1)] + catch.temp[,1:(yrdim-1)]/rho[,1:(yrdim-1)])*rho[,1:(yrdim-1)]
+      Stock_trj[,,"SPt"] = rbind(rep(0,3), q3(spc))
+    }
+  }
+
+  #-------------------------------
   # summarize results in jabba list
   #-------------------------------
   jabba = list()
@@ -527,6 +556,7 @@ fit_jabba = function(jbinput,
   jabba$estimates=Table
   jabba$yr = years
   jabba$catch = settings$TC
+  jabba$selex = selex.out
   
   if(settings$add.catch.CV ==TRUE){jabba$est.catch = data.frame(yr=years,mu=apply(posteriors$estC,2,quantile,c(0.5,0.025,0.975))[1,],
                                                                 lci=apply(posteriors$estC,2,quantile,c(0.5,0.025,0.975))[2,],
@@ -539,7 +569,7 @@ fit_jabba = function(jbinput,
   if(do.ppc) jabba$PPC = PPC 
   jabba$timeseries=Stock_trj
   jabba$refpts = data.frame(factor=assessment,level=settings$scenario,quant = c("hat","logse"), k=c(median(posteriors$K),sd(log(posteriors$K))),bmsy=c(median(posteriors$SBmsy),sd(log(posteriors$SBmsy))),
-                            fmsy=c(median(posteriors$Hmsy),sd(log(posteriors$Hmsy))),msy=c(median(posteriors$SBmsy*posteriors$Hmsy),sd(log(posteriors$SBmsy*posteriors$Hmsy))))
+                            fmsy=c(median(posteriors$Hmsy),sd(log(posteriors$Hmsy))),msy=c(median(posteriors$MSY),sd(log(posteriors$MSY))))
   jabba$pfunc = data.frame(factor=assessment,level=scenario,SB_i=round(Bit,3),SP=round(SP,3),Hmsy=round(Hmsy.sp,4),r=round(Hmsy.sp*(m.sp-1)/(1-1/m.sp),4),m=round(m.sp,3),MSY=round(as.numeric(MSY.sp[2]),3),SB0=round(SB0.sp,3),Cmsy=round(Cmsy,3))
   
   if(settings$CatchOnly==FALSE | settings$Auxiliary==TRUE){
@@ -605,7 +635,8 @@ fit_jabba = function(jbinput,
       if(settings$add.catch.CV==FALSE){Ci = rep(jabba$catch[i],length(posteriors$K))} else {Ci = posteriors$estC[,i]}    
       kb = rbind(kb,data.frame(year=years[i],run=jabba$scenario,type="fit",iter=1:length(posteriors$K),
                                stock=posteriors$BtoBmsy[,i],harvest=posteriors$HtoHmsy[,i],B=posteriors$SB[,i],H=posteriors$H[,i],
-                               Bdev=posteriors$Proc.Dev[,i],Catch=Ci,BB0=posteriors$P[,i]))
+                               Bdev=posteriors$Proc.Dev[,i],Catch=Ci,BB0=posteriors$P[,i],
+                               EBB=if(!is.null(selex.out)) posteriors$BtoBmsy[,i]*posteriors$ebsbr[,i]/rho.msy else NA))
     }
     jabba$kbtrj = kb
   }
@@ -629,7 +660,8 @@ fit_jabba = function(jbinput,
       for(i in 1:pyrs){
         kb.temp = rbind(kb.temp,data.frame(year=proj.yrs[i],run=paste0("C",TACs[j]),type="prj",iter=1:length(posteriors$K),
                                            stock=posteriors$prBtoBmsy[,i,j],harvest=posteriors$prHtoHmsy[,i,j],B=posteriors$prBtoBmsy[,i,j]*posteriors$SBmsy,H=posteriors$prHtoHmsy[,i,j]*posteriors$Hmsy,
-                                           Bdev=0,Catch= TACs[j],BB0=posteriors$prP[,i,j]))
+                                           Bdev=0,Catch= TACs[j],BB0=posteriors$prP[,i,j],
+                                           EBB=if(!is.null(selex.out)) posteriors$prBtoBmsy[,i,j]*ebsb_eff(posteriors$prP[,i,j],setup$curves,setup$ref)/rho.msy else NA))
       }
       
       kbprj = rbind(kbprj,kb.temp) 
@@ -639,6 +671,16 @@ fit_jabba = function(jbinput,
     jabba$kbtrj = rbind( jabba$kbtrj,kbprj)
   } # End of projections compilation
   
+  # Total process error sd by year (dynamic process error options)
+  if(!is.null(posteriors$procsd)){
+    jabba$procsd = data.frame(year=years[1:ncol(posteriors$procsd)],
+                              t(apply(posteriors$procsd,2,quantile,c(0.5,0.025,0.975))))
+    names(jabba$procsd)[2:4] = c("mu","lci","uci")
+  }
+
+  # Depletion dependence k of the dynamic process error (Tier 2), if estimated
+  if(!is.null(posteriors$kpe)) jabba$kpe = quantile(posteriors$kpe, c(0.5, 0.025, 0.975))
+
   # Safe posteriors (Produces large object!)
   if(save.all==TRUE) jabba$posteriors = posteriors
   

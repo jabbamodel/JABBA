@@ -518,7 +518,7 @@ jbmase<-function (hc, naive.min = 0.1, index = NULL, residuals = FALSE, verbose 
 #' @export
 zage =  function(ca,ages = "missing"){
   out=NULL
-  CN = catch.n
+  CN = ca
   years=unique(CN$year)
   age = unique(CN$age)
   
@@ -794,4 +794,26 @@ r_from_fmsy_bmsyk <- function(Fmsy, BmsyK, return_df = TRUE, ...) {
   }
   
   r
+}
+
+#' proc_floor()
+#'
+#' Recruitment-driven process error floor for JABBA (argument proc.floor in build_jabba)
+#'
+#' Biomass process error propagated from recruitment variability scales with sigmaR divided by
+#' the mean age of the exploitable biomass. From age-structured simulations of 9 ICES stocks
+#' (BioProcDyn): sd_rec(Bmsy) ~ 1.37 * sigR * mage.msy^-1.13 (R2 = 0.89) and  sd_rec(x) = sd_rec(Bmsy) * x^-k,
+#' with k = -0.064 + 0.211*log(mage.msy) (steeper for long-lived stocks due to age truncation).
+#'
+#' @param sigR recruitment standard deviation (log scale)
+#' @param mage.msy mean age of the exploitable (vulnerable) biomass at Bmsy
+#' @param a intercept on log scale (default 0.315)
+#' @param b slope on log(mage) (default -1.13)
+#' @param k optional B/Bmsy power; if NULL predicted from mage.msy
+#' @return c(sig.msy, k) to be passed to build_jabba(proc.floor=)
+#' @export
+proc_floor <- function(sigR, mage.msy, a = 0.315, b = -1.13, k = NULL){
+  sig.msy = exp(a + b*log(mage.msy)) * sigR
+  if(is.null(k)) k = max(0, -0.064 + 0.211*log(mage.msy))
+  c(sig.msy = sig.msy, k = k)
 }
